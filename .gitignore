@@ -1,0 +1,28 @@
+__pycache__/
+*.pyc
+
+# Environment
+.env
+backend/.env
+
+# Python
+.venv/
+.pytest_cache/
+
+# Database
+*.db
+smart_event.db
+
+# Generated QR files
+generated_qr/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Next.js
+frontend/.next/
+
+# Logs
+*.log
+frontend.zip
