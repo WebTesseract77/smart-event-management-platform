@@ -218,28 +218,28 @@ http://localhost:3000
 
 ### Home Page
 
-![Home Page](frontend\docs\screenshots\homepage.png)
+![Home Page](frontend/docs/screenshots/homepage.png)
 The landing page provides a centralized platform for creating, managing, and attending events with features such as digital passes, attendance tracking, and participant management. 
 
 ### Events Page
 
-![Events Page](frontend\docs\screenshots\events_page.png)
+![Events Page](frontend/docs/screenshots/events_page.png)
 Users can browse available events, view event information, and register instantly. Administrators can create, edit, delete, and manage events.
 
 ### Event Details
 
-![Event Details](frontend\docs\screenshots\event_details.png)
+![Event Details](frontend/docs/screenshots/event_details.png)
 Detailed event information including venue, schedule, description, participant management, and registration controls.
 
 ### Digital Event Pass
 
-![Digital Pass](frontend\docs\screenshots\digital_pass.png)
+![Digital Pass](frontend/docs/screenshots/digital_pass.png)
 Each registration generates a unique QR-based digital pass that can be 
 verified during event entry and attendance tracking. 
 
 ### Attendance Dashboard
 
-[attendance_dashboard](frontend\docs\screenshots\attendance_dashboard.png)
+![attendance_dashboard](frontend/docs/screenshots/attendance_dashboard.png)
 Administrators can scan attendee QR codes to instantly 
 verify registrations and mark attendance in real time.
 ---
