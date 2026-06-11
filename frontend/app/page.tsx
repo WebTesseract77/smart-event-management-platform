@@ -1,74 +1,212 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+import { getCurrentUser } from "@/lib/api";
+
+import { Button } from "@/components/ui/button";
+
+import {
+  Ticket,
+  CheckCircle2,
+  Users,
+  Zap,
+} from "lucide-react";
 
 export default function HomePage() {
+  const [isAdmin, setIsAdmin] =
+    useState(false);
+
+  useEffect(() => {
+    async function loadUser() {
+      const token =
+        localStorage.getItem("token");
+
+      if (!token) return;
+
+      try {
+        const user =
+          await getCurrentUser(
+            token
+          );
+
+        setIsAdmin(
+          user.role === "admin"
+        );
+      } catch {}
+    }
+
+    loadUser();
+  }, []);
+
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen px-6">
+    <div className="min-h-screen bg-muted/30">
 
-      <h1 className="text-5xl font-bold text-center">
-        Smart Event Management
-      </h1>
+      {/* Hero */}
+      <section className="max-w-6xl mx-auto px-6 pt-24 pb-10">
 
-      <p className="mt-6 text-lg text-center max-w-2xl">
-        Create events, manage registrations,
-        track participants and organize
-        everything from one platform.
-      </p>
+        <div className="text-center">
 
-      <div className="flex gap-4 mt-8">
+          <h1
+            className="
+              text-6xl
+              md:text-8xl
+              font-extrabold
+              tracking-tight
+            "
+          >
+            <span
+              className="
+                bg-gradient-to-r
+                from-blue-600
+                via-violet-600
+                to-purple-600
+                bg-clip-text
+                text-transparent
+              "
+            >
+              EventSphere
+            </span>
+          </h1>
 
-        <Link
-          href="/register"
-          className="border rounded-lg px-5 py-3"
-        >
-          Get Started
-        </Link>
-
-        <Link
-          href="/events"
-          className="border rounded-lg px-5 py-3"
-        >
-          View Events
-        </Link>
-
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-6 mt-16">
-
-        <div className="border rounded-lg p-6 shadow">
-          <h3 className="font-bold">
-            Create Events
-          </h3>
-
-          <p className="mt-2">
-            Organize workshops,
-            conferences and meetups.
+          <p className="mt-4 text-2xl md:text-3xl font-semibold">
+            Create. Manage. Attend.
           </p>
+
+          <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto">
+            Organize events, manage registrations,
+            issue digital QR passes, and track
+            attendance from one modern platform.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-4 mt-10">
+
+            <Link href="/events">
+              <Button size="lg">
+                Browse Events
+              </Button>
+            </Link>
+
+            {isAdmin && (
+              <Link href="/create-event">
+                <Button
+                  size="lg"
+                  variant="outline"
+                >
+                  Create Event
+                </Button>
+              </Link>
+            )}
+
+          </div>
+
+          {/* Features */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto mt-14">
+
+            <div
+              className="
+                rounded-xl
+                border
+                bg-background
+                p-6
+                text-center
+                transition-all
+                hover:-translate-y-1
+                hover:shadow-lg
+              "
+            >
+              <Ticket className="h-8 w-8 mx-auto mb-3 text-violet-600" />
+
+              <p className="font-medium">
+                Digital Passes
+              </p>
+            </div>
+
+            <div
+              className="
+                rounded-xl
+                border
+                bg-background
+                p-6
+                text-center
+                transition-all
+                hover:-translate-y-1
+                hover:shadow-lg
+              "
+            >
+              <CheckCircle2 className="h-8 w-8 mx-auto mb-3 text-violet-600" />
+
+              <p className="font-medium">
+                Attendance Tracking
+              </p>
+            </div>
+
+            <div
+              className="
+                rounded-xl
+                border
+                bg-background
+                p-6
+                text-center
+                transition-all
+                hover:-translate-y-1
+                hover:shadow-lg
+              "
+            >
+              <Users className="h-8 w-8 mx-auto mb-3 text-violet-600" />
+
+              <p className="font-medium">
+                Participant Management
+              </p>
+            </div>
+
+            <div
+              className="
+                rounded-xl
+                border
+                bg-background
+                p-6
+                text-center
+                transition-all
+                hover:-translate-y-1
+                hover:shadow-lg
+              "
+            >
+              <Zap className="h-8 w-8 mx-auto mb-3 text-violet-600" />
+
+              <p className="font-medium">
+                Real-Time Registration
+              </p>
+            </div>
+
+          </div>
+
         </div>
 
-        <div className="border rounded-lg p-6 shadow">
-          <h3 className="font-bold">
-            Register Easily
-          </h3>
+      </section>
 
-          <p className="mt-2">
-            Join events with a
-            single click.
-          </p>
-        </div>
+      {/* Footer */}
+      <footer className="border-t mt-16">
 
-        <div className="border rounded-lg p-6 shadow">
-          <h3 className="font-bold">
-            Manage Participation
-          </h3>
+  <div className="max-w-6xl mx-auto px-6 py-8 text-center">
 
-          <p className="mt-2">
-            Track registrations and
-            event activity.
-          </p>
-        </div>
+    <h3 className="text-xl font-bold">
+      EventSphere
+    </h3>
 
-      </div>
+    <p className="text-sm text-muted-foreground mt-2">
+      Create. Manage. Attend.
+    </p>
 
-    </main>
+    <p className="text-sm text-muted-foreground mt-4">
+      © 2026 EventSphere
+    </p>
+
+  </div>
+
+</footer>
+
+    </div>
   );
 }

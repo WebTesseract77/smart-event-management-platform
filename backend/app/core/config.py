@@ -10,7 +10,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
 )
-    app_name: str = "Smart Event Management Platform"
+    app_name: str = "EventSphere"
     api_v1_prefix: str = "/api/v1"
 
     database_url: str = Field(
@@ -37,16 +37,10 @@ class Settings(BaseSettings):
         default="admin@event.local",
         alias="ADMIN_EMAIL",
     )
-
     admin_password: str = Field(
-        default="Admin@12345",
+        default="change-me",
         alias="ADMIN_PASSWORD",
-    )
-
-    admin_name: str = Field(
-        default="Admin User",
-        alias="ADMIN_NAME",
-    )
+)
 
     # Mail Settings
 

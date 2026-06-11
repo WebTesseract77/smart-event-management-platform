@@ -23,6 +23,15 @@ frontend/node_modules/
 # Next.js
 frontend/.next/
 
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
 # Logs
 *.log
+
 frontend.zip

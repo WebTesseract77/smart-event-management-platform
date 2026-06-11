@@ -15,19 +15,62 @@ def get_user_by_id(db: Session, user_id: int) -> User | None:
     return db.get(User, user_id)
 
 
-def create_user(db: Session, *, name: str, email: str, password: str, role: str = "user") -> User:
+def create_user(
+    db: Session,
+    *,
+    name: str,
+    email: str,
+    password: str,
+    role: str = "participant"
+) -> User:
     normalized_email = email.lower()
-    if get_user_by_email(db, normalized_email):
-        raise ConflictError("Email already registered")
-    user = User(name=name, email=normalized_email, password_hash=get_password_hash(password), role=role)
+
+    if get_user_by_email(
+        db,
+        normalized_email
+    ):
+        raise ConflictError(
+            "Email already registered"
+        )
+
+    user = User(
+    name=name,
+    email=normalized_email,
+    password_hash=get_password_hash(password),
+    role=role,
+    is_verified=True,
+)
+
     db.add(user)
     db.commit()
     db.refresh(user)
+
     return user
 
+def authenticate_user(
+    db: Session,
+    email: str,
+    password: str,
+) -> User:
+    user = get_user_by_email(
+        db,
+        email,
+    )
 
-def authenticate_user(db: Session, email: str, password: str) -> User:
-    user = get_user_by_email(db, email)
-    if not user or not verify_password(password, user.password_hash):
-        raise AuthenticationError("Invalid email or password")
+    if (
+        not user
+        or not verify_password(
+            password,
+            user.password_hash,
+        )
+    ):
+        raise AuthenticationError(
+            "Invalid email or password"
+        )
+
+    if not user.is_verified:
+        raise AuthenticationError(
+            "Please verify your email first"
+        )
+    
     return user

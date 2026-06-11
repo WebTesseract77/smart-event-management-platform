@@ -12,7 +12,7 @@ from backend.app.routes.events import router as events_router
 from backend.app.routes.registrations import router as registrations_router
 from backend.app.routes.users import router as users_router
 from backend.app.services.seed_service import seed_initial_data
-
+from backend.app.routes import admin
 settings = get_settings()
 
 app = FastAPI(
@@ -52,12 +52,13 @@ def validation_handler(_: Request, exc: ValidationError):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.on_event("startup")
 def on_startup() -> None:
@@ -76,3 +77,7 @@ app.include_router(events_router, prefix=settings.api_v1_prefix)
 app.include_router(registrations_router, prefix=settings.api_v1_prefix)
 app.include_router(users_router, prefix=settings.api_v1_prefix)
 app.include_router(attendance_router, prefix=settings.api_v1_prefix)
+app.include_router(
+    admin.router,
+    prefix=settings.api_v1_prefix
+)

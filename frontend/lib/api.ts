@@ -58,10 +58,12 @@ export async function createEvent(
     title: string;
     description: string;
     location: string;
+    image_url?: string;
     start_date: string;
     end_date: string;
   }
-) {
+)
+{
   const response = await fetch(
     `${API_URL}/events`,
     {
@@ -154,8 +156,15 @@ export async function getCurrentUser(
     }
   );
 
+  if (!response.ok) {
+    throw new Error(
+      "Authentication failed"
+    );
+  }
+
   return response.json();
-}export async function unregisterFromEvent(
+}
+export async function unregisterFromEvent(
   token: string,
   eventId: number
 ) {
@@ -188,6 +197,7 @@ export async function getParticipants(
   return response.json();
 }
 export async function markAttendance(
+  token: string,
   eventId: number,
   userId: number
 ) {
@@ -195,35 +205,49 @@ export async function markAttendance(
     `${API_URL}/events/${eventId}/attendance/${userId}`,
     {
       method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     }
   );
 
-  const data = await response.json();
-
   if (!response.ok) {
     throw new Error(
-      data.detail || "Failed"
+      "Failed to mark attendance"
     );
   }
 
-  return data;
+  return response.json();
 }
 
 export async function getAttendance(
+  token: string,
   eventId: number
 ) {
   const response = await fetch(
-    `${API_URL}/events/${eventId}/attendance`
+    `${API_URL}/events/${eventId}/attendance`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
   );
+
+  if (!response.ok) {
+    throw new Error(
+      "Failed to load attendance"
+    );
+  }
 
   return response.json();
 }
 export async function getRegistration(
   registrationId: number
 ) {
-  const response = await fetch(
-    `${API_URL}/registrations/${registrationId}`
-  );
+  const response =
+    await fetch(
+      `${API_URL}/registrations/${registrationId}`
+    );
 
   return response.json();
 }

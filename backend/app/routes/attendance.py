@@ -1,8 +1,14 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from backend.app.core.dependencies import get_db
+from backend.app.core.dependencies import (
+    get_db,
+    get_current_admin,
+)
+
+from backend.app.models.user import User
 from backend.app.schemas.attendance import AttendanceRead
+
 from backend.app.services.attendance_service import (
     mark_attendance,
     get_event_attendance,
@@ -22,6 +28,7 @@ def mark(
     event_id: int,
     user_id: int,
     db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
 ):
     return mark_attendance(
         db,
@@ -37,6 +44,7 @@ def mark(
 def list_attendance(
     event_id: int,
     db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
 ):
     return get_event_attendance(
         db,

@@ -45,21 +45,27 @@ def register_user_for_event(
 
     if user and event:
         try:
+            import threading
             import asyncio
 
-            asyncio.run(
-               send_registration_email(
-                  email=user.email,
-                  participant_name=user.name,
-                  event_name=event.title,
-                  registration_id=registration.id,
-            )
-        )
+            threading.Thread(
+                target=lambda: asyncio.run(
+                    send_registration_email(
+                        email=user.email,
+                        participant_name=user.name,
+                        event_name=event.title,
+                        registration_id=registration.id,
+                    )
+                ),
+                daemon=True,
+            ).start()
+
         except Exception as e:
             print(
                 f"Email sending failed: {e}"
             )
 
+    
     return registration
 
 def cancel_registration(

@@ -22,13 +22,25 @@ export default function ParticipantsPage() {
     userId: number
   ) {
     try {
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+      if (!token) {
+        alert("Please login");
+        return;
+      }
+
       await markAttendance(
+        token,
         Number(params.id),
         userId
       );
 
       const updatedAttendance =
         await getAttendance(
+          token,
           Number(params.id)
         );
 
@@ -51,6 +63,15 @@ export default function ParticipantsPage() {
   useEffect(() => {
     async function loadData() {
       try {
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        if (!token) {
+          return;
+        }
+
         const participantsData =
           await getParticipants(
             Number(params.id)
@@ -62,6 +83,7 @@ export default function ParticipantsPage() {
 
         const attendanceData =
           await getAttendance(
+            token,
             Number(params.id)
           );
 
@@ -101,16 +123,7 @@ export default function ParticipantsPage() {
                 {participant.email}
               </p>
 
-              <button
-                className="mt-3 border px-4 py-2 rounded"
-                onClick={() =>
-                  handleAttendance(
-                    participant.id
-                  )
-                }
-              >
-                Mark Attendance
-              </button>
+             
             </div>
           )
         )
@@ -128,27 +141,37 @@ export default function ParticipantsPage() {
         </p>
       ) : (
         attendance.map(
-  (record) => (
-    <div
-      key={record.id}
-      className="border rounded p-3 mt-3"
-    >
-      <h3 className="font-bold">
-        {record.user_name}
-      </h3>
+          (record) => (
+            <div
+              key={record.id}
+              className="border rounded p-3 mt-3"
+            >
+              <h3 className="font-bold">
+                {record.user_name}
+              </h3>
 
-      <p>
-        {record.user_email}
-      </p>
+              <p>
+                {record.user_email}
+              </p>
 
-      <p className="text-sm text-gray-600 mt-2">
-        {new Date(
-          record.recorded_at
-        ).toLocaleString()}
-      </p>
-    </div>
-  )
-)
+              <p className="text-sm text-gray-600 mt-2">
+                {new Date(
+                  record.recorded_at
+                ).toLocaleString(
+                  "en-IN",
+                  {
+                    timeZone:
+                      "Asia/Kolkata",
+                    dateStyle:
+                      "medium",
+                    timeStyle:
+                      "short",
+                  }
+                )}
+              </p>
+            </div>
+          )
+        )
       )}
     </div>
   );

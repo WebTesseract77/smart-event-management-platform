@@ -1,18 +1,44 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
 import {
   getEvents,
   deleteEvent,
   registerForEvent,
+  getCurrentUser,
 } from "@/lib/api";
+
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
+import {
+  Calendar,
+  MapPin,
+  Pencil,
+  Trash2,
+  UserPlus,
+  Plus,
+} from "lucide-react";
 
 export default function EventsPage() {
   const router = useRouter();
 
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] =
+    useState<any[]>([]);
+
+  const [role, setRole] =
+    useState("user");
 
   async function handleDelete(
     eventId: number
@@ -21,7 +47,9 @@ export default function EventsPage() {
       localStorage.getItem("token");
 
     if (!token) {
-      alert("Please login first");
+      toast.error(
+        "Please login first"
+      );
       return;
     }
 
@@ -39,27 +67,52 @@ export default function EventsPage() {
   }
 
   async function handleRegister(
-    eventId: number
-  ) {
-    const token =
-      localStorage.getItem("token");
+  eventId: number
+) {
+  const token =
+    localStorage.getItem("token");
 
-    if (!token) {
-      alert("Please login first");
-      return;
-    }
+  if (!token) {
+    toast.error(
+      "Please login first"
+    );
+    return;
+  }
 
+  try {
     const result =
       await registerForEvent(
         token,
         eventId
       );
 
-    console.log(result);
+    
 
-    alert("Registered successfully!");
+    if (result.detail) {
+      toast.error(
+        result.detail
+      );
+      return;
+    }
+
+    toast.success(
+      "Registered successfully!"
+    );
+
+    router.push(
+      `/pass/${
+        result.registration_id ??
+        result.id
+      }`
+    );
+  } catch (error) {
+    console.error(error);
+
+    toast.error(
+      "Failed to register."
+    );
   }
-
+}
   useEffect(() => {
     const token =
       localStorage.getItem("token");
@@ -69,90 +122,227 @@ export default function EventsPage() {
       return;
     }
 
-    async function loadEvents() {
-      const data = await getEvents();
-      setEvents(data);
+    async function loadData() {
+      try {
+        const eventsData =
+          await getEvents();
+
+        setEvents(eventsData);
+
+      const user =
+  await getCurrentUser(
+    token!
+  );
+
+        setRole(
+          user.role || "user"
+        );
+      } catch (error) {
+        console.error(error);
+      }
     }
 
-    loadEvents();
+    loadData();
   }, [router]);
 
+  const isAdmin =
+    role === "admin";
+
   return (
-    <div style={{ padding: 20 }}>
-      <h1>Events</h1>
+    <div className="min-h-screen bg-muted/30 p-8">
+      <div className="max-w-7xl mx-auto">
 
-      <Link href="/create-event">
-        Create New Event
-      </Link>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-5xl font-bold tracking-tight">
+              Discover Events
+            </h1>
 
-      {events.map((event) => (
-        <div
-  key={event.id}
-  className="border rounded-lg p-4 mt-4 shadow"
->
-         <Link
-  href={`/events/${event.id}`}
-  className="text-xl font-bold text-blue-600 hover:underline"
->
-  {event.title}
-</Link>
+            <p className="text-muted-foreground text-lg mt-3">
+              Register Now, attend and manage events seamlessly.
+            </p>
+          </div>
 
-          <p className="mt-2">
-  {event.description}
-</p>
+          {isAdmin && (
+            <Link href="/create-event">
+              <Button size="lg">
+                <Plus className="w-4 h-4 mr-2" />
+                Create Event
+              </Button>
+            </Link>
+          )}
+        </div>
 
-         <p className="mt-2 text-gray-600">
-  📍 {event.location}
-</p>
-<p className="mt-2">
-  📅 Start:
-  {" "}
+        {/* Stats */}
+        <div className="grid md:grid-cols-2 gap-4">
+
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-muted-foreground">
+                Total Events
+              </p>
+
+              <h2 className="text-3xl font-bold mt-2">
+                {events.length}
+              </h2>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-muted-foreground">
+                Upcoming
+              </p>
+
+              <h2 className="text-3xl font-bold mt-2">
+                {events.length}
+              </h2>
+            </CardContent>
+          </Card>
+
+          
+
+        </div>
+
+        {/* Events Grid */}
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+          {events.map((event) => (
+            <Card
+              key={event.id}
+              className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+            >
+
+              {event.image_url ? (
+  <img
+    src={event.image_url}
+    alt={event.title}
+    className="h-32 w-full object-cover"
+  />
+) : (
+  <div className="h-32 bg-gradient-to-r from-blue-600 to-violet-600" />
+)}
+
+              <CardHeader>
+                <div className="flex justify-between items-start">
+
+                  <CardTitle className="text-xl">
+                    {event.title}
+                  </CardTitle>
+
+                  <Badge>
+                    Active
+                  </Badge>
+
+                </div>
+              </CardHeader>
+
+              <CardContent>
+
+                <p className="text-muted-foreground mb-4 line-clamp-3">
+                  {event.description}
+                </p>
+
+                <div className="space-y-3 mb-6">
+
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="w-4 h-4" />
+                    {event.location}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm">
+  <Calendar className="w-4 h-4" />
   {new Date(
     event.start_date
-  ).toLocaleString()}
-</p>
+  ).toLocaleString(
+    "en-IN",
+    {
+      timeZone:
+        "Asia/Kolkata",
+      dateStyle:
+        "medium",
+      timeStyle:
+        "short",
+    }
+  )}
+</div>
 
-<p>
-  ⏰ End:
-  {" "}
-  {new Date(
-    event.end_date
-  ).toLocaleString()}
-</p>
+                </div>
 
+                <div className="flex flex-wrap gap-2">
 
-          <br />
+                  <Link
+                    href={`/events/${event.id}`}
+                  >
+                    <Button size="sm">
+                      View
+                    </Button>
+                  </Link>
 
-          <Link
-  href={`/edit-event/${event.id}`}
-  className="mr-2 text-blue-600"
->
-  Edit
-</Link>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      handleRegister(
+                        event.id
+                      )
+                    }
+                  >
+                    <UserPlus className="w-4 h-4 mr-1" />
+                    Register
+                  </Button>
 
-          {"  "}
+                  {isAdmin && (
+                    <>
+                      <Link
+                        href={`/edit-event/${event.id}`}
+                      >
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                        >
+                          <Pencil className="w-4 h-4 mr-1" />
+                          Edit
+                        </Button>
+                      </Link>
 
-          <button
-  className="mr-2 border px-2 py-1 rounded"
-  onClick={() =>
-    handleDelete(event.id)
-  }
->
-  Delete
-</button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() =>
+                          handleDelete(
+                            event.id
+                          )
+                        }
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Delete
+                      </Button>
 
-          {"  "}
+                      <Link
+                        href={`/attendance/${event.id}`}
+                      >
+                        <Button
+                          size="sm"
+                          variant="outline"
+                        >
+                          Attendance
+                        </Button>
+                      </Link>
+                    </>
+                  )}
 
-          <button
-  className="border px-2 py-1 rounded"
-  onClick={() =>
-    handleRegister(event.id)
-  }
->
-  Register
-</button>
+                </div>
+
+              </CardContent>
+
+            </Card>
+          ))}
+
         </div>
-      ))}
+
+      </div>
     </div>
   );
 }

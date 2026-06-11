@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
-from backend.app.core.dependencies import get_current_user, get_db
+from backend.app.core.dependencies import (
+    get_current_user,
+    get_current_admin,
+    get_current_organizer_or_admin,
+    get_db,
+)
 from backend.app.core.errors import ForbiddenError, NotFoundError
 from backend.app.models.user import User
 from backend.app.schemas.event import EventCreate, EventRead, EventUpdate
@@ -27,17 +31,21 @@ def read_event(event_id: int, db: Session = Depends(get_db)):
 def add_event(
     payload: EventCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User =
+Depends(
+    get_current_organizer_or_admin
+),
 ):
     return create_event(
-        db,
-        title=payload.title,
-        description=payload.description,
-        location=payload.location,
-        start_date=payload.start_date,
-        end_date=payload.end_date,
-        created_by=current_user.id,
-    )
+    db,
+    title=payload.title,
+    description=payload.description,
+    location=payload.location,
+    image_url=payload.image_url,
+    start_date=payload.start_date,
+    end_date=payload.end_date,
+    created_by=current_user.id,
+)
 
 
 @router.patch("/{event_id}", response_model=EventRead)

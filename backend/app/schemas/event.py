@@ -7,6 +7,9 @@ class EventBase(BaseModel):
     title: str = Field(min_length=3, max_length=200)
     description: str = Field(min_length=10)
     location: str = Field(min_length=2, max_length=255)
+
+    image_url: str | None = None
+
     start_date: datetime
     end_date: datetime
 
@@ -27,6 +30,9 @@ class EventUpdate(BaseModel):
     title: str | None = Field(default=None, min_length=3, max_length=200)
     description: str | None = Field(default=None, min_length=10)
     location: str | None = Field(default=None, min_length=2, max_length=255)
+
+    image_url: str | None = None
+
     start_date: datetime | None = None
     end_date: datetime | None = None
 

@@ -21,22 +21,71 @@ def get_current_user(
     authorization: str | None = Header(default=None),
     db: Session = Depends(get_db),
 ) -> User:
+
+
+
     if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    token = authorization.removeprefix("Bearer ").strip()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+
+    token = authorization.removeprefix(
+        "Bearer "
+    ).strip()
+
     try:
         payload = decode_access_token(token)
-        user_id = int(payload["sub"])
+
+        user_id = int(
+            payload["sub"]
+        )
+
     except (ValueError, KeyError):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication credentials")
-    user = db.get(User, user_id)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+        )
+
+    user = db.get(
+        User,
+        user_id,
+    )
+
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
+
     return user
 
-
-def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+def get_current_admin(
+    current_user: User = Depends(
+        get_current_user
+    )
+) -> User:
     if current_user.role != "admin":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required",
+        )
+
     return current_user
 
+
+def get_current_organizer_or_admin(
+    current_user: User = Depends(
+        get_current_user
+    ),
+) -> User:
+    if current_user.role not in [
+        "admin",
+        "organizer",
+    ]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Organizer privileges required",
+        )
+
+    return current_user
