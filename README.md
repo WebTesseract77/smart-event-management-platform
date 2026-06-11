@@ -237,7 +237,7 @@ Detailed event information including venue, schedule, description, participant m
 Each registration generates a unique QR-based digital pass that can be 
 verified during event entry and attendance tracking. 
 
-Attendance Dashboard
+### Attendance Dashboard
 
 [attendance_dashboard](frontend\docs\screenshots\attendance_dashboard.png)
 Administrators can scan attendee QR codes to instantly 
