@@ -1,6 +1,6 @@
 # EventSphere - Smart Event Management Platform
 
-A full-stack Event Management Platform built with FastAPI, Next.js, TypeScript, and PostgreSQL/SQLite. The platform enables users to discover events, register online, receive digital event passes, and allows administrators to manage events, participants, and attendance efficiently.
+A full-stack Event Management Platform built with FastAPI, Next.js, TypeScript, and SQLite. The platform enables users to discover events, register online, receive digital event passes, and allows administrators to manage events, participants, and attendance efficiently.
 
 ## Features
 
@@ -44,7 +44,7 @@ A full-stack Event Management Platform built with FastAPI, Next.js, TypeScript, 
 
 ### Database
 
-* PostgreSQL / SQLite
+*  SQLite
 
 ### Additional Services
 
