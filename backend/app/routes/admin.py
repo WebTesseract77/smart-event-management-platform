@@ -4,7 +4,13 @@ from fastapi import (
     HTTPException,
     status,
 )
+from backend.app.schemas.admin import (
+    AnalyticsRead,
+)
 
+from backend.app.services.admin_service import (
+    get_analytics,
+)
 from sqlalchemy.orm import Session
 
 from backend.app.core.dependencies import (
@@ -59,7 +65,17 @@ def create_organizer(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(exc),
         )
-
+@router.get(
+    "/analytics",
+    response_model=AnalyticsRead,
+)
+def analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        get_current_admin
+    ),
+):
+    return get_analytics(db)
 
 
 

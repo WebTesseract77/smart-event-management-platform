@@ -51,19 +51,21 @@ export async function getEvents() {
 
   return response.json();
 }
-
 export async function createEvent(
   token: string,
-  eventData: {
+  event: {
     title: string;
     description: string;
     location: string;
     image_url?: string;
+    capacity: number;
     start_date: string;
     end_date: string;
+    is_team_event?: boolean;
+    min_team_size?: number;
+    max_team_size?: number;
   }
-)
-{
+) {
   const response = await fetch(
     `${API_URL}/events`,
     {
@@ -72,7 +74,7 @@ export async function createEvent(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(eventData),
+      body: JSON.stringify(event),
     }
   );
 
@@ -144,6 +146,21 @@ export async function getMyRegistrations(
 
   return response.json();
 }
+
+export async function getMyTeamRegistrations(
+  token: string
+) {
+  const response = await fetch(
+    `${API_URL}/me/team-registrations`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.json();
+}
 export async function getCurrentUser(
   token: string
 ) {
@@ -188,11 +205,23 @@ export async function getEvent(
   return response.json();
 }
 export async function getParticipants(
+  token: string,
   eventId: number
 ) {
   const response = await fetch(
-    `${API_URL}/events/${eventId}/participants`
+    `${API_URL}/events/${eventId}/participants`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
   );
+
+  if (!response.ok) {
+    throw new Error(
+      "Failed to load participants"
+    );
+  }
 
   return response.json();
 }
@@ -242,12 +271,69 @@ export async function getAttendance(
   return response.json();
 }
 export async function getRegistration(
+  token: string,
   registrationId: number
+) {
+  const response = await fetch(
+    `${API_URL}/registrations/${registrationId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+  console.log(
+    "REGISTRATION STATUS:",
+    response.status
+  );
+
+  console.log(
+    "REGISTRATION RESPONSE:",
+    await response.text()
+  );
+
+  throw new Error(
+    "Failed to load registration"
+  );
+}
+
+  return response.json();
+}
+export async function getAnalytics(
+  token: string
+) {
+  const response = await fetch(
+    `${API_URL}/admin/analytics`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Failed to load analytics"
+    );
+  }
+
+  return response.json();
+}
+export async function getTeam(
+  teamId: number
 ) {
   const response =
     await fetch(
-      `${API_URL}/registrations/${registrationId}`
+      `${API_URL}/teams/${teamId}`
     );
+
+  if (!response.ok) {
+    throw new Error(
+      "Failed to load team"
+    );
+  }
 
   return response.json();
 }

@@ -52,10 +52,25 @@ def authenticate_user(
     email: str,
     password: str,
 ) -> User:
+
+    
+
     user = get_user_by_email(
         db,
         email,
     )
+
+    print("USER:", user)
+
+    if user:
+        print("DB EMAIL:", user.email)
+        print(
+            "PASSWORD MATCH:",
+            verify_password(
+                password,
+                user.password_hash,
+            )
+        )
 
     if (
         not user
@@ -72,5 +87,5 @@ def authenticate_user(
         raise AuthenticationError(
             "Please verify your email first"
         )
-    
+
     return user

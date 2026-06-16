@@ -14,8 +14,6 @@ def get_event(db: Session, event_id: int) -> Event:
     if not event:
         raise NotFoundError("Event not found")
     return event
-
-
 def create_event(
     db: Session,
     *,
@@ -23,26 +21,38 @@ def create_event(
     description: str,
     location: str,
     image_url: str | None = None,
+    capacity: int,
+    is_team_event: bool = False,
+    min_team_size: int = 1,
+    max_team_size: int = 1,
     start_date,
     end_date,
     created_by: int,
 ) -> Event:
     if end_date <= start_date:
-        raise ValidationError("end_date must be after start_date")
+        raise ValidationError(
+            "end_date must be after start_date"
+        )
+
     event = Event(
-    title=title,
-    description=description,
-    location=location,
-    image_url=image_url,
-    start_date=start_date,
-    end_date=end_date,
-    created_by=created_by,
-)
+        title=title,
+        description=description,
+        location=location,
+        image_url=image_url,
+        capacity=capacity,
+        is_team_event=is_team_event,
+        min_team_size=min_team_size,
+        max_team_size=max_team_size,
+        start_date=start_date,
+        end_date=end_date,
+        created_by=created_by,
+    )
+
     db.add(event)
     db.commit()
     db.refresh(event)
-    return event
 
+    return event
 
 def update_event(db: Session, event_id: int, *, updater_role: str, updater_id: int, **changes) -> Event:
     event = get_event(db, event_id)

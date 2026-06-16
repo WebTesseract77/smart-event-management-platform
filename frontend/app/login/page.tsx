@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { loginUser } from "@/lib/api";
-
+import {
+  loginUser,
+  getCurrentUser,
+} from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -43,19 +45,29 @@ export default function LoginPage() {
           password
         );
 
-      if (data.access_token) {
-        localStorage.setItem(
-          "token",
-          data.access_token
-        );
+     if (data.access_token) {
+  localStorage.setItem(
+    "token",
+    data.access_token
+  );
 
-        toast.success(
-          "Login successful"
-        );
+  const user =
+    await getCurrentUser(
+      data.access_token
+    );
 
-        window.location.href =
-          "/events";
-      } else {
+  localStorage.setItem(
+    "role",
+    user.role
+  );
+
+  toast.success(
+    "Login successful"
+  );
+
+  window.location.href =
+    "/events";
+} else {
         toast.error(
           "Login failed"
         );

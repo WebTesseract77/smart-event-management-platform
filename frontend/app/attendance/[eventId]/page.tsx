@@ -1,5 +1,6 @@
 "use client";
-
+import StatCard from "@/components/app/StatCard";
+import { Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
@@ -83,34 +84,39 @@ export default function AttendancePage() {
           </h1>
 
           <p className="text-muted-foreground text-lg mt-3">
-            Event ID: {params.eventId}
-          </p>
+  Attendance analytics and check-in records.
+</p>
         </div>
-
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <p className="text-muted-foreground">
-              Total Attendees Checked In
-            </p>
-
-            <h2 className="text-4xl font-bold mt-2">
-              {attendance.length}
-            </h2>
-          </CardContent>
-        </Card>
+<div className="mb-6">
+  <StatCard
+    title="Attendees Checked In"
+    value={attendance.length}
+    icon={<Users className="h-6 w-6" />}
+  />
+</div>
 
         {attendance.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              No attendance records found.
-            </CardContent>
-          </Card>
+          <Card className="rounded-2xl shadow-sm">
+  <CardContent className="p-12 text-center">
+
+    <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+
+    <h2 className="text-2xl font-bold">
+      No Attendance Yet
+    </h2>
+
+    <p className="text-muted-foreground mt-2">
+      No attendees have checked in for this event.
+    </p>
+
+  </CardContent>
+</Card>
         ) : (
-          <Card>
+          <Card className="rounded-2xl shadow-sm">
             <CardContent className="p-0 overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b">
+                  <tr className="border-b hover:bg-muted/40 transition-colors">
                     <th className="text-left p-4">
                       Name
                     </th>

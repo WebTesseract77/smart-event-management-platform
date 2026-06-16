@@ -15,8 +15,6 @@ import { Badge } from "@/components/ui/badge";
 import {
   User,
   Mail,
-  Shield,
-  Hash,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -36,14 +34,17 @@ export default function ProfilePage() {
 
     async function loadUser() {
       try {
-        const data =
-          await getCurrentUser(token!);
+       const data =
+  await getCurrentUser(token!);
 
         setUser(data);
       } catch (error) {
-  localStorage.removeItem("token");
-  router.push("/login");
-}
+        localStorage.removeItem(
+          "token"
+        );
+
+        router.push("/login");
+      }
     }
 
     loadUser();
@@ -61,7 +62,6 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-muted/30 p-8">
       <div className="max-w-5xl mx-auto">
 
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-5xl font-bold">
             My Profile
@@ -72,21 +72,23 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        {/* Profile Card */}
-        <Card className="overflow-hidden shadow-lg">
+        <Card className="overflow-hidden shadow-lg rounded-2xl">
           <div className="h-36 bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600" />
 
-          <CardContent className="p-8">
+          <CardContent className="p-10">
 
-            {/* Avatar */}
             <div className="-mt-20 mb-6">
-              <div className="w-28 h-28 rounded-full bg-white shadow-lg border-4 border-white flex items-center justify-center">
-                <User className="w-12 h-12" />
+              <div className="w-20 h-20 rounded-full bg-violet-100 border-4 border-white shadow-lg flex items-center justify-center">
+                <span className="text-3xl font-bold text-violet-700">
+                  {user.name
+                    ?.charAt(0)
+                    .toUpperCase()}
+                </span>
               </div>
             </div>
 
-            {/* Main Info */}
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center gap-4">
+
               <div>
                 <h2 className="text-3xl font-bold">
                   {user.name}
@@ -95,19 +97,30 @@ export default function ProfilePage() {
                 <p className="text-muted-foreground mt-1">
                   {user.email}
                 </p>
+
+                <Badge
+                  className={
+                    user.role === "admin"
+                      ? "bg-red-100 text-red-700 mt-2"
+                      : "bg-violet-100 text-violet-700 mt-2"
+                  }
+                >
+                  {user.role === "admin"
+                    ? "Administrator"
+                    : "Member"}
+                </Badge>
               </div>
 
-              <Badge className="w-fit">
-                {user.role}
-              </Badge>
             </div>
 
-            {/* Details Grid */}
             <div className="grid md:grid-cols-2 gap-4 mt-8">
 
-              <Card>
+              <Card className="bg-violet-50/40 border-violet-100">
                 <CardContent className="p-5 flex items-center gap-4">
-                  <User className="w-5 h-5" />
+
+                  <div className="p-3 rounded-xl bg-violet-100">
+                    <User className="w-5 h-5 text-violet-600" />
+                  </div>
 
                   <div>
                     <p className="text-sm text-muted-foreground">
@@ -118,54 +131,27 @@ export default function ProfilePage() {
                       {user.name}
                     </p>
                   </div>
+
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-violet-50/40 border-violet-100">
                 <CardContent className="p-5 flex items-center gap-4">
-                  <Mail className="w-5 h-5" />
+
+                  <div className="p-3 rounded-xl bg-violet-100">
+                    <Mail className="w-5 h-5 text-violet-600" />
+                  </div>
 
                   <div>
                     <p className="text-sm text-muted-foreground">
                       Email Address
                     </p>
 
-                    <p className="font-semibold">
+                    <p className="font-semibold break-all">
                       {user.email}
                     </p>
                   </div>
-                </CardContent>
-              </Card>
 
-              <Card>
-                <CardContent className="p-5 flex items-center gap-4">
-                  <Shield className="w-5 h-5" />
-
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Role
-                    </p>
-
-                    <p className="font-semibold">
-                      {user.role}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-5 flex items-center gap-4">
-                  <Hash className="w-5 h-5" />
-
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      User ID
-                    </p>
-
-                    <p className="font-semibold">
-                      #{user.id}
-                    </p>
-                  </div>
                 </CardContent>
               </Card>
 

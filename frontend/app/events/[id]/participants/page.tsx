@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import {
   getParticipants,
-  markAttendance,
   getAttendance,
 } from "@/lib/api";
 
 export default function ParticipantsPage() {
   const params = useParams();
+  const router = useRouter();
 
   const [participants, setParticipants] =
     useState<any[]>([]);
@@ -18,47 +18,8 @@ export default function ParticipantsPage() {
   const [attendance, setAttendance] =
     useState<any[]>([]);
 
-  async function handleAttendance(
-    userId: number
-  ) {
-    try {
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      if (!token) {
-        alert("Please login");
-        return;
-      }
-
-      await markAttendance(
-        token,
-        Number(params.id),
-        userId
-      );
-
-      const updatedAttendance =
-        await getAttendance(
-          token,
-          Number(params.id)
-        );
-
-      setAttendance(
-        updatedAttendance
-      );
-
-      alert(
-        "Attendance recorded successfully!"
-      );
-    } catch (error) {
-      console.error(error);
-
-      alert(
-        "Failed to record attendance."
-      );
-    }
-  }
+  const [loading, setLoading] =
+    useState(true);
 
   useEffect(() => {
     async function loadData() {
@@ -68,14 +29,33 @@ export default function ParticipantsPage() {
             "token"
           );
 
+        const role =
+          localStorage.getItem(
+            "role"
+          );
+
         if (!token) {
+          router.push("/login");
           return;
         }
 
-        const participantsData =
-          await getParticipants(
-            Number(params.id)
+        if (
+          role !== "admin" &&
+          role !== "organizer"
+        ) {
+          alert(
+            "Access denied."
           );
+
+          router.push("/events");
+
+          return;
+        }
+const participantsData =
+  await getParticipants(
+    token,
+    Number(params.id)
+  );
 
         setParticipants(
           participantsData
@@ -92,11 +72,21 @@ export default function ParticipantsPage() {
         );
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     }
 
     loadData();
-  }, [params]);
+  }, [params, router]);
+
+  if (loading) {
+    return (
+      <div className="p-8">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -122,8 +112,6 @@ export default function ParticipantsPage() {
               <p className="mt-1">
                 {participant.email}
               </p>
-
-             
             </div>
           )
         )

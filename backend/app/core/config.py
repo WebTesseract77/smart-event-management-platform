@@ -32,7 +32,10 @@ class Settings(BaseSettings):
         default=120,
         alias="ACCESS_TOKEN_EXPIRE_MINUTES",
     )
-
+    admin_name: str = Field(
+       default="Administrator",
+       alias="ADMIN_NAME",
+)
     admin_email: str = Field(
         default="admin@event.local",
         alias="ADMIN_EMAIL",

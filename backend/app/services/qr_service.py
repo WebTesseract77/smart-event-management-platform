@@ -1,12 +1,22 @@
 import qrcode
 from pathlib import Path
+import re
 
 
 def generate_qr(
-    registration_id: int,
+    qr_data: str,
 ):
+    safe_name = re.sub(
+        r"[^A-Za-z0-9_.-]",
+        "_",
+        str(qr_data),
+    ).strip("._")
+
+    if not safe_name:
+        safe_name = "qr"
+
     qr = qrcode.make(
-        str(registration_id)
+        str(qr_data)
     )
 
     output_dir = Path("generated_qr")
@@ -17,7 +27,7 @@ def generate_qr(
 
     file_path = (
         output_dir
-        / f"{registration_id}.png"
+        / f"{safe_name}.png"
     )
 
     qr.save(file_path)

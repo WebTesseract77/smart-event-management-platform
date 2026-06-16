@@ -35,10 +35,19 @@ export default function PassPage() {
       }
 
       try {
-        const data =
-          await getRegistration(
-            Number(id)
-          );
+        const token =
+  localStorage.getItem("token");
+
+if (!token) {
+  setLoading(false);
+  return;
+}
+
+const data =
+  await getRegistration(
+    token,
+    Number(id)
+  );
 
 
         setRegistration(data);

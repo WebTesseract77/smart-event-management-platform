@@ -1,9 +1,9 @@
 "use client";
-
+import { QrCode } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { toast } from "sonner";
-
+import { Button } from "@/components/ui/button";
 import {
   markAttendance,
   getRegistration,
@@ -104,11 +104,11 @@ export default function ScannerPage() {
                   data.participant_name ??
                   "";
               } else {
-                const registration =
-                  await getRegistration(
-                    Number(decodedText)
-                  );
-
+               const registration =
+  await getRegistration(
+    token,
+    Number(decodedText)
+  );
                 eventId =
                   Number(
                     registration.event_id
@@ -205,44 +205,51 @@ export default function ScannerPage() {
 
   return (
     <div className="min-h-screen bg-muted/30 flex items-center justify-center p-8">
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-2xl rounded-2xl shadow-sm">
         <CardContent className="p-8 text-center">
 
           {!scanComplete ? (
             <>
-              <h1 className="text-4xl font-bold mb-4">
-                Attendance Scanner
-              </h1>
+              <div className="flex flex-col items-center mb-4">
+  <QrCode className="w-12 h-12 text-violet-600 mb-3" />
+
+  <h1 className="text-4xl font-bold">
+    Attendance Scanner
+  </h1>
+</div>
 
               <p className="text-muted-foreground mb-8">
                 Point your camera at an attendee QR code.
               </p>
 <p className="text-sm text-muted-foreground mt-2">
   Ensure the QR code is clearly visible and well lit.
-</p>
-              <div
-                id="reader"
-                className="mx-auto"
-              />
+</p><div
+  id="reader"
+  className="mx-auto rounded-2xl overflow-hidden border"
+/>
             </>
           ) : (
             <>
-              <h1 className="text-4xl font-bold mb-4">
-                ✅ Attendance Processed
-              </h1>
+              <div className="flex flex-col items-center mb-4">
+  <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+    ✓
+  </div>
+
+  <h1 className="text-4xl font-bold">
+    Attendance Processed
+  </h1>
+</div>
 
               <p className="text-muted-foreground mb-8">
                 Scan another attendee.
               </p>
 
-              <button
-                onClick={
-                  restartScanner
-                }
-                className="rounded-lg px-6 py-3 bg-primary text-primary-foreground"
-              >
-                Scan Another QR
-              </button>
+            <Button
+  size="lg"
+  onClick={restartScanner}
+>
+  Scan Another QR
+</Button>
             </>
           )}
 

@@ -84,3 +84,69 @@ async def send_registration_email(
     print(
         f"Email sent to {email}"
     )
+
+
+async def send_team_registration_email(
+    email: str,
+    member_name: str,
+    event_name: str,
+    team_name: str,
+    team_id: int,
+    qr_code_path: str,
+):
+    html = f"""
+    <h2>Team Registration Successful 🎉</h2>
+
+    <p>Hello {member_name},</p>
+
+    <p>
+        Your team has successfully registered for:
+        <strong>{event_name}</strong>
+    </p>
+
+    <p>
+        Team Name:
+        <strong>{team_name}</strong>
+    </p>
+
+    <p>
+        Team ID:
+        <strong>{team_id}</strong>
+    </p>
+
+    <p>
+        Your personal QR Pass is attached to this email.
+    </p>
+
+    <p>
+        You can also view it online:
+    </p>
+
+    <a href="http://localhost:3000/team-pass/{team_id}">
+        Open Team Pass
+    </a>
+
+    <br><br>
+
+    <p>
+        Please keep this QR code safe and show it at the event entrance.
+    </p>
+    """
+
+    message = MessageSchema(
+        subject="Team Registration Confirmation",
+        recipients=[email],
+        body=html,
+        subtype="html",
+        attachments=[
+            qr_code_path
+        ],
+    )
+
+    fm = FastMail(conf)
+
+    await fm.send_message(message)
+
+    print(
+        f"Team email sent to {email}"
+    )

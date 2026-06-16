@@ -1,5 +1,5 @@
 "use client";
-
+import StatCard from "@/components/app/StatCard";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -7,8 +7,8 @@ import {
   getEvents,
   getMyRegistrations,
   getCurrentUser,
+  getAnalytics,  
 } from "@/lib/api";
-
 import {
   Card,
   CardContent,
@@ -23,6 +23,8 @@ import {
   Plus,
   ArrowRight,
   QrCode,
+  CheckCircle,
+  TrendingUp,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -36,7 +38,16 @@ export default function Dashboard() {
 
   const [isAdmin, setIsAdmin] =
     useState(false);
+   const [upcomingCount, setUpcomingCount] =
+  useState(0);
 
+const [completedCount, setCompletedCount] =
+  useState(0);
+
+const [activePasses, setActivePasses] =
+  useState(0); 
+const [analytics, setAnalytics] =
+  useState<any>(null);
   useEffect(() => {
     async function loadData() {
       try {
@@ -48,7 +59,23 @@ export default function Dashboard() {
             ? events.length
             : 0
         );
+const now = new Date();
 
+setUpcomingCount(
+  events.filter(
+    (event: any) =>
+      new Date(event.start_date) >
+      now
+  ).length
+);
+
+setCompletedCount(
+  events.filter(
+    (event: any) =>
+      new Date(event.end_date) <
+      now
+  ).length
+);
         const token =
           localStorage.getItem(
             "token"
@@ -56,10 +83,11 @@ export default function Dashboard() {
 
         if (token) {
           const registrations =
-            await getMyRegistrations(
-              token
-            );
+  await getMyRegistrations(
+    token
+  );
 
+;
           setRegistrationCount(
             Array.isArray(
               registrations
@@ -67,7 +95,16 @@ export default function Dashboard() {
               ? registrations.length
               : 0
           );
+const now = new Date();
 
+setActivePasses(
+  registrations.filter(
+    (registration: any) =>
+      new Date(
+        registration.event.end_date
+      ) >= new Date()
+  ).length
+);
           const user =
             await getCurrentUser(
               token
@@ -76,6 +113,18 @@ export default function Dashboard() {
           setIsAdmin(
             user.role === "admin"
           );
+          if (user.role === "admin") {
+  const analyticsData =
+  await getAnalytics(
+    token
+  );
+
+setAnalytics(
+  analyticsData
+);
+
+  
+}
         }
       } catch (error) {
         console.error(error);
@@ -99,75 +148,115 @@ export default function Dashboard() {
             Management Platform.
           </p>
         </div>
+{isAdmin && analytics ? (
+  <>
+    <div className="grid md:grid-cols-3 gap-4 mb-6">      <StatCard
+        title="Total Events"
+        value={analytics.total_events}
+        icon={<Calendar className="h-6 w-6" />}
+      />
 
-        <div className="grid md:grid-cols-3 gap-4 mb-8">
+      <StatCard
+        title="Registrations"
+        value={analytics.total_registrations}
+        icon={<Ticket className="h-6 w-6" />}
+      />
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground">
-                    Total Events
-                  </p>
+      <StatCard
+        title="Attendance Rate"
+        value={`${analytics.attendance_rate}%`}
+        icon={<TrendingUp className="h-6 w-6" />}
+      />
+    </div>
 
-                  <h2 className="text-3xl font-bold mt-2">
-                    {eventCount}
-                  </h2>
-                </div>
+    <Card
+  className="
+    rounded-2xl
+    shadow-sm
+    hover:shadow-md
+    hover:-translate-y-1
+    transition-all
+    duration-300
+    mb-8
+  "
+>
+      <CardContent className="p-6">
+        <h2 className="text-xl font-bold mb-4">
+          Platform Insights
+        </h2>
 
-                <Calendar className="w-8 h-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
+        <div className="space-y-5">
+          <div>
+            <p className="text-sm text-muted-foreground">
+              Most Popular Event
+            </p>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground">
-                    My Registrations
-                  </p>
+            <p className="text-lg font-semibold">
+              {analytics.most_popular_event}
+            </p>
+          </div>
 
-                  <h2 className="text-3xl font-bold mt-2">
-                    {registrationCount}
-                  </h2>
-                </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Upcoming Events
+              </p>
 
-                <Ticket className="w-8 h-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
+              <p className="text-2xl font-bold">
+                {analytics.upcoming_events}
+              </p>
+            </div>
 
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground">
-                    Account Status
-                  </p>
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Attendance Efficiency
+              </p>
 
-                  <h2 className="text-2xl font-bold mt-2">
-                    Active
-                  </h2>
-                </div>
-
-                <User className="w-8 h-8 text-violet-600" />
-              </div>
-            </CardContent>
-          </Card>
-
+              <p className="text-2xl font-bold">
+                {analytics.attendance_rate}%
+              </p>
+            </div>
+          </div>
         </div>
+      </CardContent>
+    </Card>
+  </>
+) : (
 
-        <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-4 mb-8">
+<div className="grid md:grid-cols-3 gap-4 mb-8">
+
+  <StatCard
+    title="My Registrations"
+    value={registrationCount}
+    icon={<Ticket className="h-6 w-6" />}
+  />
+
+  <StatCard
+    title="Active Passes"
+    value={activePasses}
+    icon={<QrCode className="h-6 w-6" />}
+  />
+
+  <StatCard
+    title="Events Available"
+    value={eventCount}
+    icon={<Calendar className="h-6 w-6" />}
+  />
+
+</div>
+
+)}
+
+       <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-4 mb-8">
 
           {isAdmin && (
             <Link href="/create-event">
-              <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer">
-                <CardContent className="p-6">
+             <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer">
+                <CardContent className="p-8">
 
-                  <Plus className="w-8 h-8 mb-4" />
+                  <Plus className="w-8 h-8 mb-4 text-violet-600" />
 
-                  <h3 className="font-bold text-lg">
+                  <h3 className="font-semibold text-lg">
                     Create Event
                   </h3>
 
@@ -182,11 +271,11 @@ export default function Dashboard() {
 
           <Link href="/events">
             <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer">
-              <CardContent className="p-6">
+              <CardContent className="p-8">
 
-                <Calendar className="w-8 h-8 mb-4" />
+                <Calendar className="w-8 h-8 mb-4 text-violet-600" />
 
-                <h3 className="font-bold text-lg">
+                <h3 className="font-semibold text-lg">
                   Browse Events
                 </h3>
 
@@ -200,11 +289,11 @@ export default function Dashboard() {
 
           <Link href="/my-registrations">
             <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer">
-              <CardContent className="p-6">
+              <CardContent className="p-8">
 
-                <Ticket className="w-8 h-8 mb-4" />
+                <Ticket className="w-8 h-8 mb-4 text-violet-600" />
 
-                <h3 className="font-bold text-lg">
+                <h3 className="font-semibold text-lg">
                   My Passes
                 </h3>
 
@@ -219,11 +308,11 @@ export default function Dashboard() {
           {isAdmin && (
             <Link href="/scanner">
               <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer">
-                <CardContent className="p-6">
+                <CardContent className="p-8">
 
-                  <QrCode className="w-8 h-8 mb-4" />
+                  <QrCode className="w-8 h-8 mb-4 text-violet-600" />
 
-                  <h3 className="font-bold text-lg">
+                  <h3 className="font-semibold text-lg">
                     Scanner
                   </h3>
 
@@ -238,11 +327,11 @@ export default function Dashboard() {
 
           <Link href="/profile">
             <Card className="hover:shadow-xl transition-all duration-300 cursor-pointer">
-              <CardContent className="p-6">
+              <CardContent className="p-8">
 
-                <User className="w-8 h-8 mb-4" />
+                <User className="w-8 h-8 mb-4 text-violet-600" />
 
-                <h3 className="font-bold text-lg">
+                <h3 className="font-semibold text-lg">
                   Profile
                 </h3>
 
@@ -256,7 +345,7 @@ export default function Dashboard() {
 
         </div>
 
-        <Card>
+        <Card className="rounded-2xl shadow-sm">
           <CardContent className="p-8">
 
             <h2 className="text-2xl font-bold">

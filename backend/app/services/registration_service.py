@@ -1,5 +1,5 @@
 import asyncio
-
+from datetime import datetime
 from backend.app.models.user import User
 from backend.app.services.email_service import (
     send_registration_email,
@@ -8,7 +8,10 @@ from backend.app.services.email_service import (
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
-from backend.app.core.errors import ConflictError, NotFoundError
+from backend.app.core.errors import (
+    ConflictError,
+    NotFoundError,
+)
 from backend.app.models.event import Event
 from backend.app.models.registration import Registration
 
@@ -19,6 +22,7 @@ def register_user_for_event(
     user_id: int,
     event_id: int,
 ) -> Registration:
+
     existing = db.execute(
         select(Registration).where(
             Registration.user_id == user_id,
@@ -31,6 +35,33 @@ def register_user_for_event(
             "Already registered for this event"
         )
 
+    event = db.get(
+        Event,
+        event_id,
+    )
+
+    if not event:
+        raise NotFoundError(
+            "Event not found"
+        )
+
+    if event.end_date < datetime.now():
+        raise ConflictError(
+            "Event has already ended"
+        )
+
+    registrations_count = len(
+        event.registrations
+    )
+
+    if (
+        registrations_count
+        >= event.capacity
+    ):
+        raise ConflictError(
+            "Event is full"
+        )
+
     registration = Registration(
         user_id=user_id,
         event_id=event_id,
@@ -41,12 +72,10 @@ def register_user_for_event(
     db.refresh(registration)
 
     user = db.get(User, user_id)
-    event = db.get(Event, event_id)
 
-    if user and event:
+    if user:
         try:
             import threading
-            import asyncio
 
             threading.Thread(
                 target=lambda: asyncio.run(
@@ -65,8 +94,8 @@ def register_user_for_event(
                 f"Email sending failed: {e}"
             )
 
-    
     return registration
+
 
 def cancel_registration(
     db: Session,
@@ -74,6 +103,7 @@ def cancel_registration(
     user_id: int,
     event_id: int,
 ) -> None:
+
     registration = db.execute(
         select(Registration).where(
             Registration.user_id == user_id,
@@ -94,6 +124,7 @@ def my_registrations(
     db: Session,
     user_id: int,
 ) -> list[Registration]:
+
     return list(
         db.execute(
             select(Registration)
@@ -116,6 +147,7 @@ def get_event_participants(
     db: Session,
     event_id: int,
 ):
+
     event = db.get(
         Event,
         event_id,
