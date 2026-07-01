@@ -20,6 +20,7 @@ from backend.app.core.errors import (
 )
 
 from backend.app.models.user import User
+from backend.app.core.roles import ROLE_ADMIN, ROLE_ORGANIZER
 
 from backend.app.schemas.team import (
     TeamCreate,
@@ -55,6 +56,7 @@ def register_team(
             leader_user_id=current_user.id,
             team_name=payload.team_name,
             members=payload.members,
+            payment_verified=False,
         )
 
         return team
@@ -77,8 +79,34 @@ def register_team(
 def get_team(
     team_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(
+        get_current_user
+    ),
 ):
-    return get_team_by_id(
+    team = get_team_by_id(
         db,
         team_id,
-    ) 
+    )
+
+    if current_user.role in [
+        ROLE_ADMIN,
+        ROLE_ORGANIZER,
+    ]:
+        return team
+
+    if team.leader_user_id == current_user.id:
+        return team
+
+    if any(
+        member.email.lower()
+        == current_user.email.lower()
+        for member in team.members
+    ):
+        return team
+
+    from fastapi import HTTPException
+
+    raise HTTPException(
+        status_code=403,
+        detail="Not authorized",
+    )

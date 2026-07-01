@@ -10,6 +10,7 @@ import {
   Card,
   CardContent,
 } from "@/components/ui/card";
+import { EmptyState, PageHeaderSkeleton, StatGridSkeleton } from "@/components/app/FeedbackStates";
 
 type AttendanceRecord = {
   id: number;
@@ -38,6 +39,7 @@ export default function AttendancePage() {
           );
 
         if (!token) {
+          setLoading(false);
           return;
         }
 
@@ -68,8 +70,20 @@ export default function AttendancePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading Attendance...
+      <div className="min-h-screen bg-muted/30 p-8">
+        <div className="mx-auto max-w-6xl space-y-6">
+          <PageHeaderSkeleton />
+          <StatGridSkeleton count={1} />
+          <Card className="rounded-2xl shadow-sm">
+            <CardContent className="p-6">
+              <div className="animate-pulse space-y-3">
+                <div className="h-4 w-full rounded-full bg-muted/70" />
+                <div className="h-4 w-5/6 rounded-full bg-muted/70" />
+                <div className="h-4 w-2/3 rounded-full bg-muted/70" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -96,21 +110,11 @@ export default function AttendancePage() {
 </div>
 
         {attendance.length === 0 ? (
-          <Card className="rounded-2xl shadow-sm">
-  <CardContent className="p-12 text-center">
-
-    <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-
-    <h2 className="text-2xl font-bold">
-      No Attendance Yet
-    </h2>
-
-    <p className="text-muted-foreground mt-2">
-      No attendees have checked in for this event.
-    </p>
-
-  </CardContent>
-</Card>
+          <EmptyState
+            icon={<Users className="h-5 w-5" />}
+            title="No attendance yet"
+            description="No attendees have checked in for this event."
+          />
         ) : (
           <Card className="rounded-2xl shadow-sm">
             <CardContent className="p-0 overflow-x-auto">

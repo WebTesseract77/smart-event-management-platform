@@ -14,6 +14,7 @@ from backend.app.core.errors import (
 )
 
 from backend.app.models.user import User
+from backend.app.core.roles import ROLE_ADMIN, ROLE_ORGANIZER
 
 from backend.app.schemas.participant import (
     ParticipantRead,
@@ -178,7 +179,7 @@ def get_registration_details(
 
     if (
         current_user.role
-        not in ["admin", "organizer"]
+        not in [ROLE_ADMIN, ROLE_ORGANIZER]
         and registration.user_id
         != current_user.id
     ):

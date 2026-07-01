@@ -139,9 +139,7 @@ export default function ForgotPasswordPage() {
             <label className="block mb-2 text-sm font-medium">
               Email
             </label>
-<p className="text-sm text-muted-foreground mt-1">
-  Enter the email address linked to your account.
-</p>
+
             <Input
               type="email"
               value={email}

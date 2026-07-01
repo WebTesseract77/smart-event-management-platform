@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from typing import Literal
 
 
 class UserBase(BaseModel):
@@ -22,6 +23,10 @@ class UserRead(UserBase):
     role: str
 
 
+class UserRoleUpdate(BaseModel):
+    role: Literal["user", "organizer"]
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"
@@ -30,4 +35,3 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     sub: str
     role: str
-

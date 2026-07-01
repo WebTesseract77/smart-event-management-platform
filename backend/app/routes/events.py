@@ -110,8 +110,13 @@ def add_event(
     is_team_event=payload.is_team_event,
     min_team_size=payload.min_team_size,
     max_team_size=payload.max_team_size,
+    is_paid_event=payload.is_paid_event,
+registration_fee=payload.registration_fee,
+    max_teams=payload.max_teams,
     start_date=payload.start_date,
     end_date=payload.end_date,
+    registration_deadline=
+        payload.registration_deadline,
     created_by=current_user.id,
 )
 

@@ -1,9 +1,15 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.app.core.errors import AuthenticationError, ConflictError
+from backend.app.core.errors import AuthenticationError, ConflictError, ForbiddenError, NotFoundError, ValidationError
 from backend.app.core.security import get_password_hash, verify_password
+from backend.app.core.roles import (
+    ROLE_ADMIN,
+    ROLE_ORGANIZER,
+    ROLE_USER,
+)
 from backend.app.models.user import User
+from sqlalchemy import select
 
 
 def get_user_by_email(db: Session, email: str) -> User | None:
@@ -21,7 +27,7 @@ def create_user(
     name: str,
     email: str,
     password: str,
-    role: str = "participant"
+    role: str = ROLE_USER
 ) -> User:
     normalized_email = email.lower()
 
@@ -47,30 +53,47 @@ def create_user(
 
     return user
 
+
+def list_users(db: Session) -> list[User]:
+    return list(db.execute(select(User).order_by(User.id)).scalars().all())
+
+
+def update_user_role(
+    db: Session,
+    *,
+    current_user: User,
+    user_id: int,
+    role: str,
+) -> User:
+    target_user = get_user_by_id(db, user_id)
+
+    if not target_user:
+        raise NotFoundError("User not found")
+
+    if target_user.id == current_user.id:
+        raise ForbiddenError("You cannot change your own role")
+
+    if target_user.role == ROLE_ADMIN:
+        raise ForbiddenError("Admin users cannot be modified")
+
+    if role not in (ROLE_USER, ROLE_ORGANIZER):
+        raise ValidationError("Invalid role")
+
+    target_user.role = role
+    db.commit()
+    db.refresh(target_user)
+
+    return target_user
+
 def authenticate_user(
     db: Session,
     email: str,
     password: str,
 ) -> User:
-
-    
-
     user = get_user_by_email(
         db,
         email,
     )
-
-    print("USER:", user)
-
-    if user:
-        print("DB EMAIL:", user.email)
-        print(
-            "PASSWORD MATCH:",
-            verify_password(
-                password,
-                user.password_hash,
-            )
-        )
 
     if (
         not user

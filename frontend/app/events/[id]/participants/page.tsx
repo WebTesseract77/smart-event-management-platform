@@ -7,6 +7,8 @@ import {
   getParticipants,
   getAttendance,
 } from "@/lib/api";
+import { EmptyState, PageHeaderSkeleton } from "@/components/app/FeedbackStates";
+import { Users } from "lucide-react";
 
 export default function ParticipantsPage() {
   const params = useParams();
@@ -82,8 +84,15 @@ const participantsData =
 
   if (loading) {
     return (
-      <div className="p-8">
-        Loading...
+      <div className="min-h-screen bg-muted/30 p-8">
+        <div className="mx-auto max-w-5xl space-y-6">
+          <PageHeaderSkeleton />
+          <div className="grid gap-4 md:grid-cols-2">
+            {Array.from({ length: 2 }).map((_, index) => (
+              <div key={index} className="h-40 animate-pulse rounded-3xl bg-background" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -95,9 +104,11 @@ const participantsData =
       </h1>
 
       {participants.length === 0 ? (
-        <p className="mt-4">
-          No participants yet.
-        </p>
+        <EmptyState
+          icon={<Users className="h-5 w-5" />}
+          title="No participants yet"
+          description="Invite attendees or check back later."
+        />
       ) : (
         participants.map(
           (participant) => (
@@ -124,9 +135,11 @@ const participantsData =
       </h2>
 
       {attendance.length === 0 ? (
-        <p className="mt-3">
-          No attendance records yet.
-        </p>
+        <EmptyState
+          icon={<Users className="h-5 w-5" />}
+          title="No attendance records yet"
+          description="Attendance will appear once check-ins begin."
+        />
       ) : (
         attendance.map(
           (record) => (

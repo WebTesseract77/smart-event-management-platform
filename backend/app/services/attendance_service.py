@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from backend.app.models.attendance import Attendance
+from backend.app.models.registration import Registration
 
 
 def mark_attendance(
@@ -8,6 +9,21 @@ def mark_attendance(
     event_id: int,
     user_id: int,
 ):
+    registration = (
+        db.query(Registration)
+        .filter(
+            Registration.event_id == event_id,
+            Registration.user_id == user_id,
+        )
+        .first()
+    )
+
+    if not registration:
+        raise HTTPException(
+            status_code=400,
+            detail="User is not registered for this event",
+        )
+
     existing = (
         db.query(Attendance)
         .filter(

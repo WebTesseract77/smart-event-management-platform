@@ -51,9 +51,103 @@ export async function getEvents() {
 
   return response.json();
 }
+
+export async function getOrganizerEvents(token: string) {
+  const response = await fetch(
+    `${API_URL}/organizer/events`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to load organizer events");
+  }
+
+  return response.json();
+}
+
+export async function getOrganizerEvent(
+  token: string,
+  eventId: number
+) {
+  const response = await fetch(
+    `${API_URL}/organizer/events/${eventId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to load organizer event");
+  }
+
+  return response.json();
+}
+
+export async function getOrganizerEventParticipants(
+  token: string,
+  eventId: number
+) {
+  const response = await fetch(
+    `${API_URL}/organizer/events/${eventId}/participants`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to load organizer participants");
+  }
+
+  return response.json();
+}
+
+export async function getOrganizerEventAttendance(
+  token: string,
+  eventId: number
+) {
+  const response = await fetch(
+    `${API_URL}/organizer/events/${eventId}/attendance`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to load organizer attendance");
+  }
+
+  return response.json();
+}
+
+export async function getOrganizerAnalytics(token: string) {
+  const response = await fetch(
+    `${API_URL}/organizer/analytics`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to load organizer analytics");
+  }
+
+  return response.json();
+}
 export async function createEvent(
   token: string,
-  event: {
+  data: {
     title: string;
     description: string;
     location: string;
@@ -61,9 +155,13 @@ export async function createEvent(
     capacity: number;
     start_date: string;
     end_date: string;
+    registration_deadline: string;
     is_team_event?: boolean;
     min_team_size?: number;
     max_team_size?: number;
+    is_paid_event?: boolean;
+    registration_fee?: number;
+    max_teams?: number;
   }
 ) {
   const response = await fetch(
@@ -74,9 +172,21 @@ export async function createEvent(
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(event),
+      body: JSON.stringify(data),
     }
   );
+
+  if (!response.ok) {
+    const error =
+      await response.text();
+
+    console.error(
+      "CREATE EVENT ERROR:",
+      error
+    );
+
+    throw new Error(error);
+  }
 
   return response.json();
 }
@@ -321,18 +431,187 @@ export async function getAnalytics(
 
   return response.json();
 }
+
+export async function registerTeam(
+  token: string,
+  data: {
+    event_id: number;
+    team_name: string;
+    members: Array<{
+      name: string;
+      email: string;
+      college: string;
+      branch: string;
+      year: string;
+      semester: string;
+      is_leader: boolean;
+    }>;
+  }
+) {
+  const response = await fetch(
+    `${API_URL}/teams/register`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  return response.json();
+}
+
+export async function markOrganizerAttendance(
+  token: string,
+  eventId: number,
+  userId: number
+) {
+  const response = await fetch(
+    `${API_URL}/organizer/events/${eventId}/attendance/${userId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to mark organizer attendance");
+  }
+
+  return response.json();
+}
+
+export async function getAdminUsers(token: string) {
+  const response = await fetch(
+    `${API_URL}/admin/users`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to load users");
+  }
+
+  return response.json();
+}
+
+export async function updateUserRole(
+  token: string,
+  userId: number,
+  role: "user" | "organizer"
+) {
+  const response = await fetch(
+    `${API_URL}/admin/users/${userId}/role`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ role }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  return response.json();
+}
+
 export async function getTeam(
+  token: string,
   teamId: number
 ) {
   const response =
     await fetch(
-      `${API_URL}/teams/${teamId}`
+      `${API_URL}/teams/${teamId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
   if (!response.ok) {
     throw new Error(
       "Failed to load team"
     );
+  }
+
+  return response.json();
+}
+export async function createPaymentOrder(
+  token: string,
+  eventId: number
+) {
+  const response = await fetch(
+    `${API_URL}/payments/create-order`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        event_id: eventId,
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(async () => ({
+      detail: await response.text(),
+    }));
+    throw new Error(error.detail || "Failed to create payment order");
+  }
+
+  return response.json();
+}
+export async function verifyPayment(
+  token: string,
+  data: {
+    event_id: number;
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+    registration_type?: "individual" | "team";
+    team_name?: string;
+    members?: Array<{
+      name: string;
+      email: string;
+      college: string;
+      branch: string;
+      year: string;
+      semester: string;
+      is_leader: boolean;
+    }>;
+  }
+) {
+  const response = await fetch(
+    `${API_URL}/payments/verify`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.json().catch(async () => ({
+      detail: await response.text(),
+    }));
+    throw new Error(error.detail || "Payment verification failed");
   }
 
   return response.json();

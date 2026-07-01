@@ -1,0 +1,9 @@
+ROLE_ADMIN = "admin"
+ROLE_ORGANIZER = "organizer"
+ROLE_USER = "user"
+
+SUPPORTED_ROLES = (
+    ROLE_ADMIN,
+    ROLE_ORGANIZER,
+    ROLE_USER,
+)

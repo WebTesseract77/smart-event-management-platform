@@ -30,6 +30,12 @@ class EventBase(BaseModel):
         ge=1,
         le=10000,
     )
+    is_paid_event: bool = False
+
+    registration_fee: float = Field(
+        default=0,
+        ge=0,
+)
 
     is_team_event: bool = False
 
@@ -44,9 +50,13 @@ class EventBase(BaseModel):
         ge=1,
         le=20,
     )
-
+    max_teams: int | None = Field(
+    default=None,
+    ge=1,
+)
     start_date: datetime
     end_date: datetime
+    registration_deadline: datetime
 
     @field_validator("end_date")
     @classmethod
@@ -68,6 +78,27 @@ class EventBase(BaseModel):
             )
 
         return end_date
+
+    @field_validator("registration_deadline")
+    @classmethod
+    def registration_must_be_before_start(
+        cls,
+        registration_deadline: datetime,
+        info,
+    ):
+        start_date = info.data.get(
+            "start_date"
+        )
+
+        if (
+            start_date
+            and registration_deadline >= start_date
+        ):
+            raise ValueError(
+                "registration_deadline must be before start_date"
+            )
+
+        return registration_deadline
 
     @field_validator("max_team_size")
     @classmethod
@@ -119,7 +150,12 @@ class EventUpdate(BaseModel):
         default=None,
         ge=1,
     )
+    is_paid_event: bool | None = None
 
+    registration_fee: float | None = Field(
+      default=None,
+      ge=0,
+)
     is_team_event: bool | None = None
 
     min_team_size: int | None = Field(
@@ -133,9 +169,13 @@ class EventUpdate(BaseModel):
         ge=1,
         le=20,
     )
-
+    max_teams: int | None = Field(
+    default=None,
+    ge=1,
+)
     start_date: datetime | None = None
     end_date: datetime | None = None
+    registration_deadline: datetime | None = None
 
     @field_validator("end_date")
     @classmethod
@@ -166,5 +206,5 @@ class EventRead(EventBase):
     )
 
     id: int
-    created_by: int
+    created_by: int | None
     registered_count: int = 0

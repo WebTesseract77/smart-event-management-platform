@@ -57,17 +57,20 @@ def seed_initial_data(db: Session) -> None:
 
     if not has_events:
         create_event(
-            db,
-            title="Tech Leadership Summit",
-            description="A sample event for demonstrating the event platform.",
-            location="Main Convention Center",
-            image_url=None,
-            capacity=100,
-            start_date=datetime.fromisoformat(
-                "2026-07-10T09:00:00+00:00"
-            ),
-            end_date=datetime.fromisoformat(
-                "2026-07-10T17:00:00+00:00"
-            ),
-            created_by=admin.id,
-        )
+    db,
+    title="Tech Leadership Summit",
+    description="A sample event for demonstrating the event platform.",
+    location="Main Convention Center",
+    image_url=None,
+    capacity=100,
+    start_date=datetime.fromisoformat(
+        "2026-07-10T09:00:00+00:00"
+    ),
+    end_date=datetime.fromisoformat(
+        "2026-07-10T17:00:00+00:00"
+    ),
+    registration_deadline=datetime.fromisoformat(
+        "2026-07-09T23:59:00+00:00"
+    ),
+    created_by=admin.id,
+)

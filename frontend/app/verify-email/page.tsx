@@ -10,6 +10,7 @@ import {
 } from "next/navigation";
 
 import { toast } from "sonner";
+import { PageHeaderSkeleton } from "@/components/app/FeedbackStates";
 
 function VerifyEmailContent() {
   const searchParams =
@@ -121,8 +122,10 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          Loading...
+        <div className="min-h-screen bg-muted/30 p-6">
+          <div className="mx-auto max-w-md">
+            <PageHeaderSkeleton />
+          </div>
         </div>
       }
     >

@@ -19,12 +19,15 @@ from backend.app.models import (
 from backend.app.database.base import Base
 from backend.app.routes.auth import router as auth_router
 from backend.app.routes.events import router as events_router
+from backend.app.routes.organizer import router as organizer_router
 from backend.app.routes.registrations import router as registrations_router
 from backend.app.routes.users import router as users_router
 from backend.app.services.seed_service import seed_initial_data
 from backend.app.routes import admin
 settings = get_settings()
-
+from backend.app.routes.payments import (
+    router as payment_router,
+)
 
 app = FastAPI(
     title=settings.app_name,
@@ -71,6 +74,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
+        "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -101,4 +105,12 @@ app.include_router(
 app.include_router(
     team_router,
     prefix=settings.api_v1_prefix
+)
+app.include_router(
+    payment_router,
+    prefix=settings.api_v1_prefix,
+)
+app.include_router(
+    organizer_router,
+    prefix=settings.api_v1_prefix,
 )

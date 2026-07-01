@@ -2,6 +2,7 @@ from sqlalchemy import String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.database.base import Base
+from backend.app.core.roles import ROLE_USER
 
 
 class User(Base):
@@ -28,7 +29,7 @@ class User(Base):
 
     role: Mapped[str] = mapped_column(
     String(20),
-    default="participant",
+    default=ROLE_USER,
     nullable=False,
 )
 

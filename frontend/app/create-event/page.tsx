@@ -1,379 +1,125 @@
-"use client";
-import { useState } from "react";
-import { createEvent } from "@/lib/api";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+﻿"use client";
 
-export default function CreateEventPage() { 
-  const [title, setTitle] = useState("");
-const [description, setDescription] = useState("");
-const [location, setLocation] = useState("");
-const [imageUrl, setImageUrl] = useState("");
-const [capacity, setCapacity] = useState(100);
+import Link from "next/link";
+import { CalendarDays, Users, Ticket, CheckCircle2 } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 
-const [isTeamEvent, setIsTeamEvent] =
-  useState(false);
-
-const [minTeamSize, setMinTeamSize] =
-  useState(2);
-
-const [maxTeamSize, setMaxTeamSize] =
-  useState(6);
-
-const [startDate, setStartDate] =
-  useState("");
-
-const [endDate, setEndDate] =
-  useState("");
-const handleSubmit = async (
-  e: React.FormEvent
-) => {
-  e.preventDefault();
-
-  try {
-    const token =
-      localStorage.getItem("token");
-
-    if (!token) {
-      alert("Please login");
-      return;
-    }
-if (new Date(endDate) <= new Date(startDate)) {
-  alert(
-    "End date must be after start date"
-  );
-  return;
-}
-    await createEvent(token, {
-      title,
-      description,
-      location,
-      image_url:
-  imageUrl.trim() || undefined,
-      capacity,
-      start_date: startDate,
-      end_date: endDate,
-      is_team_event: isTeamEvent,
-      min_team_size: minTeamSize,
-      max_team_size: maxTeamSize,
-    });
-
-    alert("Event created!");
-  } catch (error) {
-    console.error(error);
-    alert("Failed to create event");
-  }
+const cardVariants = {
+  hidden: { opacity: 0, y: 18 },
+  visible: (index: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.45,
+      delay: index * 0.08,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
+  }),
 };
+
+function OptionCard({
+  href,
+  icon,
+  title,
+  description,
+  bullets,
+  accent,
+  index,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  bullets: string[];
+  accent: string;
+  index: number;
+}) {
+  const reduceMotion = useReducedMotion();
+
   return (
-    <main className="min-h-screen bg-muted/30 py-10 px-4">
-     <div
-  style={{
-    maxWidth: "820px",
-    margin: "0 auto",
-    background: "white",
-    borderRadius: "24px",
-    padding: "40px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
-  }}
->
-        {/* Header */}
-
-        <div className="mb-10">
-  <h1
-  style={{
-    fontSize: "38px",
-    fontWeight: "800",
-    lineHeight: "1",
-  }}
->
-  Create Event
-</h1>
-
-  <p
-    style={{
-      marginTop: "16px",
-      fontSize: "18px",
-      color: "#6b7280",
-    }}
-  >
-    Fill in the details below to create and
-    schedule a new event.
-  </p>
-</div>
-        {/* Form */}
-
-        <form
-  onSubmit={handleSubmit}
-  className="space-y-8"
->
-
-          {/* Event Title */}
-
-          <div>
-            <label className="block mb-3 font-semibold">
-              Event Title
-            </label>
-
-            <Input
-  required  value={title}
-  onChange={(e) =>
-    setTitle(e.target.value)
-  }
-              
-
-  placeholder="Enter a short and descriptive event title"
-  className="h-12"
-/>
+    <motion.div
+      custom={index}
+      variants={cardVariants}
+      whileHover={reduceMotion ? undefined : { y: -4 }}
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      className="h-full"
+    >
+      <Link
+        href={href}
+        className={`group block h-full rounded-3xl border bg-gradient-to-br ${accent} p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/10`}
+      >
+        <div className="flex h-full flex-col">
+          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-background/80 text-violet-600 shadow-sm ring-1 ring-black/5 transition-transform duration-300 group-hover:scale-105">
+            {icon}
           </div>
 
-          {/* Description */}
+          <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
 
-          <div>
-            <label className="block mb-3 font-semibold">
-              Description
-            </label>
+          <ul className="mt-6 space-y-2 text-sm font-medium text-foreground">
+            {bullets.map((bullet) => (
+              <li key={bullet} className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-violet-600" />
+                <span>{bullet}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
 
-            <textarea
-  required
-  rows={5}
-  value={description}
-  onChange={(e) =>
-    setDescription(e.target.value)
-  }
-  placeholder="Describe the event, schedule and purpose"
-              className="
-                w-full
-                rounded-xl
-                border
-                p-4
-                outline-none
-                focus:ring-2
-                focus:ring-violet-500
-              "
-            />
-          </div>
+export default function CreateEventPage() {
+  const reduceMotion = useReducedMotion();
 
-          {/* Location */}
+  return (
+    <main className="min-h-screen bg-muted/30">
+      <div className="relative isolate overflow-hidden">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.12),transparent_28%),radial-gradient(circle_at_80%_24%,rgba(59,130,246,0.10),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.08),transparent_26%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.16),transparent_28%),radial-gradient(circle_at_80%_24%,rgba(59,130,246,0.12),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.10),transparent_26%)]" />
 
-          <div>
-            <label className="block mb-3 font-semibold">
-              Location
-            </label>
-
-            <input
-  required
-  type="text"
-  value={location}
-  onChange={(e) =>
-    setLocation(e.target.value)
-  }
-              placeholder="Enter venue name, hall, building or room number"
-              className="
-                w-full
-                h-14
-                rounded-xl
-                border
-                px-4
-                outline-none
-                focus:ring-2
-                focus:ring-violet-500
-              "
-            />
-          </div>
-
-          {/* Image URL */}
-
-          <div>
-            <label className="block mb-3 font-semibold">
-              Image URL
-              <span className="ml-2 text-sm text-muted-foreground">
-                (Optional)
-              </span>
-            </label>
-
-            <input
-  type="text"
-  value={imageUrl}
-  onChange={(e) =>
-    setImageUrl(e.target.value)
-  }
-              placeholder="Paste banner image URL"
-              className="
-                w-full
-                h-14
-                rounded-xl
-                border
-                px-4
-                outline-none
-                focus:ring-2
-                focus:ring-violet-500
-              "
-            />
-          </div>
-
-          {/* Capacity */}
-
-          <div>
-            <label className="block mb-3 font-semibold">
-              Capacity
-            </label>
-
-           <input
-  type="number"
-  value={capacity}
-  onChange={(e) =>
-    setCapacity(Number(e.target.value))
-  }
-              className="
-                w-full
-                h-14
-                rounded-xl
-                border
-                px-4
-                outline-none
-                focus:ring-2
-                focus:ring-violet-500
-              "
-            />
-          </div>
-
-          {/* Team Event */}
-
-          <div
-  style={{
-    background: "#f5f3ff",
-    border: "1px solid #ddd6fe",
-    borderRadius: "16px",
-    padding: "24px",
-  }}
->
-            <div className="flex gap-4">
-              <input
-  type="checkbox"
-  checked={isTeamEvent}
-  onChange={(e) =>
-    setIsTeamEvent(e.target.checked)
-  }
-/>
-
-              <div>
-                <h3 className="font-semibold text-lg">
-                  Team Event
-                </h3>
-
-                <p className="text-muted-foreground mt-1">
-                  Enable team registration for
-                  hackathons, coding contests and
-                  competitions.
-                </p>
-              </div>
+        <motion.div
+          className="mx-auto max-w-6xl px-6 py-16 lg:py-20"
+          initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+          animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-2 text-sm font-medium shadow-sm backdrop-blur-sm">
+              <Ticket className="h-4 w-4 text-violet-600" />
+              Create Event
             </div>
 
-            {isTeamEvent && (
-  <div className="grid md:grid-cols-2 gap-4 mt-6">
-              <div>
-                <label className="block mb-2 font-medium">
-                  Minimum Team Size
-                </label>
-
-                <input
-                
-                  type="number"
-                  value={minTeamSize}
-onChange={(e) =>
-  setMinTeamSize(Number(e.target.value))
-}
-                  className="
-                    w-full
-                    h-14
-                    rounded-xl
-                    border
-                    px-4
-                  "
-                />
-              </div>
-
-              <div>
-                <label className="block mb-2 font-medium">
-                  Maximum Team Size
-                </label>
-
-                <input
-               
-                  type="number"
-                  value={maxTeamSize}
-onChange={(e) =>
-  setMaxTeamSize(Number(e.target.value))
-}
-                  className="
-                    w-full
-                    h-14
-                    rounded-xl
-                    border
-                    px-4
-                  "
-                />
-              </div>
-             </div>
-            
-)}
-</div>
-          {/* Start Date */}
-
-          <div>
-            <label className="block mb-3 font-semibold">
-              Start Date & Time
-            </label>
-
-            <input
-  required
-  type="datetime-local"
-  value={startDate}
-  onChange={(e) =>
-    setStartDate(e.target.value)
-  }
-              className="
-                w-full
-                h-14
-                rounded-xl
-                border
-                px-4
-              "
-            />
+            <h1 className="mt-6 text-5xl font-bold tracking-tight sm:text-6xl">
+              Create Event
+            </h1>
+            <p className="mt-4 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
+              Choose the event type to continue.
+            </p>
           </div>
 
-          {/* End Date */}
+          <div className="mt-14 grid gap-8 md:grid-cols-2">
+            <OptionCard
+              index={0}
+              href="/create-event/individual"
+              icon={<CalendarDays className="h-7 w-7" />}
+              title="Individual Event"
+              description="Standard registration for single participants."
+              bullets={["QR Pass", "Attendance", "Optional Payment"]}
+              accent="from-violet-50 to-white dark:from-violet-500/10 dark:to-background"
+            />
 
-          <div>
-            <label className="block mb-3 font-semibold">
-              End Date & Time
-            </label>
-
-<input
-  required  type="datetime-local"
-  value={endDate}
-  onChange={(e) =>
-    setEndDate(e.target.value)
-  }
-              className="
-                w-full
-                h-14
-                rounded-xl
-                border
-                px-4
-              "
+            <OptionCard
+              index={1}
+              href="/create-event/team"
+              icon={<Users className="h-7 w-7" />}
+              title="Team Event"
+              description="Built for competitions and group registrations."
+              bullets={["Team Members", "Team Captain", "QR Pass"]}
+              accent="from-sky-50 to-white dark:from-sky-500/10 dark:to-background"
             />
           </div>
-
-          {/* Submit */}
-
-          <Button
-  type="submit"
-  className="w-full h-12"
->
-  Create Event
-</Button>
-        </form>
+        </motion.div>
       </div>
     </main>
   );

@@ -1,14 +1,18 @@
 from collections.abc import Generator
-
-from fastapi import Depends, Header, HTTPException, status
+from fastapi.security import (
+    HTTPBearer,
+    HTTPAuthorizationCredentials,
+)
+from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from backend.app.core.config import get_settings
 from backend.app.core.security import decode_access_token
+from backend.app.core.roles import ROLE_ADMIN, ROLE_ORGANIZER
 from backend.app.database.session import get_db
 from backend.app.models.user import User
 
-
+security = HTTPBearer()
 def get_settings_dependency():
     return get_settings()
 
@@ -18,28 +22,17 @@ def db_session(db: Session = Depends(get_db)) -> Generator[Session, None, None]:
 
 
 def get_current_user(
-    authorization: str | None = Header(default=None),
+    credentials: HTTPAuthorizationCredentials = Depends(
+        security
+    ),
     db: Session = Depends(get_db),
 ) -> User:
 
-
-
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-        )
-
-    token = authorization.removeprefix(
-        "Bearer "
-    ).strip()
+    token = credentials.credentials
 
     try:
         payload = decode_access_token(token)
-
-        user_id = int(
-            payload["sub"]
-        )
+        user_id = int(payload["sub"])
 
     except (ValueError, KeyError):
         raise HTTPException(
@@ -47,10 +40,7 @@ def get_current_user(
             detail="Invalid authentication credentials",
         )
 
-    user = db.get(
-        User,
-        user_id,
-    )
+    user = db.get(User, user_id)
 
     if not user:
         raise HTTPException(
@@ -65,7 +55,7 @@ def get_current_admin(
         get_current_user
     )
 ) -> User:
-    if current_user.role != "admin":
+    if current_user.role != ROLE_ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required",
@@ -80,9 +70,21 @@ def get_current_organizer_or_admin(
     ),
 ) -> User:
     if current_user.role not in [
-        "admin",
-        "organizer",
+        ROLE_ADMIN,
+        ROLE_ORGANIZER,
     ]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Organizer privileges required",
+        )
+
+    return current_user
+
+
+def get_current_organizer(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    if current_user.role != ROLE_ORGANIZER:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Organizer privileges required",

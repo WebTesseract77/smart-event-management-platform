@@ -1,16 +1,17 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from backend.app.models.user import User
 from backend.app.services.email_service import (
     send_registration_email,
 )
-
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from backend.app.core.errors import (
     ConflictError,
     NotFoundError,
+    ValidationError,
 )
 from backend.app.models.event import Event
 from backend.app.models.registration import Registration
@@ -22,6 +23,8 @@ def register_user_for_event(
     user_id: int,
     event_id: int,
 ) -> Registration:
+    def _now_like(value: datetime) -> datetime:
+        return datetime.now(value.tzinfo) if value.tzinfo else datetime.now()
 
     existing = db.execute(
         select(Registration).where(
@@ -45,9 +48,13 @@ def register_user_for_event(
             "Event not found"
         )
 
-    if event.end_date < datetime.now():
+    if event.end_date < _now_like(event.end_date):
         raise ConflictError(
             "Event has already ended"
+        )
+    if _now_like(event.registration_deadline) > event.registration_deadline:
+        raise ValidationError(
+            "Registration deadline has passed"
         )
 
     registrations_count = len(
@@ -68,7 +75,15 @@ def register_user_for_event(
     )
 
     db.add(registration)
-    db.commit()
+
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise ConflictError(
+            "Already registered for this event"
+        ) from exc
+
     db.refresh(registration)
 
     user = db.get(User, user_id)

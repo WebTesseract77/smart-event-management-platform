@@ -1,6 +1,6 @@
 import asyncio
 import threading
-
+from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from backend.app.services.email_service import (
@@ -18,7 +18,6 @@ from backend.app.models.team import Team
 from backend.app.models.team_member import TeamMember
 from backend.app.services.qr_service import generate_qr
 
-
 def create_team_registration(
     db: Session,
     *,
@@ -26,7 +25,11 @@ def create_team_registration(
     leader_user_id: int,
     team_name: str,
     members: list,
+    payment_verified: bool = False,
 ):
+    def _now_like(value: datetime) -> datetime:
+        return datetime.now(value.tzinfo) if value.tzinfo else datetime.now()
+
     event = db.get(
         Event,
         event_id,
@@ -42,6 +45,16 @@ def create_team_registration(
             "This is not a team event"
         )
 
+    if event.is_paid_event and not payment_verified:
+        raise ValidationError(
+            "Payment required for paid team events"
+        )
+
+    if _now_like(event.registration_deadline) >= event.registration_deadline:
+        raise ValidationError(
+            "Registration deadline has passed"
+        )
+
     existing_team = (
         db.query(Team)
         .filter(
@@ -54,6 +67,14 @@ def create_team_registration(
     if existing_team:
         raise ValidationError(
             "You already registered a team for this event"
+        )
+
+    if (
+        event.max_teams is not None
+        and len(event.teams) >= event.max_teams
+    ):
+        raise ValidationError(
+            "Maximum teams reached"
         )
 
     member_count = len(members)
@@ -90,6 +111,7 @@ def create_team_registration(
             semester=member.semester,
             is_leader=member.is_leader,
         )
+
         db.add(team_member)
         team_members.append(team_member)
 

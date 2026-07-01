@@ -5,8 +5,8 @@ from sqlalchemy import (
     ForeignKey,
     Text,
     String,
+    Float,
 )
-
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
@@ -64,7 +64,20 @@ class Event(Base):
         default=1,
         nullable=False,
     )
+    max_teams: Mapped[int | None] = mapped_column(
+    nullable=True,
+)  
+    is_paid_event: Mapped[bool] = mapped_column(
+    default=False,
+    nullable=False,
+)
 
+    registration_fee: Mapped[float] = mapped_column(
+      Float,
+      default=0,
+      nullable=False,
+)
+   
     start_date: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -74,13 +87,17 @@ class Event(Base):
         DateTime(timezone=True),
         nullable=False,
     )
+    registration_deadline: Mapped[datetime] = mapped_column(
+    DateTime(timezone=True),
+    nullable=False,
+)
 
-    created_by: Mapped[int] = mapped_column(
+    created_by: Mapped[int | None] = mapped_column(
         ForeignKey(
             "users.id",
             ondelete="CASCADE",
         ),
-        nullable=False,
+        nullable=True,
     )
 
     creator = relationship(

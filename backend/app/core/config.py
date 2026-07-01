@@ -12,7 +12,8 @@ class Settings(BaseSettings):
 )
     app_name: str = "EventSphere"
     api_v1_prefix: str = "/api/v1"
-
+    razorpay_key_id: str = ""
+    razorpay_key_secret: str = ""
     database_url: str = Field(
         default="sqlite:///./smart_event.db",
         alias="DATABASE_URL",
@@ -44,7 +45,7 @@ class Settings(BaseSettings):
         default="change-me",
         alias="ADMIN_PASSWORD",
 )
-
+   
     # Mail Settings
 
     mail_username: str = Field(
