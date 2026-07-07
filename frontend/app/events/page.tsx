@@ -5,7 +5,6 @@ import EventCardSkeleton from "@/components/app/EventCardSkeleton";
 import EventToolbar from "@/components/app/EventToolbar";
 import { toast } from "sonner";
 import Script from "next/script";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -21,8 +20,7 @@ import {
   EmptyState,
   PageHeaderSkeleton,
 } from "@/components/app/FeedbackStates";
-import { Plus, Search, Sparkles, Ticket } from "lucide-react";
-
+import { Search, Sparkles, Ticket } from "lucide-react";
 export default function EventsPage() {
   const router = useRouter();
 
@@ -152,6 +150,7 @@ export default function EventsPage() {
   }, [search, filter]);
 
   const isAdmin = role === "admin";
+  const isOrganizer = role === "organizer";
   const now = new Date();
 
   const upcomingCount = events.filter((e) => new Date(e.start_date) > now).length;
@@ -194,29 +193,29 @@ export default function EventsPage() {
   }, [page, totalPages]);
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-[#FAF8F4]">
       <Script
         src="https://checkout.razorpay.com/v1/checkout.js"
         strategy="afterInteractive"
       />
       <div className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.12),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.09),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.06),transparent_30%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.16),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.12),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.10),transparent_30%)]" />
-      <div className="mx-auto max-w-7xl px-6 py-8 lg:py-10">
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#FAF8F4,#F5F2EA)]" />
+        <div className="mx-auto max-w-[1280px] px-5 py-6 sm:py-8 lg:py-10">
         {loading ? (
-          <div className="space-y-8">
+          <div className="space-y-7">
             <PageHeaderSkeleton />
-            <div className="rounded-[2rem] border bg-background/80 p-4 shadow-sm backdrop-blur">
-              <div className="animate-pulse space-y-4">
-                <div className="h-14 rounded-2xl bg-muted/70" />
+            <div className="rounded-[24px] border border-[#E8E1D5] bg-white p-4 shadow-[0_12px_32px_rgba(15,77,63,0.05)] backdrop-blur-sm">
+              <div className="animate-pulse space-y-3">
+                <div className="h-11 rounded-[14px] bg-[#F5F2EA]" />
                 <div className="flex flex-wrap gap-2">
-                  <div className="h-10 w-24 rounded-full bg-muted/70" />
-                  <div className="h-10 w-28 rounded-full bg-muted/70" />
-                  <div className="h-10 w-24 rounded-full bg-muted/70" />
-                  <div className="h-10 w-24 rounded-full bg-muted/70" />
+                  <div className="h-10 w-20 rounded-full bg-[#F5F2EA]" />
+                  <div className="h-10 w-24 rounded-full bg-[#F5F2EA]" />
+                  <div className="h-10 w-20 rounded-full bg-[#F5F2EA]" />
+                  <div className="h-10 w-20 rounded-full bg-[#F5F2EA]" />
                 </div>
               </div>
             </div>
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, index) => (
                 <EventCardSkeleton key={index} />
               ))}
@@ -224,38 +223,30 @@ export default function EventsPage() {
           </div>
         ) : (
           <>
-            <div className="mb-8 flex flex-col gap-5 rounded-[2rem] border bg-background/75 p-6 shadow-sm backdrop-blur">
+            <div className="mb-7 flex flex-col gap-5 rounded-[24px] border border-[#E8E1D5] bg-white p-6 shadow-[0_12px_32px_rgba(15,77,63,0.05)]">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-3xl">
-                  <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-2 text-sm font-medium shadow-sm">
-                    <Sparkles className="h-4 w-4 text-violet-600" />
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D5] bg-[#F5F2EA] px-4 py-2 text-sm font-semibold text-[#183028] shadow-sm">
+                    <Sparkles className="h-4 w-4 text-[#0F4D3F]" />
                     Discover Events
                   </div>
 
-                  <h1 className="mt-5 text-5xl font-bold tracking-tight sm:text-6xl">
-                    Discover Events
-                  </h1>
+                 <h1 className="mt-7 font-serif text-[3.2rem] leading-[0.92] tracking-[-0.05em] text-[#183028] sm:text-[4rem]">
+                      Discover events that inspire.
+                 </h1>
 
-                  <p className="mt-4 max-w-2xl text-lg leading-8 text-muted-foreground">
-                    Explore curated events, join registrations, and manage your passes from a
-                    polished EventSphere workspace.
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-[#5E665F]">
+                    Explore workshops, hackathons, seminars, cultural festivals, and competitions happening across your campus.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="inline-flex items-center gap-2 rounded-full border bg-violet-500/10 px-4 py-2 text-sm font-semibold text-violet-700 dark:text-violet-300">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D5] bg-[#F5F2EA] px-4 py-2 text-sm font-medium text-[#183028] shadow-sm">
                     <Ticket className="h-4 w-4" />
                     {events.length} events
                   </div>
 
-                  {isAdmin && (
-                    <Link href="/create-event">
-                      <Button size="lg" className="rounded-full px-5">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create Event
-                      </Button>
-                    </Link>
-                  )}
+                  
                 </div>
               </div>
             </div>
@@ -287,20 +278,24 @@ export default function EventsPage() {
               <>
                 <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                   {paginatedEvents.map((event) => (
-                    <EventCard
-                      key={event.id}
-                      event={event}
-                      isAdmin={isAdmin}
-                      onRegister={handleRegister}
-                      onDelete={handleDelete}
-                      isRegistered={registeredEvents.includes(event.id)}
-                    />
+                    <EventCard 
+  key={event.id}
+  event={event}
+  role={role || ""}
+  canManage={
+    isAdmin ||
+    (isOrganizer && event.created_by === user?.id)
+  }
+  onRegister={handleRegister}
+  onDelete={handleDelete}
+  isRegistered={registeredEvents.includes(event.id)}
+/>
                   ))}
                 </div>
 
                 {filteredEvents.length > 9 && (
-                  <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-[1.5rem] border bg-background/80 px-5 py-4 shadow-sm backdrop-blur sm:flex-row">
-                    <p className="text-sm text-muted-foreground">
+                  <div className="mt-8 flex flex-col items-center justify-between gap-4 rounded-[28px] border border-[#E8E1D5] bg-white px-6 py-5 shadow-[0_12px_32px_rgba(15,77,63,0.05)] sm:flex-row">
+                    <p className="text-sm text-[#5E665F]">
                       Page <span className="font-semibold text-foreground">{page}</span> of{" "}
                       <span className="font-semibold text-foreground">{totalPages}</span>
                     </p>
@@ -322,9 +317,13 @@ export default function EventsPage() {
                           <Button
                             key={current}
                             size="sm"
-                            variant={page === current ? "default" : "outline"}
+                            variant="outline"
                             onClick={() => setPage(current)}
-                            className="h-9 w-9 rounded-full p-0 transition-all duration-300"
+                            className={
+                              page === current
+                                ? "h-10 w-10 rounded-full border-[#0F4D3F] bg-[#0F4D3F] p-0 text-white hover:bg-[#0B3E33]"
+                                : "h-10 w-10 rounded-full border-[#E8E1D5] bg-white p-0 text-[#183028] hover:bg-[#F5F2EA]"
+                            }
                           >
                             {current}
                           </Button>
@@ -336,7 +335,7 @@ export default function EventsPage() {
                         variant="outline"
                         onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
                         disabled={page === totalPages}
-                        className="rounded-full px-4"
+                        className="rounded-full border-[#E8E1D5] bg-white px-5 hover:bg-[#F5F2EA]"
                       >
                         Next
                       </Button>
@@ -347,7 +346,7 @@ export default function EventsPage() {
             )}
           </>
         )}
-      </div>
+        </div>
       </div>
     </div>
   );

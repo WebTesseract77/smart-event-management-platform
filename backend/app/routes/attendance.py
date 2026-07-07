@@ -1,12 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from backend.app.core.dependencies import (
     get_db,
-    get_current_admin,
+    get_current_organizer_or_admin,
 )
 
+from backend.app.models.event import Event
 from backend.app.models.user import User
+from backend.app.core.roles import ROLE_ORGANIZER
+
 from backend.app.schemas.attendance import AttendanceRead
 
 from backend.app.services.attendance_service import (
@@ -20,6 +23,31 @@ router = APIRouter(
 )
 
 
+def check_event_access(
+    db: Session,
+    event_id: int,
+    user: User,
+):
+    event = db.get(Event, event_id)
+
+    if not event:
+        raise HTTPException(
+            status_code=404,
+            detail="Event not found",
+        )
+
+    if (
+        user.role == ROLE_ORGANIZER
+        and event.created_by != user.id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Not your event",
+        )
+
+    return event
+
+
 @router.post(
     "/events/{event_id}/attendance/{user_id}",
     response_model=AttendanceRead,
@@ -28,8 +56,15 @@ def mark(
     event_id: int,
     user_id: int,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin),
+    user: User = Depends(get_current_organizer_or_admin),
 ):
+
+    check_event_access(
+        db,
+        event_id,
+        user,
+    )
+
     return mark_attendance(
         db,
         event_id,
@@ -44,8 +79,15 @@ def mark(
 def list_attendance(
     event_id: int,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_current_admin),
+    user: User = Depends(get_current_organizer_or_admin),
 ):
+
+    check_event_access(
+        db,
+        event_id,
+        user,
+    )
+
     return get_event_attendance(
         db,
         event_id,

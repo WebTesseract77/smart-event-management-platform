@@ -16,6 +16,7 @@ import {
   Ticket,
   Trash2,
   Users,
+  QrCode,
 } from "lucide-react";
 
 import {
@@ -508,6 +509,7 @@ export default function OrganizerEventDashboardPage() {
                       title="Attendance"
                       subtitle="Open the organizer attendance tools"
                     />
+                    
                     <ActionRow
                       icon={<Trash2 className="h-4 w-4" />}
                       title="Delete Event"

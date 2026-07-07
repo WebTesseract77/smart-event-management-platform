@@ -49,7 +49,7 @@ function PreviewCard({
 
   return (
     <motion.div
-      className="will-change-transform"
+      className="will-change-transform h-full"
       initial={reduceMotion ? false : { opacity: 0, y: 12 }}
       animate={
         reduceMotion
@@ -88,9 +88,9 @@ function PreviewCard({
       }
     >
       <Card
-        className={`rounded-3xl border bg-background/85 shadow-xl shadow-violet-500/10 backdrop-blur-sm transition-shadow duration-300 hover:shadow-2xl hover:shadow-violet-500/15 ${className}`}
+        className={`rounded-[24px] border border-[#E8E1D5] bg-[#FFFFFF] shadow-[0_16px_40px_rgba(24,48,40,0.06)] backdrop-blur-sm transition-shadow duration-300 hover:shadow-2xl ${className}`}
       >
-        <CardContent className="p-5">{children}</CardContent>
+        <CardContent className="p-4 sm:p-5">{children}</CardContent>
       </Card>
     </motion.div>
   );
@@ -134,7 +134,7 @@ function AnimatedStat({
   }, [inView, motionValue, reduceMotion, value]);
 
   return (
-    <motion.span ref={ref} className="tabular-nums" aria-label={`${value}${suffix}`}>
+    <motion.span ref={ref} className="tabular-nums text-[#183028]" aria-label={`${value}${suffix}`}>
       {displayValue}
       {suffix}
     </motion.span>
@@ -185,7 +185,6 @@ const cardHover = {
 };
 
 export default function HomePage() {
-  const [isAdmin, setIsAdmin] = useState(false);
   const [eventCount, setEventCount] = useState(0);
   const [registrationCount, setRegistrationCount] = useState(0);
   const [activePasses, setActivePasses] = useState(0);
@@ -207,7 +206,6 @@ export default function HomePage() {
           getMyRegistrations(token),
         ]);
 
-        setIsAdmin(user.role === "admin");
         setRegistrationCount(Array.isArray(registrations) ? registrations.length : 0);
         setActivePasses(
           Array.isArray(registrations)
@@ -236,47 +234,47 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-[#FAF8F4] overflow-x-hidden">
       {/* Hero */}
-      <section className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.12),transparent_28%),radial-gradient(circle_at_80%_24%,rgba(59,130,246,0.10),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.08),transparent_26%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.16),transparent_28%),radial-gradient(circle_at_80%_24%,rgba(59,130,246,0.12),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.10),transparent_26%)]" />
+      <section className="relative isolate overflow-hidden bg-[#FAF8F4]">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_30%,rgba(15,77,63,0.07),transparent_50%)]" />
         <motion.div
-          className="absolute -left-24 top-12 -z-10 h-80 w-80 rounded-full bg-violet-500/10 blur-3xl dark:bg-violet-500/15"
+          className="absolute -left-24 top-12 -z-10 h-80 w-80 rounded-full bg-[#0F4D3F]/5 blur-3xl"
           aria-hidden="true"
           animate={reduceMotion ? undefined : glowVariants.animate}
         />
         <motion.div
-          className="absolute -right-24 top-28 -z-10 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/15"
+          className="absolute -right-24 top-28 -z-10 h-96 w-96 rounded-full bg-[#C6922F]/5 blur-3xl"
           aria-hidden="true"
           animate={reduceMotion ? undefined : glowVariants.animate}
         />
 
         <motion.div
-          className="mx-auto grid min-h-[calc(100vh-80px)] w-full max-w-7xl items-center gap-10 px-6 py-14 lg:grid-cols-[0.95fr_1.05fr] lg:gap-12 lg:py-18"
+          className="mx-auto grid min-h-[calc(100vh-80px)] w-full max-w-7xl items-center gap-12 px-4 sm:px-6 py-10 lg:grid-cols-[0.95fr_1.05fr] lg:gap-12 lg:py-16"
           initial={reduceMotion ? false : "hidden"}
           animate={reduceMotion ? undefined : "visible"}
           variants={sectionReveal}
         >
           {/* Left */}
-          <motion.div className="max-w-xl" variants={itemReveal}>
+          <motion.div className="max-w-xl mx-auto lg:mx-0 w-full" variants={itemReveal}>
             <motion.div
-              className="inline-flex items-center gap-2 rounded-full border bg-background/70 px-4 py-2 text-sm font-medium shadow-sm backdrop-blur"
+              className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D5] bg-[#F7FAF6] px-4 py-2 text-xs sm:text-sm font-medium shadow-sm backdrop-blur"
               variants={itemReveal}
             >
-              <span className="h-2 w-2 rounded-full bg-violet-500" />
+              <span className="h-2 w-2 rounded-full bg-[#0F4D3F]" />
               <BlurText
                 text="EventSphere for modern event operations"
                 animateBy="words"
                 direction="top"
                 delay={120}
                 stepDuration={0.45}
-                className="text-sm font-medium"
+                className="text-xs sm:text-sm font-semibold text-[#0F4D3F]"
               />
             </motion.div>
 
+            {/* 🌟 RESPONSIVE HERO SIZES & LINE-HEIGHTS */}
             <motion.h1
-              className="mt-6 text-5xl font-extrabold tracking-tight text-foreground sm:text-6xl lg:text-7xl"
-              variants={itemReveal}
+              className="mt-6 font-serif text-4xl sm:text-6xl md:text-7xl lg:text-[5.5rem] leading-[1.1] sm:leading-[1.0] lg:leading-[0.85] tracking-[-0.04em] lg:tracking-[-0.07em] text-[#183028]"
             >
               <BlurText
                 text="Manage Events."
@@ -292,8 +290,7 @@ export default function HomePage() {
                 direction="top"
                 delay={360}
                 stepDuration={0.45}
-                className="block"
-                textClassName="bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent"
+                className="block text-[#183028]"
               />
               <BlurText
                 text="Professional."
@@ -301,13 +298,12 @@ export default function HomePage() {
                 direction="top"
                 delay={510}
                 stepDuration={0.45}
-                className="block"
-                textClassName="bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent"
+                className="block text-[#183028]"
               />
             </motion.h1>
 
             <motion.p
-              className="mt-6 max-w-lg text-lg leading-8 text-muted-foreground sm:text-xl"
+              className="mt-6 max-w-lg text-base sm:text-lg lg:text-xl leading-relaxed sm:leading-8 text-[#5E665F]"
               variants={itemReveal}
             >
               <BlurText
@@ -321,168 +317,139 @@ export default function HomePage() {
               />
             </motion.p>
 
-            <motion.div className="mt-10 flex flex-col gap-4 sm:flex-row" variants={itemReveal}>
-              <Link href="/events">
+            <motion.div className="mt-8 flex flex-col sm:flex-row gap-4" variants={itemReveal}>
+              <Link href="/events" className="w-full sm:w-auto">
                 <Button
                   size="lg"
-                  className="h-12 px-6 text-base shadow-lg shadow-violet-500/15 transition-all duration-300 motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-violet-500/25 active:scale-[0.97]"
+                  className="h-12 w-full sm:w-auto px-6 text-base rounded-full bg-[#0F4D3F] text-white shadow-md shadow-[#0F4D3F]/10 transition-all duration-300 motion-reduce:transition-none hover:-translate-y-0.5 hover:bg-[#0B3E33] active:scale-[0.97]"
                 >
                   Browse Events
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-
-              {isAdmin && (
-                <Link href="/create-event">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="h-12 px-6 text-base transition-all duration-300 motion-reduce:transition-none hover:-translate-y-0.5 active:scale-[0.97]"
-                  >
-                    Create Event
-                  </Button>
-                </Link>
-              )}
             </motion.div>
 
-            <motion.div className="mt-10 grid max-w-xl grid-cols-2 gap-4 sm:grid-cols-4" variants={itemReveal}>
-              <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm transition-transform duration-300 motion-reduce:transition-none hover:-translate-y-1">
-                <Ticket className="h-5 w-5 text-violet-600" />
-                <p className="mt-3 text-sm font-medium">QR Passes</p>
-              </div>
-              <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm transition-transform duration-300 motion-reduce:transition-none hover:-translate-y-1">
-                <CheckCircle2 className="h-5 w-5 text-violet-600" />
-                <p className="mt-3 text-sm font-medium">Attendance</p>
-              </div>
-              <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm transition-transform duration-300 motion-reduce:transition-none hover:-translate-y-1">
-                <Users className="h-5 w-5 text-violet-600" />
-                <p className="mt-3 text-sm font-medium">Teams</p>
-              </div>
-              <div className="rounded-2xl border bg-background/80 p-4 backdrop-blur-sm transition-transform duration-300 motion-reduce:transition-none hover:-translate-y-1">
-                <Zap className="h-5 w-5 text-violet-600" />
-                <p className="mt-3 text-sm font-medium">Fast Setup</p>
-              </div>
+            {/* Micro Feature Grid - Upgraded Mobile Layout */}
+            <motion.div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4" variants={itemReveal}>
+              {[
+                { icon: <Ticket className="h-5 w-5 text-[#0F4D3F]" />, label: "QR Passes" },
+                { icon: <CheckCircle2 className="h-5 w-5 text-[#0F4D3F]" />, label: "Attendance" },
+                { icon: <Users className="h-5 w-5 text-[#0F4D3F]" />, label: "Teams" },
+                { icon: <Zap className="h-5 w-5 text-[#0F4D3F]" />, label: "Fast Setup" },
+              ].map((item, idx) => (
+                <div key={idx} className="rounded-2xl border border-[#E8E1D5] bg-[#FFFFFF] p-3 sm:p-4 shadow-sm transition-transform duration-300 motion-reduce:transition-none hover:-translate-y-1">
+                  {item.icon}
+                  <p className="mt-2 text-xs sm:text-sm font-semibold text-[#183028]">{item.label}</p>
+                </div>
+              ))}
             </motion.div>
           </motion.div>
 
-          {/* Right */}
+          {/* Right Section Interactive Mockup Interface */}
           <motion.div
-            className="relative mx-auto w-full max-w-[700px]"
+            className="relative mx-auto w-full max-w-[700px] mt-4 lg:mt-0"
             variants={itemReveal}
           >
-            <motion.div
-              className="absolute -left-6 top-10 h-24 w-24 rounded-full bg-violet-500/10 blur-3xl dark:bg-violet-500/20"
-              aria-hidden="true"
-              animate={reduceMotion ? undefined : { opacity: [0.45, 0.7, 0.45], scale: [1, 1.08, 1] }}
-              transition={reduceMotion ? undefined : { duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-            />
-            <motion.div
-              className="absolute right-0 top-24 h-28 w-28 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/20"
-              aria-hidden="true"
-              animate={reduceMotion ? undefined : { opacity: [0.45, 0.68, 0.45], scale: [1, 1.06, 1] }}
-              transition={reduceMotion ? undefined : { duration: 9, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-            />
-
-            <div className="grid gap-4 rounded-[2rem] border bg-background/75 p-4 shadow-2xl shadow-violet-500/10 backdrop-blur-md sm:p-5 lg:grid-cols-2">
+            <div className="grid gap-4 rounded-[2rem] border border-[#E8E1D5] bg-[#FFFEFC]/90 p-4 shadow-[0_16px_40px_rgba(24,48,40,0.06)] backdrop-blur-md sm:p-5 sm:grid-cols-2">
               <div className="grid gap-4">
-                <PreviewCard className="translate-y-1" delay={0.05} rotate={-1} floatDistance={5}>
+                <PreviewCard className="translate-y-0" delay={0.05} rotate={-0.5} floatDistance={4}>
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Analytics</p>
-                      <h3 className="mt-2 text-xl font-bold tracking-tight">Event Health</h3>
+                      <p className="text-xs sm:text-sm text-[#5E665F]">Analytics</p>
+                      <h3 className="mt-1 text-lg sm:text-xl font-bold tracking-tight text-[#183028]">Event Health</h3>
                     </div>
                     <motion.div
-                      className="rounded-xl bg-violet-100 p-3 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300"
-                      whileHover={reduceMotion ? undefined : { scale: 1.08, rotate: 6 }}
+                      className="rounded-xl bg-[#EAF3ED] p-2.5 text-[#0F4D3F]"
+                      whileHover={reduceMotion ? undefined : { scale: 1.05, rotate: 4 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <TrendingUp className="h-5 w-5" />
+                      <TrendingUp className="h-4 sm:h-5 w-4 sm:w-5" />
                     </motion.div>
                   </div>
 
-                  <div className="mt-5 space-y-3">
-                    <div className="flex items-center justify-between rounded-2xl border bg-muted/30 px-4 py-3">
+                  <div className="mt-4 space-y-2.5">
+                    <div className="flex items-center justify-between rounded-xl border border-[#E8E1D5] bg-[#FAF8F4] p-3">
                       <div>
-                        <p className="text-xs text-muted-foreground">Attendance Rate</p>
-                        <p className="mt-1 text-lg font-bold">96%</p>
+                        <p className="text-[11px] text-[#5E665F]">Attendance Rate</p>
+                        <p className="mt-0.5 text-base font-bold text-[#183028]">96%</p>
                       </div>
-                      <p className="text-xs font-medium text-emerald-600">+8% this week</p>
+                      <p className="text-[10px] font-semibold text-emerald-700">+8%</p>
                     </div>
-                    <div className="flex items-center justify-between rounded-2xl border bg-muted/30 px-4 py-3">
+                    <div className="flex items-center justify-between rounded-xl border border-[#E8E1D5] bg-[#FAF8F4] p-3">
                       <div>
-                        <p className="text-xs text-muted-foreground">Total Registrations</p>
-                        <p className="mt-1 text-lg font-bold">1.2k</p>
+                        <p className="text-[11px] text-[#5E665F]">Total Registrations</p>
+                        <p className="mt-0.5 text-base font-bold text-[#183028]">1.2k</p>
                       </div>
-                      <p className="text-xs font-medium text-violet-600">Live</p>
+                      <p className="text-[10px] font-semibold text-[#0F4D3F]">Live</p>
                     </div>
                   </div>
                 </PreviewCard>
 
-                <PreviewCard className="sm:translate-y-4" delay={0.15} rotate={1} floatDistance={6}>
+                <PreviewCard className="sm:translate-y-2" delay={0.15} rotate={0.5} floatDistance={5}>
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Event Card</p>
-                      <h3 className="mt-2 text-xl font-bold tracking-tight">Hackathon Night</h3>
+                      <p className="text-xs sm:text-sm text-[#5E665F]">Event Card</p>
+                      <h3 className="mt-1 text-lg sm:text-xl font-bold tracking-tight text-[#183028]">Hackathon Night</h3>
                     </div>
                     <motion.div
-                      className="rounded-xl bg-violet-100 p-3 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300"
-                      whileHover={reduceMotion ? undefined : { scale: 1.08, rotate: -6 }}
+                      className="rounded-xl bg-[#EAF3ED] p-2.5 text-[#0F4D3F]"
+                      whileHover={reduceMotion ? undefined : { scale: 1.05, rotate: -4 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <Calendar className="h-5 w-5" />
+                      <Calendar className="h-4 sm:h-5 w-4 sm:w-5" />
                     </motion.div>
                   </div>
 
-                  <div className="mt-5 space-y-3 rounded-2xl border bg-background/80 p-4">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4 text-violet-600" />
-                      <span>Main Auditorium</span>
+                  <div className="mt-4 space-y-2 rounded-xl border border-[#E8E1D5] bg-[#FFFFFF] p-3">
+                    <div className="flex items-center gap-2 text-xs text-[#5E665F]">
+                      <MapPin className="h-3.5 w-3.5 text-[#0F4D3F]" />
+                      <span className="truncate">Main Auditorium</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4 text-violet-600" />
-                      <span>Registration closes in 2 days</span>
+                    <div className="flex items-center gap-2 text-xs text-[#5E665F]">
+                      <Clock className="h-3.5 w-3.5 text-[#0F4D3F]" />
+                      <span className="truncate">Closes in 2 days</span>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Registered</span>
-                      <span className="text-sm text-muted-foreground">138 / 200</span>
+                    <div className="flex items-center justify-between text-xs mt-1">
+                      <span className="font-semibold text-[#183028]">Registered</span>
+                      <span className="text-[#5E665F]">138 / 200</span>
                     </div>
-                    <div className="h-2 rounded-full bg-muted">
-                      <div className="h-2 w-[69%] rounded-full bg-gradient-to-r from-blue-600 to-violet-600" />
+                    <div className="h-1.5 rounded-full bg-[#FAF8F4] border border-[#E8E1D5] overflow-hidden">
+                      <div className="h-full w-[69%] bg-[#0F4D3F]" />
                     </div>
                   </div>
                 </PreviewCard>
               </div>
 
               <div className="grid gap-4">
-                <PreviewCard className="sm:translate-y-3" delay={0.1} rotate={-1} floatDistance={5}>
+                <PreviewCard className="sm:translate-y-1" delay={0.1} rotate={-0.5} floatDistance={4}>
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">QR Pass</p>
-                      <h3 className="mt-2 text-xl font-bold tracking-tight">Pass #2048</h3>
+                      <p className="text-xs sm:text-sm text-[#5E665F]">QR Pass</p>
+                      <h3 className="mt-1 text-lg sm:text-xl font-bold tracking-tight text-[#183028]">Pass #2048</h3>
                     </div>
                     <motion.div
-                      className="rounded-xl bg-violet-100 p-3 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300"
-                      whileHover={reduceMotion ? undefined : { scale: 1.08, rotate: 8 }}
+                      className="rounded-xl bg-[#EAF3ED] p-2.5 text-[#0F4D3F]"
+                      whileHover={reduceMotion ? undefined : { scale: 1.05, rotate: 4 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <QrCode className="h-5 w-5" />
+                      <QrCode className="h-4 sm:h-5 w-4 sm:w-5" />
                     </motion.div>
                   </div>
 
-                  <div className="mt-5 rounded-3xl border bg-muted/30 p-4">
-                    <div className="grid grid-cols-[1fr_auto] gap-4">
+                  <div className="mt-4 rounded-xl border border-[#E8E1D5] bg-[#FAF8F4] p-3">
+                    <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
                       <div>
-                        <p className="text-xs text-muted-foreground">Attendee</p>
-                        <p className="mt-1 font-semibold">Aarav Sharma</p>
-                        <p className="mt-4 text-xs text-muted-foreground">Status</p>
-                        <p className="mt-1 font-semibold text-emerald-600">Verified</p>
+                        <p className="text-[10px] text-[#5E665F]">Attendee</p>
+                        <p className="font-semibold text-xs sm:text-sm text-[#183028] truncate max-w-[100px]">Aarav S.</p>
+                        <p className="mt-2 text-[10px] text-[#5E665F]">Status</p>
+                        <p className="font-semibold text-xs text-emerald-700">Verified</p>
                       </div>
-                      <div className="grid place-items-center rounded-2xl bg-background p-4 shadow-sm">
-                        <div className="grid grid-cols-5 gap-1">
+                      <div className="grid place-items-center rounded-xl bg-[#FFFFFF] border border-[#E8E1D5] p-2 shadow-sm">
+                        <div className="grid grid-cols-5 gap-0.5">
                           {Array.from({ length: 25 }).map((_, i) => (
                             <span
                               key={i}
-                              className={`h-2 w-2 rounded-[3px] ${i % 2 === 0 ? "bg-violet-600" : "bg-slate-200 dark:bg-slate-700"}`}
+                              className={`h-1.5 w-1.5 rounded-[1px] ${i % 2 === 0 ? "bg-[#0F4D3F]" : "bg-[#E8E1D5]"}`}
                             />
                           ))}
                         </div>
@@ -491,46 +458,40 @@ export default function HomePage() {
                   </div>
                 </PreviewCard>
 
-                <PreviewCard className="sm:translate-y-8" delay={0.2} rotate={1} floatDistance={7}>
+                <PreviewCard className="sm:translate-y-3" delay={0.2} rotate={0.5} floatDistance={5}>
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Attendance</p>
-                      <h3 className="mt-2 text-xl font-bold tracking-tight">Live Check-ins</h3>
+                      <p className="text-xs sm:text-sm text-[#5E665F]">Attendance</p>
+                      <h3 className="mt-1 text-lg sm:text-xl font-bold tracking-tight text-[#183028]">Live Check-ins</h3>
                     </div>
                     <motion.div
-                      className="rounded-xl bg-violet-100 p-3 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300"
-                      whileHover={reduceMotion ? undefined : { scale: 1.08, rotate: -8 }}
+                      className="rounded-xl bg-[#EAF3ED] p-2.5 text-[#0F4D3F]"
+                      whileHover={reduceMotion ? undefined : { scale: 1.05, rotate: -4 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <Users className="h-5 w-5" />
+                      <Users className="h-4 sm:h-5 w-4 sm:w-5" />
                     </motion.div>
                   </div>
 
-                  <div className="mt-5 space-y-3">
-                    <div className="flex items-center justify-between rounded-2xl border bg-background/80 px-4 py-3">
-                      <span className="text-sm font-medium">Design Summit</span>
-                      <span className="text-sm text-muted-foreground">92 checked in</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-2xl border bg-background/80 px-4 py-3">
-                      <span className="text-sm font-medium">CodeFest</span>
-                      <span className="text-sm text-muted-foreground">138 checked in</span>
-                    </div>
-                    <div className="flex items-center justify-between rounded-2xl border bg-background/80 px-4 py-3">
-                      <span className="text-sm font-medium">Startup Meetup</span>
-                      <span className="text-sm text-muted-foreground">61 checked in</span>
-                    </div>
+                  <div className="mt-4 space-y-2">
+                    {["Design Summit", "CodeFest", "Startup Meetup"].map((evt, id) => (
+                      <div key={id} className="flex items-center justify-between rounded-xl border border-[#E8E1D5] bg-[#FFFFFF] px-3 py-2 text-xs">
+                        <span className="font-semibold text-[#183028] truncate max-w-[110px]">{evt}</span>
+                        <span className="text-[#5E665F] text-[11px] whitespace-nowrap">{50 + id * 40} in</span>
+                      </div>
+                    ))}
                   </div>
                 </PreviewCard>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <PreviewCard className="translate-y-2" delay={0.08} rotate={-1} floatDistance={4}>
-                    <p className="text-xs text-muted-foreground">Upcoming Events</p>
-                    <p className="mt-2 text-3xl font-extrabold tracking-tight">24</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <PreviewCard className="translate-y-0" delay={0.08} rotate={-0.5} floatDistance={3}>
+                    <p className="text-[11px] text-[#5E665F] truncate">Upcoming</p>
+                    <p className="mt-1 text-2xl font-extrabold tracking-tight text-[#183028]">24</p>
                   </PreviewCard>
 
-                  <PreviewCard className="translate-y-6" delay={0.14} rotate={1} floatDistance={5}>
-                    <p className="text-xs text-muted-foreground">Active Passes</p>
-                    <p className="mt-2 text-3xl font-extrabold tracking-tight">684</p>
+                  <PreviewCard className="translate-y-0" delay={0.14} rotate={0.5} floatDistance={3}>
+                    <p className="text-[11px] text-[#5E665F] truncate">Active Passes</p>
+                    <p className="mt-1 text-2xl font-extrabold tracking-tight text-[#183028]">684</p>
                   </PreviewCard>
                 </div>
               </div>
@@ -539,222 +500,108 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* Stats */}
+      {/* Stats Dashboard Row */}
       <motion.section
-        className="mx-auto max-w-7xl px-6 pt-6"
+        className="mx-auto max-w-7xl px-4 sm:px-6 pt-4 bg-[#FAF8F4]"
         initial={reduceMotion ? false : "hidden"}
         whileInView={reduceMotion ? undefined : "visible"}
-        viewport={{ amount: 0.35, once: true }}
+        viewport={{ amount: 0.15, once: true }}
         variants={sectionReveal}
       >
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <motion.div variants={itemReveal}>
-            <motion.div
-              whileHover={reduceMotion ? undefined : { y: -4, rotate: -1, scale: 1.01 }}
-              transition={{ duration: 0.28 }}
-              className="rounded-3xl"
-            >
-              <Card className="rounded-3xl border bg-background shadow-sm transition-all duration-300 hover:shadow-lg motion-reduce:transition-none">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Events Hosted</p>
-                  <p className="mt-3 text-3xl font-extrabold tracking-tight">
-                    <AnimatedStat value={eventCount} />
-                  </p>
-                  <p className="mt-2 text-sm text-muted-foreground">All published events</p>
-                </div>
-                <div className="rounded-2xl bg-violet-100 p-3 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300">
-                  <Calendar className="h-5 w-5" />
-                </div>
-              </div>
-            </CardContent>
-              </Card>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            { label: "Events Hosted", val: eventCount, sub: "All published events", icon: <Calendar className="h-5 w-5" /> },
+            { label: "Registrations", val: registrationCount, sub: "My active registrations", icon: <Users className="h-5 w-5" /> },
+            { label: "Active Passes", val: activePasses, sub: "Valid event passes", icon: <QrCode className="h-5 w-5" /> },
+            { label: "Attendance Rate", val: attendanceRate, sub: "Based on active passes", suf: "%", icon: <TrendingUp className="h-5 w-5" /> },
+          ].map((stat, i) => (
+            <motion.div key={i} variants={itemReveal}>
+              <motion.div
+                whileHover={reduceMotion ? undefined : { y: -3, rotate: i % 2 === 0 ? -0.5 : 0.5, scale: 1.005 }}
+                transition={{ duration: 0.2 }}
+                className="rounded-3xl"
+              >
+                <Card className="rounded-[22px] border border-[#E8E1D5] bg-[#FFFFFF] shadow-[0_16px_40px_rgba(24,48,40,0.06)] hover:shadow-md transition-shadow">
+                  <CardContent className="p-5 sm:p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs sm:text-sm font-medium text-[#5E665F]">{stat.label}</p>
+                        <p className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#183028]">
+                          <AnimatedStat value={stat.val} suffix={stat.suf} />
+                        </p>
+                        <p className="mt-1.5 text-xs sm:text-sm text-[#5E665F]">{stat.sub}</p>
+                      </div>
+                      <div className="rounded-xl bg-[#EAF3ED] p-2.5 sm:p-3 text-[#0F4D3F]">
+                        {stat.icon}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </motion.div>
-          </motion.div>
-
-          <motion.div variants={itemReveal}>
-            <motion.div
-              whileHover={reduceMotion ? undefined : { y: -4, rotate: 1, scale: 1.01 }}
-              transition={{ duration: 0.28 }}
-              className="rounded-3xl"
-            >
-              <Card className="rounded-3xl border bg-background shadow-sm transition-all duration-300 hover:shadow-lg motion-reduce:transition-none">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Registrations</p>
-                  <p className="mt-3 text-3xl font-extrabold tracking-tight">
-                    <AnimatedStat value={registrationCount} />
-                  </p>
-                  <p className="mt-2 text-sm text-muted-foreground">My active registrations</p>
-                </div>
-                <div className="rounded-2xl bg-violet-100 p-3 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300">
-                  <Users className="h-5 w-5" />
-                </div>
-              </div>
-            </CardContent>
-              </Card>
-            </motion.div>
-          </motion.div>
-
-          <motion.div variants={itemReveal}>
-            <motion.div
-              whileHover={reduceMotion ? undefined : { y: -4, rotate: -1, scale: 1.01 }}
-              transition={{ duration: 0.28 }}
-              className="rounded-3xl"
-            >
-              <Card className="rounded-3xl border bg-background shadow-sm transition-all duration-300 hover:shadow-lg motion-reduce:transition-none">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Active Passes</p>
-                  <p className="mt-3 text-3xl font-extrabold tracking-tight">
-                    <AnimatedStat value={activePasses} />
-                  </p>
-                  <p className="mt-2 text-sm text-muted-foreground">Valid event passes</p>
-                </div>
-                <div className="rounded-2xl bg-violet-100 p-3 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300">
-                  <QrCode className="h-5 w-5" />
-                </div>
-              </div>
-            </CardContent>
-              </Card>
-            </motion.div>
-          </motion.div>
-
-          <motion.div variants={itemReveal}>
-            <motion.div
-              whileHover={reduceMotion ? undefined : { y: -4, rotate: 1, scale: 1.01 }}
-              transition={{ duration: 0.28 }}
-              className="rounded-3xl"
-            >
-              <Card className="rounded-3xl border bg-background shadow-sm transition-all duration-300 hover:shadow-lg motion-reduce:transition-none">
-            <CardContent className="p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Attendance Rate</p>
-                  <p className="mt-3 text-3xl font-extrabold tracking-tight">
-                    <AnimatedStat value={attendanceRate} suffix="%" />
-                  </p>
-                  <p className="mt-2 text-sm text-muted-foreground">Based on active passes</p>
-                </div>
-                <div className="rounded-2xl bg-violet-100 p-3 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300">
-                  <TrendingUp className="h-5 w-5" />
-                </div>
-              </div>
-            </CardContent>
-              </Card>
-            </motion.div>
-          </motion.div>
+          ))}
         </div>
       </motion.section>
 
-      {/* Features */}
+      {/* Features Grid Layout */}
       <motion.section
-        className="mx-auto max-w-7xl px-6 py-20"
+        className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 bg-[#FAF8F4]"
         initial={reduceMotion ? false : "hidden"}
         whileInView={reduceMotion ? undefined : "visible"}
-        viewport={{ amount: 0.2, once: true }}
+        viewport={{ amount: 0.1, once: true }}
         variants={sectionReveal}
       >
-        <motion.div className="mb-8 max-w-2xl" variants={itemReveal}>
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-violet-600">
+        <motion.div className="mb-10 max-w-2xl text-left" variants={itemReveal}>
+          <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-[#C6922F]">
             Features
           </p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h2 className="mt-2.5 text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-[#183028]">
             Everything you need to run events smoothly
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p className="mt-3 text-base sm:text-lg text-[#5E665F]">
             Premium tools for passes, attendance, registrations, teams, payments, and insights.
           </p>
         </motion.div>
 
-        <motion.div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" variants={sectionReveal}>
+        <motion.div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" variants={sectionReveal}>
           {[
-            {
-              icon: <Ticket className="h-5 w-5" />,
-              title: "QR Digital Passes",
-              description: "Generate secure QR passes instantly for every registration and team member.",
-            },
-            {
-              icon: <CheckCircle2 className="h-5 w-5" />,
-              title: "Attendance Tracking",
-              description: "Scan QR codes for instant attendance and a cleaner check-in workflow.",
-            },
-            {
-              icon: <Users className="h-5 w-5" />,
-              title: "Participant Management",
-              description: "Manage attendees and registrations easily from one organized dashboard.",
-            },
-            {
-              icon: <LayoutGrid className="h-5 w-5" />,
-              title: "Team Events",
-              description: "Built-in support for team registrations with flexible event configurations.",
-            },
-            {
-              icon: <Zap className="h-5 w-5" />,
-              title: "Online Payments",
-              description: "Secure Razorpay payment integration for paid events and registrations.",
-            },
-            {
-              icon: <LineChart className="h-5 w-5" />,
-              title: "Analytics",
-              description: "Monitor registrations and attendance with a simple high-level overview.",
-            },
+            { icon: <Ticket className="h-5 w-5" />, title: "QR Digital Passes", description: "Generate secure QR passes instantly for every registration and team member." },
+            { icon: <CheckCircle2 className="h-5 w-5" />, title: "Attendance Tracking", description: "Scan QR codes for instant attendance and a cleaner check-in workflow." },
+            { icon: <Users className="h-5 w-5" />, title: "Participant Management", description: "Manage attendees and registrations easily from one organized dashboard." },
+            { icon: <LayoutGrid className="h-5 w-5" />, title: "Team Events", description: "Built-in support for team registrations with flexible event configurations." },
+            { icon: <Zap className="h-5 w-5" />, title: "Online Payments", description: "Secure Razorpay payment integration for paid events and registrations." },
+            { icon: <LineChart className="h-5 w-5" />, title: "Analytics", description: "Monitor registrations and attendance with a simple high-level overview." },
           ].map((feature, index) => (
             <motion.div
               key={feature.title}
               variants={itemReveal}
-              transition={{ duration: 0.45, delay: index * 0.06 }}
+              transition={{ duration: 0.45, delay: index * 0.05 }}
             >
               <Link href="/events" className="block" aria-label={feature.title}>
-                <Card
-                  className="group cursor-pointer rounded-3xl border bg-background shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-violet-500/10 hover:border-violet-200 motion-reduce:transition-none dark:hover:border-violet-500/30"
-                >
-                <motion.div
-                  whileHover={reduceMotion ? undefined : cardHover}
-                  whileTap={reduceMotion ? undefined : { scale: 0.99 }}
-                  transition={{ duration: 0.28 }}
-                  className="rounded-3xl"
-                >
-                <CardContent className="p-6">
-                  <div className="flex h-full flex-col">
-                    <div className="flex items-start justify-between gap-4">
-                      <motion.div
-                        className="rounded-2xl bg-violet-100 p-3 text-violet-600 transition-transform duration-300 dark:bg-violet-500/15 dark:text-violet-300"
-                        whileHover={reduceMotion ? undefined : { scale: 1.08, rotate: 8 }}
-                        transition={{ duration: 0.28 }}
-                      >
-                        {feature.icon}
-                      </motion.div>
-                      <motion.div
-                        className="mt-1 text-muted-foreground"
-                        animate={reduceMotion ? undefined : { x: [0, 2, 0] }}
-                        transition={{ duration: 2.2, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-                      >
-                        <ChevronRight className="h-4 w-4 transition-transform duration-300" />
-                      </motion.div>
-                    </div>
-
-                    <h3 className="mt-5 text-xl font-semibold tracking-tight">
-                      {feature.title}
-                    </h3>
-
-                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                      {feature.description}
-                    </p>
-
-                    <motion.div
-                      className="mt-6 inline-flex items-center gap-1 text-sm font-medium text-violet-600"
-                      animate={reduceMotion ? undefined : { x: [0, 2, 0] }}
-                      transition={{ duration: 2.4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-                    >
-                      <ChevronRight className="h-4 w-4 opacity-0" />
-                    </motion.div>
-                  </div>
-                </CardContent>
-                </motion.div>
+                <Card className="group h-full cursor-pointer rounded-[24px] border border-[#E8E1D5] bg-[#FFFFFF] shadow-[0_16px_40px_rgba(24,48,40,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4D3F]/30">
+                  <motion.div
+                    whileHover={reduceMotion ? undefined : cardHover}
+                    whileTap={reduceMotion ? undefined : { scale: 0.99 }}
+                    transition={{ duration: 0.25 }}
+                    className="rounded-[24px] h-full"
+                  >
+                    <CardContent className="p-5 sm:p-6 flex flex-col h-full justify-between">
+                      <div>
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="rounded-xl bg-[#EAF3ED] p-2.5 text-[#0F4D3F]">
+                            {feature.icon}
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-[#5E665F] transform group-hover:translate-x-1 transition-transform" />
+                        </div>
+                        <h3 className="mt-4 text-lg sm:text-xl font-semibold tracking-tight text-[#183028]">
+                          {feature.title}
+                        </h3>
+                        <p className="mt-2 text-xs sm:text-sm leading-relaxed sm:leading-6 text-[#5E665F]">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </motion.div>
                 </Card>
               </Link>
             </motion.div>
@@ -763,11 +610,13 @@ export default function HomePage() {
       </motion.section>
 
       {/* Footer */}
-      <footer className="border-t mt-16">
-        <div className="max-w-6xl mx-auto px-6 py-8 text-center">
-          <h3 className="text-xl font-bold">EventSphere</h3>
-          <p className="text-sm text-muted-foreground mt-2">Create. Manage. Attend.</p>
-          <p className="text-sm text-muted-foreground mt-4">© 2026 EventSphere</p>
+      <footer className="border-t border-[#E8E1D5] bg-[#0F4D3F] text-white">
+        <div className="max-w-6xl mx-auto px-6 py-10 text-center">
+          <h3 className="text-xl font-bold">
+            <span className="text-white">Event</span>
+            <span className="text-[#C6922F]">Sphere</span>
+          </h3>
+          <p className="text-xs sm:text-sm text-[#FAF8F4]/80 mt-2">Events. Seamless. Everywhere.</p>
         </div>
       </footer>
     </div>

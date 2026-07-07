@@ -20,7 +20,7 @@ export function ThemeToggle() {
             : "dark"
         )
       }
-      className="rounded-full border-border/70 bg-background/80 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-muted"
+      className="h-12 w-12 rounded-full border border-[#E8E1D5] bg-white text-[#183028] shadow-sm transition-all hover:bg-[#F5F2EA]"
     >
       {theme === "dark" ? (
         <Sun className="h-4 w-4" />

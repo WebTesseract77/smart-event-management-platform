@@ -1,6 +1,3 @@
-"use client";
-
-import { QrCode } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { toast } from "sonner";
@@ -18,51 +15,56 @@ type AttendanceScannerProps = {
   mode: "admin" | "organizer";
   eventId?: number;
   onRecorded?: () => void;
-  title?: string;
-  description?: string;
 };
 
 export function AttendanceScanner({
   mode,
   eventId,
   onRecorded,
-  title,
-  description,
 }: AttendanceScannerProps) {
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  const isStartingRef = useRef(false);
   const lastScanRef = useRef("");
   const [scanComplete, setScanComplete] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function startScanner() {
+      if (scannerRef.current || isStartingRef.current) return;
+      isStartingRef.current = true;
+
       try {
         const currentToken = localStorage.getItem("token");
 
         if (!currentToken) {
-          window.location.href = "/login";
+          if (isMounted) window.location.href = "/login";
           return;
         }
 
-        const user = await getCurrentUser(currentToken!);
-
-        if (mode === "admin" && user.role !== "admin") {
-          window.location.href = "/events";
-          return;
-        }
-
-        if (mode === "organizer" && user.role !== "organizer") {
-          window.location.href = "/events";
+        const user = await getCurrentUser(currentToken);
+        if (user.role !== "admin" && user.role !== "organizer") {
+          if (isMounted) window.location.href = "/events";
           return;
         }
 
         const reader = document.getElementById("reader");
-        if (!reader) return;
+        if (!reader) {
+          isStartingRef.current = false;
+          return;
+        }
 
-        scannerRef.current = new Html5Qrcode("reader");
+        reader.innerHTML = "";
 
-        await scannerRef.current.start(
+        const html5QrcodeInstance = new Html5Qrcode("reader");
+        scannerRef.current = html5QrcodeInstance;
+
+        await html5QrcodeInstance.start(
           { facingMode: "environment" },
-          { fps: 10, qrbox: 250 },
+          { 
+            fps: 10, 
+            qrbox: { width: 300, height: 300 }
+          },
           async (decodedText) => {
             if (decodedText === lastScanRef.current) {
               return;
@@ -70,18 +72,19 @@ export function AttendanceScanner({
 
             lastScanRef.current = decodedText;
 
-            try {
-              let scannedEventId: number;
-              let userId: number;
-              let attendeeName = "";
+            // Moved outside the try block so the catch block can read them!
+            let scannedEventId: number | null = null;
+            let userId: number | null = null;
+            let attendeeName = "";
 
+            try {
               if (decodedText.trim().startsWith("{")) {
                 const data = JSON.parse(decodedText);
                 scannedEventId = Number(data.event_id);
                 userId = Number(data.user_id);
                 attendeeName = data.participant_name ?? "";
               } else {
-                const registration = await getRegistration(currentToken!, Number(decodedText));
+                const registration = await getRegistration(currentToken, Number(decodedText));
                 scannedEventId = Number(registration.event_id);
                 userId = Number(registration.user_id);
                 attendeeName = registration.participant_name ?? "";
@@ -95,106 +98,124 @@ export function AttendanceScanner({
                 if (!eventId) {
                   throw new Error("Organizer attendance requires an event");
                 }
-
-                await markOrganizerAttendance(currentToken!, eventId, userId);
+                // ! used to assert these are non-null since we just populated them
+                await markOrganizerAttendance(currentToken, eventId, userId!);
               } else {
-                await markAttendance(currentToken!, scannedEventId, userId);
+                await markAttendance(currentToken, scannedEventId!, userId!);
               }
 
-              toast.success(
-                attendeeName
-                  ? `${attendeeName} checked in`
-                  : `User #${userId} checked in`
-              );
-
+              const attendeeLabel = attendeeName || `User #${userId}`;
+              toast.success(`${attendeeLabel} checked in`);
+              setScanComplete(true);
               onRecorded?.();
 
-              if (scannerRef.current) {
+              const currentScanner = scannerRef.current;
+              if (currentScanner) {
                 try {
-                  await scannerRef.current.stop();
+                  const state = currentScanner.getState();
+                  if (state === 2 || state === 3) {
+                    await currentScanner.stop();
+                  }
                 } catch {}
 
                 try {
-                  await scannerRef.current.clear();
+                  await currentScanner.clear();
                 } catch {}
 
-                scannerRef.current = null;
+                if (scannerRef.current === currentScanner) {
+                  scannerRef.current = null;
+                }
               }
-
-              setScanComplete(true);
-            } catch (error) {
+            } catch (error: any) {
               console.error(error);
-              toast.error("Invalid QR Code");
+              
+              const errorMessage = error?.response?.data?.message || error?.message || "";
+              
+              // Figure out the best name to show in the error message
+              const displayName = attendeeName || (userId ? `User #${userId}` : "Participant");
+              
+              if (errorMessage.includes("does not belong")) {
+                toast.error(errorMessage);
+              } else if (
+                errorMessage.toLowerCase().includes("failed to mark") || 
+                errorMessage.toLowerCase().includes("already")
+              ) {
+                // Now uses the participant's actual name
+                toast.error(`${displayName} is already checked in!`);
+              } else {
+                toast.error("Invalid QR Code or check-in failed");
+              }
             }
           },
-          () => {}
+          () => {} // Ignore continuous scan failures when no QR is visible
         );
       } catch (error) {
         console.error(error);
-        toast.error("Could not access camera");
+        if (isMounted) {
+          toast.error("Could not access camera");
+        }
+      } finally {
+        isStartingRef.current = false;
       }
     }
 
-    startScanner();
+    if (!scanComplete) {
+      startScanner();
+    }
 
     return () => {
-      const scanner = scannerRef.current;
-      scannerRef.current = null;
-
-      if (scanner) {
-        scanner.stop().catch(() => {}).finally(() => {
+      isMounted = false;
+      const currentScanner = scannerRef.current;
+      if (currentScanner) {
+        scannerRef.current = null;
+        (async () => {
           try {
-            scanner.clear();
+            const state = currentScanner.getState();
+            if (state === 2 || state === 3) {
+              await currentScanner.stop();
+            }
           } catch {}
-        });
+          try {
+            await currentScanner.clear();
+          } catch {}
+        })();
       }
     };
-  }, [eventId, mode, onRecorded]);
+  }, [eventId, mode, onRecorded, scanComplete]);
 
   function restartScanner() {
-    window.location.reload();
+    lastScanRef.current = "";
+    setScanComplete(false);
   }
 
   return (
-    <Card className="rounded-[2rem] border bg-background/90 shadow-sm">
-      <CardContent className="p-6 sm:p-8 text-center">
-        {!scanComplete ? (
-          <>
-            <div className="mb-4 flex flex-col items-center">
-              <QrCode className="mb-3 h-12 w-12 text-violet-600" />
-              <h2 className="text-3xl font-bold tracking-tight">
-                {title || "Attendance Scanner"}
-              </h2>
-            </div>
-            <p className="mb-4 text-sm text-muted-foreground">
-              {description || "Point your camera at an attendee QR code."}
-            </p>
-            <p className="mb-8 text-sm text-muted-foreground">
-              Ensure the QR code is clearly visible and well lit.
-            </p>
-            <div
-              id="reader"
-              className="mx-auto overflow-hidden rounded-2xl border bg-background"
+    <Card className="rounded-[24px] border border-[#E8E1D5] bg-white shadow-sm w-full">
+      <CardContent className="p-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold tracking-tight text-[#183028]">
+            Attendance Scanner
+          </h2>
+          <p className="mt-1 text-sm text-[#5E665F]">
+            Scan participant QR pass
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          <div className="overflow-hidden rounded-[20px] bg-[#FAF8F4] border border-[#E8E1D5]">
+            <div 
+              id="reader" 
+              className="w-full h-[420px] [&>video]:!h-full [&>video]:!w-full [&>video]:!object-cover [&>canvas]:hidden" 
             />
-          </>
-        ) : (
-          <>
-            <div className="mb-4 flex flex-col items-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-2xl text-emerald-700">
-                ✓
-              </div>
-              <h2 className="text-3xl font-bold tracking-tight">
-                Attendance Processed
-              </h2>
-            </div>
-            <p className="mb-8 text-sm text-muted-foreground">
-              Scan another attendee.
-            </p>
-            <Button size="lg" onClick={restartScanner}>
-              Scan Another QR
-            </Button>
-          </>
-        )}
+          </div>
+          
+          <Button
+            size="lg"
+            className="h-12 w-full rounded-full bg-[#0F4D3F] px-6 text-white hover:bg-[#0F4D3F]/90 transition-colors"
+            onClick={restartScanner}
+          >
+            Reset Scanner
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

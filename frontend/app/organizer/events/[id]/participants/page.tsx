@@ -1,104 +1,92 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion, useReducedMotion } from "framer-motion";
+import { Users, UserCheck, Clock, Ticket, Download } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Calendar,
-  Search,
-  Ticket,
-  Users,
-  CheckCircle2,
-  QrCode,
-} from "lucide-react";
 
-import {
-  getCurrentUser,
-  getOrganizerEventAttendance,
-  getOrganizerEventParticipants,
-  getOrganizerEvents,
-} from "@/lib/api";
+import { getParticipants, getAttendance } from "@/lib/api";
+import { exportToCSV } from "@/lib/exportCsv";
 import { EmptyState, PageHeaderSkeleton } from "@/components/app/FeedbackStates";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
-function getInitials(name?: string) {
-  const value = String(name || "U").trim();
-  const parts = value.split(/\s+/).filter(Boolean);
-  const first = parts[0]?.[0] || "U";
-  const second = parts[1]?.[0] || parts[0]?.[1] || "";
-  return `${first}${second}`.toUpperCase();
-}
+type ParticipantWithStatus = {
+  id: number;
+  name: string;
+  email: string;
+  ticket_type?: string;
+  isCheckedIn: boolean;
+  checkedInAt?: string;
+};
 
-function countBadgeClass(tone: "violet" | "emerald" | "sky") {
-  if (tone === "emerald") return "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300";
-  if (tone === "sky") return "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300";
-  return "bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300";
-}
-
-export default function OrganizerParticipantsPage() {
+export default function ParticipantsPage() {
   const params = useParams();
   const router = useRouter();
-  const reduceMotion = useReducedMotion();
   const eventId = Number(params.id);
 
   const [loading, setLoading] = useState(true);
-  const [participants, setParticipants] = useState<any[]>([]);
-  const [attendance, setAttendance] = useState<any[]>([]);
-  const [event, setEvent] = useState<any>(null);
-  const [search, setSearch] = useState("");
+  const [participants, setParticipants] = useState<ParticipantWithStatus[]>([]);
+  const [stats, setStats] = useState({
+    total: 0,
+    checkedIn: 0,
+    pending: 0,
+  });
 
   useEffect(() => {
-    const currentToken = localStorage.getItem("token");
-
-    if (!currentToken) {
-      router.push("/login");
-      return;
-    }
-
     async function loadData() {
       try {
-        const currentUser = await getCurrentUser(currentToken!);
+        const token = localStorage.getItem("token");
+        const role = localStorage.getItem("role");
 
-        if (currentUser.role !== "organizer") {
-          window.alert("Access denied.");
+        if (!token) {
+          router.push("/login");
+          return;
+        }
+
+        if (role !== "admin" && role !== "organizer") {
+          alert("Access denied.");
           router.push("/events");
           return;
         }
 
-        const events = await getOrganizerEvents(currentToken!);
-        const selectedEvent = events.find((item: any) => item.id === eventId);
+        const participantsData = await getParticipants(token, eventId);
+        const attendanceData = await getAttendance(token, eventId);
 
-        if (!selectedEvent) {
-          setEvent(null);
-          setParticipants([]);
-          setAttendance([]);
-          return;
-        }
+        const attendanceMap = new Map(
+          attendanceData.map((record: any) => [
+            record.user_email,
+            record.recorded_at,
+          ])
+        );
 
-        setEvent(selectedEvent);
+        let checkedInCount = 0;
+        const merged: ParticipantWithStatus[] = participantsData.map(
+          (p: any) => {
+            const checkedInAt = attendanceMap.get(p.email);
+            const isCheckedIn = !!checkedInAt;
+            if (isCheckedIn) checkedInCount++;
 
-        const [participantsData, attendanceData] = await Promise.all([
-          getOrganizerEventParticipants(currentToken!, eventId),
-          getOrganizerEventAttendance(currentToken!, eventId),
-        ]);
+            return {
+              id: p.id,
+              name: p.name || "Unknown",
+              email: p.email,
+              ticket_type: p.ticket_type || "Standard",
+              isCheckedIn,
+              checkedInAt,
+            };
+          }
+        );
 
-        setParticipants(Array.isArray(participantsData) ? participantsData : []);
-        setAttendance(Array.isArray(attendanceData) ? attendanceData : []);
+        setParticipants(merged);
+        setStats({
+          total: merged.length,
+          checkedIn: checkedInCount,
+          pending: merged.length - checkedInCount,
+        });
       } catch (error) {
-        console.error(error);
-        toast.error("Failed to load participants");
+        console.error("Failed to load participants data:", error);
       } finally {
         setLoading(false);
       }
@@ -107,244 +95,173 @@ export default function OrganizerParticipantsPage() {
     loadData();
   }, [eventId, router]);
 
-  const filteredParticipants = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return participants;
-
-    return participants.filter((participant) => {
-      const text = `${participant.name} ${participant.email}`.toLowerCase();
-      return text.includes(query);
-    });
-  }, [participants, search]);
-
-  const checkedInUserIds = useMemo(
-    () => new Set(attendance.map((record) => Number(record.user_id))),
-    [attendance]
-  );
+  const handleExport = () => {
+    if (participants.length === 0) {
+      toast.error("No data available to export");
+      return;
+    }
+    const data = participants.map((p) => ({
+      "Name": p.name,
+      "Email": p.email,
+      "Registration Type": p.ticket_type,
+      "Status": p.isCheckedIn ? "Checked In" : "Pending",
+      "Check-in Time": p.checkedInAt ? new Date(p.checkedInAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }) : "N/A"
+    }));
+    exportToCSV("participants-list", data);
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-muted/30">
-        <div className="mx-auto max-w-7xl px-6 py-8 lg:py-10">
-          <div className="space-y-6">
-            <PageHeaderSkeleton />
-            <div className="grid gap-4 md:grid-cols-4">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="h-24 animate-pulse rounded-3xl bg-muted/60" />
-              ))}
-            </div>
-            <Card className="rounded-[2rem] border bg-background/85 shadow-sm">
-              <CardContent className="p-6">
-                <div className="space-y-3">
-                  <div className="h-10 w-full rounded-full bg-muted/70" />
-                  <div className="h-8 w-56 rounded-full bg-muted/60" />
-                  <div className="h-8 w-44 rounded-full bg-muted/60" />
-                </div>
-                <div className="mt-6 space-y-3">
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <div key={index} className="h-14 rounded-2xl bg-muted/60" />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+      <div className="min-h-screen bg-[#FAF8F4]">
+        <div className="mx-auto max-w-7xl px-6 py-8 lg:py-10 space-y-6">
+          <PageHeaderSkeleton />
+          <div className="grid gap-4 md:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-32 rounded-[24px] bg-[#E8E1D5]/30 animate-pulse" />
+            ))}
           </div>
+          <div className="h-[400px] rounded-[24px] bg-[#E8E1D5]/30 animate-pulse mt-6" />
         </div>
       </div>
     );
   }
-
-  if (!event) {
-    return (
-      <div className="min-h-screen bg-muted/30 px-6 py-10">
-        <div className="mx-auto max-w-5xl">
-          <EmptyState
-            icon={<Users className="h-5 w-5" />}
-            title="Event not found"
-            description="This event may no longer exist or you may not have access to it."
-            actionLabel="Back to My Events"
-            actionHref="/organizer/events"
-          />
-        </div>
-      </div>
-    );
-  }
-
-  const totalAttendance = attendance.length;
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.12),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.09),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.06),transparent_30%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.16),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.12),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.1),transparent_30%)]" />
-
-        <motion.div
-          className="mx-auto max-w-7xl px-6 py-8 lg:py-10"
-          initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-          animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <div className="space-y-6">
-            <Card className="overflow-hidden rounded-[2.5rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.76)_100%)] shadow-2xl shadow-violet-500/10 backdrop-blur-xl dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(24,24,27,0.88)_0%,rgba(24,24,27,0.62)_100%)]">
-              <CardContent className="p-6 sm:p-8">
-                <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-                  <div className="max-w-3xl">
-                    <p className="inline-flex items-center gap-2 rounded-full border bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 dark:bg-violet-500/10 dark:text-violet-200">
-                      <Users className="h-3.5 w-3.5" />
-                      Organizer Participants
-                    </p>
-                    <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
-                      {event.title}
-                    </h1>
-                    <p className="mt-3 max-w-2xl text-lg leading-8 text-muted-foreground">
-                      View registered participants, their QR pass status, and attendance from one
-                      clean workspace.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${countBadgeClass("violet")}`}>
-                      <Users className="h-4 w-4" />
-                      {participants.length} participants
-                    </div>
-                    <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${countBadgeClass("emerald")}`}>
-                      <CheckCircle2 className="h-4 w-4" />
-                      {totalAttendance} checked in
-                    </div>
-                    <Link href="/organizer/events">
-                      <Button variant="outline" className="rounded-full px-4">
-                        Back to My Events
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <div className="grid gap-4 md:grid-cols-4">
-              <StatCard title="Participants" value={participants.length} icon={<Users className="h-5 w-5" />} />
-              <StatCard title="Checked In" value={totalAttendance} icon={<CheckCircle2 className="h-5 w-5" />} />
-              <StatCard title="QR Passes" value={participants.length} icon={<QrCode className="h-5 w-5" />} />
-              <StatCard title="Registration Status" value={participants.length} icon={<Ticket className="h-5 w-5" />} />
+    <div className="min-h-screen bg-[#FAF8F4] text-[#183028]">
+      <div className="mx-auto max-w-7xl px-6 py-8 lg:py-10 space-y-8">
+        
+        {/* Header Card */}
+        <Card className="overflow-hidden rounded-[24px] border border-[#E8E1D5] bg-white shadow-sm">
+          <CardContent className="p-6 sm:p-8 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+             <h1 className="mt-2 font-serif text-[3.2rem] leading-[0.92] tracking-[-0.05em] text-[#183028]">
+                 Event Participants
+               </h1>
+              <p className="mt-2 text-base text-[#5E665F]">
+                Manage and track attendee registration and check-in status.
+              </p>
             </div>
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[#F5F2EA] px-4 py-2 text-sm font-semibold text-[#0F4D3F]">
+                <Users className="h-4 w-4" />
+                {stats.total} Total
+              </div>
+              <Button 
+                onClick={handleExport}
+                className="rounded-full bg-[#0F4D3F] px-4 text-white hover:bg-[#0F4D3F]/90"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Export CSV
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-            <Card className="rounded-[2rem] border bg-background/90 shadow-sm">
-              <CardContent className="p-5">
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold tracking-tight">Participant list</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      Search by name or email. QR, registration, and attendance states are shown at a glance.
-                    </p>
-                  </div>
-                  <div className="relative w-full md:max-w-sm">
-                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <input
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      placeholder="Search participants"
-                      className="h-11 w-full rounded-full border bg-background pl-10 pr-4 text-sm outline-none transition focus:border-violet-300 focus:ring-2 focus:ring-violet-500/20"
-                    />
-                  </div>
-                </div>
+        {/* Stats Grid */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card className="rounded-[24px] border border-[#E8E1D5] bg-white shadow-sm">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F5F2EA] text-[#0F4D3F]">
+                <Users className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#5E665F]">Total Participants</p>
+                <p className="text-2xl font-bold text-[#183028]">{stats.total}</p>
+              </div>
+            </CardContent>
+          </Card>
 
-                <div className="mt-5 overflow-hidden rounded-[1.5rem] border bg-background">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="pl-5">Participant</TableHead>
-                        <TableHead>QR Status</TableHead>
-                        <TableHead>Registration</TableHead>
-                        <TableHead>Attendance</TableHead>
-                        <TableHead className="pr-5 text-right">Email</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredParticipants.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={5} className="py-12">
-                            <EmptyState
-                              icon={<Search className="h-5 w-5" />}
-                              title="No participants found"
-                              description="Try a different search term."
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        filteredParticipants.map((participant) => {
-                          const isCheckedIn = checkedInUserIds.has(Number(participant.id));
+          <Card className="rounded-[24px] border border-[#E8E1D5] bg-white shadow-sm">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#E5F0ED] text-[#0F4D3F]">
+                <UserCheck className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#5E665F]">Checked In</p>
+                <p className="text-2xl font-bold text-[#183028]">{stats.checkedIn}</p>
+              </div>
+            </CardContent>
+          </Card>
 
-                          return (
-                            <TableRow key={participant.id} className="hover:bg-muted/40">
-                              <TableCell className="pl-5">
-                                <div className="flex items-center gap-3">
-                                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-violet-100 text-sm font-semibold text-violet-700 dark:bg-violet-500/15 dark:text-violet-300">
-                                    {getInitials(participant.name)}
-                                  </div>
-                                  <div>
-                                    <p className="font-semibold text-foreground">{participant.name}</p>
-                                    <p className="text-xs text-muted-foreground">Participant ID #{participant.id}</p>
-                                  </div>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <Badge className="rounded-full bg-violet-100 px-2.5 py-1 text-[11px] text-violet-700 dark:bg-violet-500/15 dark:text-violet-300">
-                                  QR Pass Ready
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <Badge className="rounded-full bg-sky-100 px-2.5 py-1 text-[11px] text-sky-700 dark:bg-sky-500/15 dark:text-sky-300">
-                                  Registered
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <Badge
-                                  className={`rounded-full px-2.5 py-1 text-[11px] ${
-                                    isCheckedIn
-                                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-                                      : "bg-muted text-muted-foreground"
-                                  }`}
-                                >
-                                  {isCheckedIn ? "Checked In" : "Pending"}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="pr-5 text-right text-sm text-muted-foreground">
-                                {participant.email}
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
+          <Card className="rounded-[24px] border border-[#E8E1D5] bg-white shadow-sm">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F9EFE5] text-[#8C5A2A]">
+                <Clock className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#5E665F]">Pending Arrival</p>
+                <p className="text-2xl font-bold text-[#183028]">{stats.pending}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Participants Table */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold tracking-tight text-[#183028]">
+            Attendee List
+          </h2>
+          
+          <div className="overflow-hidden rounded-[24px] border border-[#E8E1D5] bg-white shadow-sm">
+            {participants.length === 0 ? (
+              <div className="p-10">
+                <EmptyState
+                  icon={<Ticket className="h-5 w-5 text-[#0F4D3F]" />}
+                  title="No participants yet"
+                  description="Invite attendees or wait for registrations to roll in."
+                />
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-[#E8E1D5] bg-[#FAF8F4] text-left">
+                      <th className="p-5 text-sm font-semibold text-[#183028]">Participant</th>
+                      <th className="p-5 text-sm font-semibold text-[#183028]">Email</th>
+                      <th className="p-5 text-sm font-semibold text-[#183028]">Registration Type</th>
+                      <th className="p-5 text-sm font-semibold text-[#183028]">Attendance Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {participants.map((participant) => (
+                      <tr 
+                        key={participant.id} 
+                        className="border-b border-[#E8E1D5] bg-white transition-colors hover:bg-[#FAF8F4] last:border-0"
+                      >
+                        <td className="p-5 text-sm font-medium text-[#183028]">
+                          {participant.name}
+                        </td>
+                        <td className="p-5 text-sm text-[#5E665F]">
+                          {participant.email}
+                        </td>
+                        <td className="p-5 text-sm text-[#5E665F]">
+                          <Badge variant="outline" className="border-[#E8E1D5] text-[#5E665F] font-normal bg-white">
+                            {participant.ticket_type}
+                          </Badge>
+                        </td>
+                        <td className="p-5">
+                          {participant.isCheckedIn ? (
+                            <Badge className="rounded-full bg-[#E5F0ED] px-3 py-1 text-xs font-semibold text-[#0F4D3F] hover:bg-[#E5F0ED] border-none flex w-fit items-center gap-1.5">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#0F4D3F]"></span>
+                              Checked In
+                            </Badge>
+                          ) : (
+                            <Badge className="rounded-full bg-[#F5F2EA] px-3 py-1 text-xs font-semibold text-[#5E665F] hover:bg-[#F5F2EA] border-none flex w-fit items-center gap-1.5">
+                              <span className="h-1.5 w-1.5 rounded-full bg-[#A3A8A4]"></span>
+                              Pending
+                            </Badge>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        </motion.div>
+        </div>
+        
       </div>
     </div>
-  );
-}
-
-function StatCard({
-  title,
-  value,
-  icon,
-}: {
-  title: string;
-  value: number;
-  icon: React.ReactNode;
-}) {
-  return (
-    <Card className="rounded-3xl border bg-background/80 shadow-sm backdrop-blur-sm">
-      <CardContent className="flex h-full items-center justify-between gap-4 p-5">
-        <div>
-          <p className="text-sm font-medium text-muted-foreground">{title}</p>
-          <p className="mt-2 text-3xl font-bold tracking-tight">{value}</p>
-        </div>
-        <div className="rounded-2xl bg-violet-100 p-3 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300">
-          {icon}
-        </div>
-      </CardContent>
-    </Card>
   );
 }

@@ -27,8 +27,8 @@ export function formatDateTime(date?: string) {
 
 export function RegistrationSkeleton() {
   return (
-    <Card className="overflow-hidden rounded-3xl border border-white/70 bg-background/90 shadow-sm shadow-slate-900/5 dark:border-white/10">
-      <div className="h-[150px] animate-pulse bg-gradient-to-br from-violet-500/10 via-blue-500/10 to-muted/40" />
+    <Card className="overflow-hidden rounded-[24px] border border-[#E8E1D5] bg-white shadow-sm">
+      <div className="h-[150px] animate-pulse bg-[linear-gradient(to_bottom,#F5F2EA,#FAF8F4)]" />
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-3">
@@ -70,10 +70,10 @@ export function RegistrationCard({
       ? "Registered"
       : "Completed";
   const statusClass = statusLabel.toLowerCase().includes("cancel")
-    ? "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300"
-    : active
-      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-      : "bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-300";
+  ? "bg-[#FDECEC] text-[#B42318]"
+  : active
+    ? "bg-[#EEF7F2] text-[#0F4D3F]"
+    : "bg-[#F3F1EC] text-[#6B7280]";
 
   return (
     <motion.div
@@ -82,8 +82,8 @@ export function RegistrationCard({
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       className="group h-full"
     >
-      <Card className="group h-full overflow-hidden rounded-3xl border border-white/70 bg-background/90 shadow-sm shadow-slate-900/5 transition-all duration-300 hover:-translate-y-1 hover:bg-background hover:shadow-lg hover:shadow-violet-500/10 dark:border-white/10">
-        <div className="relative h-[150px] overflow-hidden bg-gradient-to-br from-violet-500/15 via-blue-500/10 to-transparent">
+      <Card className="group h-full overflow-hidden rounded-[24px] border border-[#E8E1D5] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#0F4D3F]/30 hover:shadow-xl">
+        <div className="relative h-[150px] overflow-hidden bg-gradient-to-br from-[#0F4D3F]/10 via-[#C6922F]/5 to-transparent">
           {event?.image_url ? (
             <img
               src={event.image_url}
@@ -92,31 +92,31 @@ export function RegistrationCard({
             />
           ) : (
             <div className="flex h-full items-center justify-center">
-              <div className="rounded-full border border-dashed border-violet-300/70 bg-background/75 p-5 text-violet-600 shadow-sm backdrop-blur-sm dark:border-violet-500/25 dark:bg-white/5 dark:text-violet-300">
+              <div className="rounded-full border border-dashed border-[#E8E1D5] bg-[#F5F2EA] p-5 text-[#0F4D3F] shadow-sm">
                 <ImageIcon className="h-7 w-7" />
               </div>
             </div>
           )}
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.08)_0%,rgba(15,23,42,0.12)_30%,rgba(15,23,42,0.76)_100%)]" />
 
-          <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-            <Badge className={`rounded-full px-3 py-1 text-[11px] font-medium ${statusClass}`}>
+          <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+            <Badge className={`rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.24em] ${statusClass}`}>
               {statusLabel}
             </Badge>
-            <Badge className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
+            <Badge className="rounded-full border border-[#E8E1D5] bg-white px-3 py-1 text-[11px] font-semibold tracking-[0.24em] text-[#183028]">
               {isPaid ? "Paid" : "Free"}
             </Badge>
-            <Badge className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
+            <Badge className="rounded-full border border-[#E8E1D5] bg-white px-3 py-1 text-[11px] font-semibold tracking-[0.24em] text-[#183028]">
               {isTeam ? "Team" : "Individual"}
             </Badge>
           </div>
 
-          <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
-              <Ticket className="h-3.5 w-3.5 text-violet-200" />
+          <div className="absolute bottom-4 left-4 right-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D5] bg-white px-4 py-2 text-[11px] font-semibold tracking-[0.24em] text-[#183028] shadow-sm">
+              <Ticket className="h-4 w-4 text-[#0F4D3F]" />
               {isTeam ? "Team pass" : "Event pass"}
             </div>
-            <div className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
+            <div className="rounded-full border border-[#E8E1D5] bg-white px-4 py-2 text-[11px] font-semibold tracking-[0.24em] text-[#183028] shadow-sm">
               #{registration.id || registration.team_id}
             </div>
           </div>
@@ -125,11 +125,11 @@ export function RegistrationCard({
         <CardContent className="p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <h2 className="line-clamp-1 text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
+              <h2 className="line-clamp-1 text-xl font-semibold tracking-tight text-[#183028]">
                 {event?.title || registration.team_name || "Registration"}
               </h2>
               {isTeam ? (
-                <p className="mt-1.5 line-clamp-1 text-sm text-slate-600 dark:text-slate-300">
+                <p className="mt-1.5 line-clamp-1 text-sm text-[#5E665F]">
                   {registration.team_name}
                 </p>
               ) : null}
@@ -151,8 +151,8 @@ export function RegistrationCard({
             />
           </div>
 
-          <div className="mt-4 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-2.5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
-            <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
+          <div className="mt-4 rounded-2xl border border-[#D6E8DC] bg-[#EEF7F2] px-4 py-2.5 shadow-sm">
+            <div className="flex items-center gap-2 text-[#0F4D3F]">
               <CheckCircle className="h-4 w-4" />
               <span className="text-sm font-medium">
                 {isTeam ? "Team registration confirmed" : "Registration confirmed"}
@@ -161,7 +161,7 @@ export function RegistrationCard({
           </div>
 
           <div className="mt-4 flex flex-wrap gap-3">
-            <Button asChild className="rounded-full bg-violet-600 px-5 text-white shadow-lg shadow-violet-600/25 hover:bg-violet-500">
+            <Button asChild className="rounded-full bg-[#0F4D3F] px-5 text-white hover:bg-[#0B3E33]">
               <Link href={isTeam ? `/team-pass/${registration.team_id}` : `/pass/${registration.id}`}>
                 <Ticket className="mr-2 h-4 w-4" />
                 {isTeam ? "View Team Pass" : "View Pass"}
@@ -190,16 +190,16 @@ export function RegistrationCard({
 
 function InfoBox({ icon, title, value }: { icon: React.ReactNode; title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/70 bg-background/80 p-4 shadow-sm dark:border-white/10 dark:bg-white/5">
+    <div className="rounded-2xl border border-[#E8E1D5] bg-[#FAF8F4] p-4 shadow-sm">
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-violet-100 p-2 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300">
+        <div className="rounded-xl bg-[#F5F2EA] p-2 text-[#0F4D3F]">
           {icon}
         </div>
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
             {title}
           </p>
-          <p className="mt-1 text-sm font-medium leading-6 text-slate-950 dark:text-white">
+          <p className="mt-1 text-sm font-medium leading-6 text-[#183028]">
             {value}
           </p>
         </div>

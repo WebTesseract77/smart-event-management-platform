@@ -6,9 +6,7 @@ from fastapi import (
 )
 
 from sqlalchemy.orm import Session
-from backend.app.services.team_service import (
-    get_team_by_id,
-)
+
 from backend.app.core.dependencies import (
     get_current_user,
     get_db,
@@ -19,8 +17,12 @@ from backend.app.core.errors import (
     ValidationError,
 )
 
+from backend.app.core.roles import (
+    ROLE_ADMIN,
+    ROLE_ORGANIZER,
+)
+
 from backend.app.models.user import User
-from backend.app.core.roles import ROLE_ADMIN, ROLE_ORGANIZER
 
 from backend.app.schemas.team import (
     TeamCreate,
@@ -29,7 +31,9 @@ from backend.app.schemas.team import (
 
 from backend.app.services.team_service import (
     create_team_registration,
+    get_team_by_id,
 )
+
 
 router = APIRouter(
     prefix="/teams",
@@ -45,10 +49,19 @@ router = APIRouter(
 def register_team(
     payload: TeamCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user
-    ),
+    current_user: User = Depends(get_current_user),
 ):
+
+  
+    if current_user.role in [
+        ROLE_ADMIN,
+        ROLE_ORGANIZER,
+    ]:
+        raise HTTPException(
+            status_code=403,
+            detail="Only participants can register teams",
+        )
+
     try:
         team = create_team_registration(
             db,
@@ -63,35 +76,43 @@ def register_team(
 
     except NotFoundError as exc:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(exc),
         )
 
     except ValidationError as exc:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(exc),
         )
+
+
 @router.get(
     "/{team_id}",
     response_model=TeamRead,
 )
+
 def get_team(
     team_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user
-    ),
+    current_user: User = Depends(get_current_user),
 ):
+
     team = get_team_by_id(
         db,
         team_id,
     )
 
-    if current_user.role in [
-        ROLE_ADMIN,
-        ROLE_ORGANIZER,
-    ]:
+
+    # admin can view all teams
+    if current_user.role == ROLE_ADMIN:
+        return team
+
+
+    if (
+        current_user.role == ROLE_ORGANIZER
+        and team.event.created_by == current_user.id
+    ):
         return team
 
     if team.leader_user_id == current_user.id:
@@ -104,9 +125,8 @@ def get_team(
     ):
         return team
 
-    from fastapi import HTTPException
 
     raise HTTPException(
-        status_code=403,
+        status_code=status.HTTP_403_FORBIDDEN,
         detail="Not authorized",
     )

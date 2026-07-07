@@ -1,18 +1,20 @@
 ﻿"use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { CalendarDays, Users, Ticket, CheckCircle2 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 18 },
+  hidden: { opacity: 0, y: 12 },
   visible: (index: number) => ({
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.45,
-      delay: index * 0.08,
-      ease: [0.22, 1, 0.36, 1] as const,
+      duration: 0.4,
+      delay: index * 0.06,
+      ease: [0.215, 0.61, 0.355, 1] as const,
     },
   }),
 };
@@ -23,7 +25,6 @@ function OptionCard({
   title,
   description,
   bullets,
-  accent,
   index,
 }: {
   href: string;
@@ -31,7 +32,6 @@ function OptionCard({
   title: string;
   description: string;
   bullets: string[];
-  accent: string;
   index: number;
 }) {
   const reduceMotion = useReducedMotion();
@@ -41,29 +41,36 @@ function OptionCard({
       custom={index}
       variants={cardVariants}
       whileHover={reduceMotion ? undefined : { y: -4 }}
-      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
       className="h-full"
     >
       <Link
         href={href}
-        className={`group block h-full rounded-3xl border bg-gradient-to-br ${accent} p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/10`}
+        className="group block h-full rounded-[24px] border border-[#E8E1D5] bg-white p-8 shadow-[0_8px_24px_rgba(15,77,63,0.02)] transition-all duration-300 hover:border-[#0F4D3F] hover:bg-[#EAF3ED]/20 hover:shadow-[0_16px_32px_rgba(15,77,63,0.06)]"
       >
         <div className="flex h-full flex-col">
-          <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-background/80 text-violet-600 shadow-sm ring-1 ring-black/5 transition-transform duration-300 group-hover:scale-105">
+          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#FAF8F4] text-[#0F4D3F] border border-[#E8E1D5] transition-colors duration-300 group-hover:bg-white group-hover:border-[#0F4D3F]/20">
             {icon}
           </div>
 
-          <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
+          <h2 className="text-xl font-semibold tracking-tight text-[#183028]">
+            {title}
+          </h2>
 
-          <ul className="mt-6 space-y-2 text-sm font-medium text-foreground">
-            {bullets.map((bullet) => (
-              <li key={bullet} className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-violet-600" />
-                <span>{bullet}</span>
-              </li>
-            ))}
-          </ul>
+          <p className="mt-2.5 text-sm leading-6 text-[#5E665F] flex-grow">
+            {description}
+          </p>
+
+          <div className="mt-6 pt-5 border-t border-[#E8E1D5]/60">
+            <ul className="space-y-2.5 text-xs font-medium text-[#183028]">
+              {bullets.map((bullet) => (
+                <li key={bullet} className="flex items-center gap-2.5">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-[#0F4D3F]" />
+                  <span>{bullet}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </Link>
     </motion.div>
@@ -72,54 +79,76 @@ function OptionCard({
 
 export default function CreateEventPage() {
   const reduceMotion = useReducedMotion();
+  const router = useRouter();
+
+
+  useEffect(() => {
+    const role = localStorage.getItem("role");
+
+    if (role !== "organizer") {
+      router.push("/events");
+    }
+
+  }, [router]);
+
 
   return (
-    <main className="min-h-screen bg-muted/30">
-      <div className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.12),transparent_28%),radial-gradient(circle_at_80%_24%,rgba(59,130,246,0.10),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.08),transparent_26%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.16),transparent_28%),radial-gradient(circle_at_80%_24%,rgba(59,130,246,0.12),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.10),transparent_26%)]" />
-
+    <main className="min-h-screen bg-[#FAF8F4] px-6 py-10 lg:px-8">
+      <div className="mx-auto max-w-5xl space-y-8">
+        
+        {/* Premium Header Card */}
         <motion.div
-          className="mx-auto max-w-6xl px-6 py-16 lg:py-20"
-          initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+          className="rounded-[32px] border border-[#E8E1D5] bg-white p-8 md:p-10 shadow-[0_12px_32px_rgba(15,77,63,0.03)]"
+          initial={reduceMotion ? false : { opacity: 0, y: 12 }}
           animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         >
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-2 text-sm font-medium shadow-sm backdrop-blur-sm">
-              <Ticket className="h-4 w-4 text-violet-600" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D5] bg-[#FAF8F4] px-4 py-1.5 text-xs font-medium text-[#0F4D3F]">
+              <Ticket className="h-3.5 w-3.5" />
               Create Event
             </div>
 
-            <h1 className="mt-6 text-5xl font-bold tracking-tight sm:text-6xl">
-              Create Event
-            </h1>
-            <p className="mt-4 max-w-2xl text-lg leading-8 text-muted-foreground sm:text-xl">
-              Choose the event type to continue.
+            <h1 className="mt-7 font-serif text-[3.2rem] leading-[0.92] tracking-[-0.05em] text-[#183028] sm:text-[4rem]">
+               Create a new event
+             </h1>
+
+            <p className="mt-3 text-sm leading-6 text-[#5E665F]">
+              Select whether you're creating an individual or team event. 
+              Configure registrations, payments, attendance metrics, and everything else in the next step.
             </p>
           </div>
-
-          <div className="mt-14 grid gap-8 md:grid-cols-2">
-            <OptionCard
-              index={0}
-              href="/create-event/individual"
-              icon={<CalendarDays className="h-7 w-7" />}
-              title="Individual Event"
-              description="Standard registration for single participants."
-              bullets={["QR Pass", "Attendance", "Optional Payment"]}
-              accent="from-violet-50 to-white dark:from-violet-500/10 dark:to-background"
-            />
-
-            <OptionCard
-              index={1}
-              href="/create-event/team"
-              icon={<Users className="h-7 w-7" />}
-              title="Team Event"
-              description="Built for competitions and group registrations."
-              bullets={["Team Members", "Team Captain", "QR Pass"]}
-              accent="from-sky-50 to-white dark:from-sky-500/10 dark:to-background"
-            />
-          </div>
         </motion.div>
+
+        {/* Event Type Selection Cards Grid */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <OptionCard
+            index={0}
+            href="/create-event/individual"
+            icon={<CalendarDays className="h-5 w-5" />}
+            title="Individual Event"
+            description="Perfect for workshops, seminars, coding contests, and events where each participant registers individually."
+            bullets={[
+              "QR Pass Generation",
+              "Individual Attendance Tracking",
+              "Optional Payment Gateways",
+            ]}
+          />
+
+          <OptionCard
+            index={1}
+            href="/create-event/team"
+            icon={<Users className="h-5 w-5" />}
+            title="Team Event"
+            description="Ideal for hackathons, case study competitions, sports leagues, and collaborative events with team-based registrations."
+            bullets={[
+              "Custom Team Member Limits",
+              "Team Captain Management Roles",
+              "Unified Group QR Identification",
+            ]}
+          />
+        </div>
+
       </div>
     </main>
   );

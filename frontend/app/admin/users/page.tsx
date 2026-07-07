@@ -1,5 +1,4 @@
 "use client";
-"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -14,6 +13,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
@@ -34,6 +34,10 @@ import {
   AlertCircle,
   UserRoundCheck,
   UserRoundX,
+  UserStar,
+  User,
+  Search,
+  RefreshCcw,
 } from "lucide-react";
 import {
   Table,
@@ -62,9 +66,9 @@ function normalizeRole(role?: string) {
 
 function roleTone(role?: string) {
   const value = normalizeRole(role);
-  if (value === "admin") return "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300";
-  if (value === "organizer") return "bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300";
-  return "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300";
+  if (value === "admin") return "bg-[#F5F2EA] text-[#183028]";
+  if (value === "organizer") return "bg-[#F5F2EA] text-[#183028]";
+  return "bg-[#FAF8F4] text-[#5E665F]";
 }
 
 function roleLabel(role?: string) {
@@ -79,7 +83,7 @@ function UserRowSkeleton() {
     <TableRow className="animate-pulse">
       <TableCell>
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-muted/70" />
+          <div className="h-11 w-10 rounded-full bg-muted/70" />
           <div className="space-y-2">
             <div className="h-4 w-28 rounded-full bg-muted/70" />
             <div className="h-3 w-36 rounded-full bg-muted/60" />
@@ -104,6 +108,8 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [targetRole, setTargetRole] = useState<"user" | "organizer" | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "organizer" | "user">("all");
 
   useEffect(() => {
     async function loadData() {
@@ -135,6 +141,16 @@ export default function AdminUsersPage() {
 
     loadData();
   }, [router]);
+
+  const filteredUsers = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase();
+    return users.filter((user) => {
+      const text = `${user.name || ""} ${user.email || ""} ${normalizeRole(user.role)}`.toLowerCase();
+      if (!text.includes(normalizedSearch)) return false;
+      if (roleFilter === "all") return true;
+      return normalizeRole(user.role) === roleFilter;
+    });
+  }, [users, search, roleFilter]);
 
   const stats = useMemo(() => ({
     total: users.length,
@@ -199,21 +215,26 @@ export default function AdminUsersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-muted/30 p-6 sm:p-8">
-        <div className="mx-auto max-w-7xl space-y-6">
+      <div className="min-h-screen bg-[#FAF8F4] p-4 sm:p-6 md:p-8">
+        <div className="mx-auto max-w-[1490px] space-y-6">
           <PageHeaderSkeleton />
-          <Card className="rounded-[2rem] border bg-background/80 shadow-sm backdrop-blur-sm">
+          <Card className="rounded-[2rem] border border-[#E8E1D5] bg-white shadow-sm">
             <CardContent className="p-6">
-              <div className="grid gap-4 md:grid-cols-4">
+              <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
                 {Array.from({ length: 4 }).map((_, index) => (
                   <div key={index} className="h-24 animate-pulse rounded-3xl bg-muted/60" />
                 ))}
               </div>
             </CardContent>
           </Card>
-          <Card className="rounded-[2rem] border bg-background/80 shadow-sm backdrop-blur-sm">
-            <CardContent className="p-0">
-              <Table>
+          <Card className="rounded-[2rem] border border-[#E8E1D5] bg-white shadow-sm">
+            <CardContent className="p-4 md:p-0">
+              <div className="space-y-4 md:hidden">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="h-32 w-full animate-pulse rounded-2xl bg-muted/60" />
+                ))}
+              </div>
+              <Table className="hidden md:table">
                 <TableHeader>
                   <TableRow>
                     <TableHead>User</TableHead>
@@ -237,8 +258,8 @@ export default function AdminUsersPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-muted/30 p-6 sm:p-8">
-        <div className="mx-auto max-w-7xl">
+      <div className="min-h-screen bg-[#FAF8F4] p-4 sm:p-6 md:p-8">
+        <div className="mx-auto max-w-[1490px]">
           <EmptyState
             icon={<AlertCircle className="h-6 w-6" />}
             title="Unable to load users"
@@ -252,174 +273,281 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-[#FAF8F4]">
       <div className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.12),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.09),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.06),transparent_30%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.16),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.12),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.1),transparent_30%)]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_-10%,rgba(198,146,47,0.08),transparent_26%)]" />
         <motion.div
-          className="mx-auto max-w-7xl px-6 py-8 sm:py-10 lg:py-12"
+          className="mx-auto max-w-[1490px] px-4 py-6 sm:px-6 sm:py-8 lg:py-12"
           initial={reduceMotion ? false : { opacity: 0, y: 14 }}
           animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="space-y-6">
-            <Card className="overflow-hidden rounded-[2.5rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.88)_0%,rgba(255,255,255,0.7)_100%)] shadow-2xl shadow-violet-500/10 backdrop-blur-xl dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(24,24,27,0.86)_0%,rgba(24,24,27,0.6)_100%)]">
-              <CardContent className="p-6 sm:p-8">
-                <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                  <div className="max-w-3xl">
-                    <p className="inline-flex items-center gap-2 rounded-full border bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 dark:bg-violet-500/10 dark:text-violet-200">
-                      <ShieldCheck className="h-3.5 w-3.5" />
+            {/* HERO CARD */}
+            <Card className="overflow-hidden rounded-[24px] md:rounded-[34px] border border-[#E8E1D5] bg-white shadow-[0_12px_28px_rgba(24,48,40,.05)]">
+              <CardContent className="p-5 sm:p-10">
+                <div className="grid lg:grid-cols-[420px_1fr] items-center gap-6 lg:gap-12">
+                  
+                  {/* LEFT */}
+                  <div className="max-w-[480px]">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D5] bg-[#F8F6EF] px-4 py-2 text-xs sm:text-sm font-medium text-[#183028]">
+                      <ShieldCheck className="h-4 w-4" />
                       Admin user management
-                    </p>
-                    <h1 className="mt-4 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+                    </div>
+
+                    <h1 className="mt-4 sm:mt-7 font-serif text-3xl sm:text-4xl lg:text-[3.2rem] lg:leading-[0.92] tracking-[-0.05em] text-[#183028]">
                       Manage users
                     </h1>
-                    <p className="mt-3 max-w-2xl text-lg leading-8 text-muted-foreground">
-                      Promote trusted users to organizers or demote organizers back to user access.
+
+                    <p className="mt-3 sm:mt-7 text-sm sm:text-[18px] sm:leading-8 text-[#5E665F]">
+                      Promote trusted users to organizers or demote organizers back to standard user access.
                     </p>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl border bg-background/80 px-4 py-3 shadow-sm backdrop-blur-sm">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Total users</p>
-                      <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">{stats.total}</p>
-                    </div>
-                    <div className="rounded-2xl border bg-background/80 px-4 py-3 shadow-sm backdrop-blur-sm">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Admins</p>
-                      <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">{stats.admins}</p>
-                    </div>
-                    <div className="rounded-2xl border bg-background/80 px-4 py-3 shadow-sm backdrop-blur-sm">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Organizers</p>
-                      <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">{stats.organizers}</p>
-                    </div>
-                    <div className="rounded-2xl border bg-background/80 px-4 py-3 shadow-sm backdrop-blur-sm">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Users</p>
-                      <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">{stats.users}</p>
-                    </div>
+                  {/* RIGHT */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                    {[
+                      { label: "TOTAL USERS", value: stats.total, icon: Users },
+                      { label: "ADMINS", value: stats.admins, icon: ShieldCheck },
+                      { label: "ORGANIZERS", value: stats.organizers, icon: UserStar },
+                      { label: "USERS", value: stats.users, icon: User },
+                    ].map(({ label, value, icon: Icon }) => (
+                      <div
+                        key={label}
+                        className="h-[140px] sm:h-[170px] rounded-[18px] sm:rounded-[22px] border border-[#E8E1D5] bg-white p-3 sm:p-4 shadow-[0_10px_28px_rgba(24,48,40,.05)] flex flex-col justify-between"
+                      >
+                        <div>
+                          <div className="flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#EFF2E9]">
+                            <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#183028]" />
+                          </div>
+                          <p className="mt-3 truncate text-[9px] sm:text-[10px] font-semibold tracking-[0.15em] sm:tracking-[0.22em] text-[#7C7C7C] uppercase">
+                            {label}
+                          </p>
+                          <div className="mt-1 h-[2px] w-6 sm:w-8 rounded-full bg-[#C79A38]" />
+                        </div>
+                        <p className="font-serif font-bold text-2xl sm:text-[28px] leading-none text-[#183028]">
+                          {value}
+                        </p>
+                      </div>
+                    ))}
                   </div>
+
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="rounded-[2rem] border bg-background/80 shadow-sm backdrop-blur-sm">
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="pl-6">User</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead className="pr-6 text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={4} className="py-14">
-                          <EmptyState
-                            icon={<Users className="h-5 w-5" />}
-                            title="No users found"
-                            description="User accounts will appear here once they register."
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      users.map((user) => {
+            {/* MAIN CONTENT CARD */}
+            <Card className="rounded-[24px] md:rounded-[28px] border border-[#E8E1D5] bg-white shadow-[0_16px_40px_rgba(24,48,40,0.05)]">
+              <CardContent className="p-4 sm:p-6">
+                
+                {/* FILTERS PANEL */}
+                <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="relative w-full lg:max-w-[430px]">
+                    <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8B938C]" />
+                    <Input
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Search users..."
+                      className="h-[48px] sm:h-[56px] rounded-full border-[#E8E1D5] bg-[#FAF8F4] pl-12 text-sm sm:text-[16px] shadow-none focus-visible:ring-[#0F4D3F]"
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    {[
+                      { label: "All", value: "all" },
+                      { label: "Admins", value: "admin" },
+                      { label: "Organizers", value: "organizer" },
+                      { label: "Users", value: "user" },
+                    ].map(({ label, value }) => (
+                      <Button
+                        key={label}
+                        type="button"
+                        variant="outline"
+                        onClick={() => setRoleFilter(value as any)}
+                        className={`h-[38px] sm:h-[46px] text-xs sm:text-sm rounded-full px-3 sm:px-6 transition-all ${
+                          roleFilter === value
+                            ? "bg-[#0F4D3F] border-[#0F4D3F] text-white"
+                            : "border-[#E8E1D5] bg-white text-[#183028] hover:bg-[#FBFAF7]"
+                        }`}
+                      >
+                        {label}
+                      </Button>
+                    ))}
+
+                    <Button
+                      variant="outline"
+                      onClick={refreshUsers}
+                      className="h-[38px] sm:h-[46px] text-xs sm:text-sm rounded-full border-[#E8E1D5] px-4"
+                    >
+                      <RefreshCcw className="mr-2 h-3.5 w-3.5" />
+                      Refresh
+                    </Button>
+                  </div>
+                </div>
+
+                {/* RESPONSIVE USERS CONTAINER */}
+                {filteredUsers.length === 0 ? (
+                  <div className="py-12 border border-dashed rounded-[22px] border-[#E8E1D5]">
+                    <EmptyState
+                      icon={<Users className="h-5 w-5" />}
+                      title={users.length === 0 ? "No users found" : "No matches"}
+                      description={users.length === 0 ? "User accounts will appear here once they register." : "Try adjusting your search or filters."}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    {/* MOBILE STACKED CARD VIEW */}
+                    <div className="grid gap-4 md:hidden">
+                      {filteredUsers.map((user) => {
                         const normalizedRole = normalizeRole(user.role);
                         const isAdmin = normalizedRole === "admin";
                         const canPromote = normalizedRole === "user";
-                        const canDemote = normalizedRole === "organizer";
 
                         return (
-                          <TableRow key={user.id} className="transition-colors hover:bg-muted/40">
-                            <TableCell className="pl-6">
-                              <div className="flex items-center gap-3">
-                                <Avatar size="lg" className="h-11 w-11 border border-white/70 bg-violet-50 text-violet-700 dark:border-white/10 dark:bg-violet-500/15 dark:text-violet-200">
-                                  <AvatarFallback className="bg-transparent text-sm font-semibold text-current">
+                          <div key={user.id} className="p-4 rounded-2xl border border-[#E8E1D5] bg-[#FAF8F4]/50 space-y-4">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-start gap-3 min-w-0">
+                                <Avatar className="h-11 w-11 shrink-0 border border-[#E8E1D5] bg-[#0F4D3F] text-white shadow-sm">
+                                  <AvatarFallback className="bg-transparent text-xs font-semibold text-current">
                                     {getInitials(user.name)}
                                   </AvatarFallback>
                                 </Avatar>
-                                <div className="min-w-0">
-                                  <p className="truncate font-semibold text-slate-950 dark:text-white">{user.name}</p>
-                                  <p className="mt-1 text-sm text-muted-foreground">ID #{user.id}</p>
+                                <div className="min-w-0 flex-1">
+                                  <p className="truncate text-base font-semibold text-[#183028]">{user.name}</p>
+                                  <p className="text-xs text-[#5E665F]">ID #{user.id}</p>
                                 </div>
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                                <Mail className="h-4 w-4 shrink-0 text-violet-600 dark:text-violet-300" />
-                                <span className="truncate">{user.email}</span>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge className={`rounded-full px-3 py-1 text-[11px] font-medium ${roleTone(normalizedRole)}`}>
+                              <Badge className={`rounded-full border border-[#E8E1D5] px-2.5 py-1 text-[11px] font-semibold shrink-0 whitespace-nowrap ${roleTone(normalizedRole)}`}>
                                 {roleLabel(user.role)}
                               </Badge>
-                            </TableCell>
-                            <TableCell className="pr-6 text-right">
+                            </div>
+
+                            <div className="flex items-center gap-1.5 text-xs text-[#5E665F] min-w-0">
+                              <Mail className="h-3.5 w-3.5 shrink-0 text-[#C6922F]" />
+                              <span className="truncate break-all">{user.email}</span>
+                            </div>
+
+                            <div className="pt-3 border-t border-[#E8E1D5]/60 flex justify-end">
                               {isAdmin ? (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="rounded-full border-slate-200/80 bg-slate-100 px-4 text-slate-700 shadow-sm dark:border-white/10 dark:bg-white/10 dark:text-slate-300"
-                                  disabled
-                                  aria-disabled="true"
-                                >
+                                <Button size="sm" variant="outline" className="w-full h-9 rounded-full bg-[#F5F2EA] text-xs text-[#5E665F]" disabled>
                                   Administrator
                                 </Button>
                               ) : canPromote ? (
-                                <Button
-                                  size="sm"
-                                  className="rounded-full bg-violet-600 px-4 text-white shadow-lg shadow-violet-600/20 hover:bg-violet-500"
-                                  onClick={() => openDialog(user, "organizer")}
-                                >
-                                  <UserRoundCheck className="mr-2 h-4 w-4" />
-                                  Promote to Organizer
+                                <Button size="sm" className="w-full h-9 rounded-full bg-[#0F4D3F] text-xs text-white hover:bg-[#0B3E33]" onClick={() => openDialog(user, "organizer")}>
+                                  <UserRoundCheck className="mr-1.5 h-3.5 w-3.5" /> Promote
                                 </Button>
                               ) : (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  className="rounded-full border-violet-200/80 bg-white px-4 shadow-sm hover:border-violet-300 hover:bg-violet-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
-                                  onClick={() => openDialog(user, "user")}
-                                >
-                                  <UserRoundX className="mr-2 h-4 w-4" />
-                                  Demote to User
+                                <Button size="sm" variant="outline" className="w-full h-9 rounded-full border-[#C6922F] text-xs bg-white text-[#183028]" onClick={() => openDialog(user, "user")}>
+                                  <UserRoundX className="mr-1.5 h-3.5 w-3.5" /> Demote
                                 </Button>
                               )}
-                            </TableCell>
-                          </TableRow>
+                            </div>
+                          </div>
                         );
-                      })
-                    )}
-                  </TableBody>
-                </Table>
+                      })}
+                    </div>
+
+                    {/* DESKTOP TABLE VIEW */}
+                    <div className="hidden md:block">
+                      <Table className="overflow-hidden rounded-[22px]">
+                        <TableHeader className="border-b border-[#E8E1D5]">
+                          <TableRow className="border-b border-[#E8E1D5]">
+                            <TableHead className="pl-6 py-4 text-[0.95rem] font-medium text-[#5E665F]">User</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Role</TableHead>
+                            <TableHead className="pr-6 text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredUsers.map((user) => {
+                            const normalizedRole = normalizeRole(user.role);
+                            const isAdmin = normalizedRole === "admin";
+                            const canPromote = normalizedRole === "user";
+
+                            return (
+                              <TableRow key={user.id} className="transition-colors hover:bg-[#FBFAF7]">
+                                <TableCell className="pl-6 py-5">
+                                  <div className="flex items-center gap-3">
+                                    <Avatar className="h-11 w-11 border border-[#E8E1D5] bg-[#0F4D3F] text-white shadow-sm">
+                                      <AvatarFallback className="bg-transparent text-xs font-semibold text-current">
+                                        {getInitials(user.name)}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <div className="min-w-0">
+                                      <p className="truncate text-base font-semibold text-[#183028]">{user.name}</p>
+                                      <p className="text-xs text-[#5E665F]">ID #{user.id}</p>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="py-5">
+                                  <div className="flex items-center gap-2 text-[0.92rem] text-[#5E665F]">
+                                    <Mail className="h-4 w-4 shrink-0 text-[#C6922F]" />
+                                    <span className="truncate">{user.email}</span>
+                                  </div>
+                                </TableCell>
+                                <TableCell className="py-5">
+                                  <Badge className={`rounded-full border border-[#E8E1D5] px-3 py-1.5 text-xs font-semibold ${roleTone(normalizedRole)}`}>
+                                    {roleLabel(user.role)}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="pr-6 py-5 text-right">
+                                  {isAdmin ? (
+                                    <Button size="sm" variant="outline" className="h-10 rounded-full border-[#E8E1D5] bg-[#F5F2EA] px-4 text-xs text-[#5E665F]" disabled aria-disabled="true">
+                                      Administrator
+                                    </Button>
+                                  ) : canPromote ? (
+                                    <Button size="sm" className="h-10 rounded-full bg-[#0F4D3F] px-4 text-xs text-white hover:bg-[#0B3E33]" onClick={() => openDialog(user, "organizer")}>
+                                      <UserRoundCheck className="mr-2 h-4 w-4" /> Promote
+                                    </Button>
+                                  ) : (
+                                    <Button size="sm" variant="outline" className="h-10 rounded-full border-[#C6922F] bg-white px-4 text-xs hover:bg-[#FBFAF7]" onClick={() => openDialog(user, "user")}>
+                                      <UserRoundX className="mr-2 h-4 w-4" /> Demote
+                                    </Button>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
           </div>
         </motion.div>
       </div>
 
+      <footer className="border-t border-[#E8E1D5] bg-[#FAF8F4] py-6">
+        <div className="mx-auto flex max-w-[1320px] items-center justify-center gap-3 px-4 text-sm text-[#5E665F]">
+          <ShieldCheck className="h-5 w-5 text-[#183028]" />
+          <span>© 2026 EventSphere. All rights reserved.</span>
+        </div>
+      </footer>
+
+      {/* DIALOG MODAL */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="rounded-[2rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,255,255,0.9)_100%)] p-6 shadow-2xl shadow-violet-500/15 dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(24,24,27,0.96)_0%,rgba(24,24,27,0.92)_100%)] sm:max-w-md">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-md rounded-[1.5rem] sm:rounded-[2rem] border border-white/70 bg-white p-5 sm:p-6 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
+            <DialogTitle className="text-xl sm:text-2xl font-bold tracking-tight text-slate-950">
               {dialogTitle}
             </DialogTitle>
             <DialogDescription className="mt-2 text-sm leading-6 text-muted-foreground">
               {dialogDescription}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="mt-4 border-t border-white/70 bg-transparent px-0 pb-0 pt-4 dark:border-white/10">
+          <DialogFooter className="mt-6 flex flex-col-reverse sm:flex-row gap-2 sm:justify-end border-t pt-4">
             <Button
               variant="outline"
-              className="rounded-full border-violet-200/80 bg-white px-5 shadow-sm hover:border-violet-300 hover:bg-violet-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
+              className="rounded-full w-full sm:w-auto px-5"
               onClick={() => setDialogOpen(false)}
               disabled={saving}
             >
               Cancel
             </Button>
             <Button
-              className="rounded-full bg-violet-600 px-5 text-white shadow-lg shadow-violet-600/20 hover:bg-violet-500"
+              className="rounded-full w-full sm:w-auto bg-violet-600 px-5 text-white hover:bg-violet-500"
               onClick={confirmRoleChange}
               disabled={saving}
             >

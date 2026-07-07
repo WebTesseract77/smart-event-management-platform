@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -8,7 +8,6 @@ import {
   Building2,
   Calendar,
   Download,
-  Mail,
   MapPin,
   Printer,
   Smartphone,
@@ -49,24 +48,24 @@ function resolveQrUrl(path?: string) {
 function toneForStatus(status?: string) {
   const normalized = String(status || "Active").replaceAll("_", " ");
   const tone = normalized.toLowerCase().includes("cancel")
-    ? "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300"
-    : "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300";
+    ? "bg-[#FDECEC] text-[#B42318]"
+    : "bg-[#EEF7F2] text-[#0F4D3F]";
 
   return { label: normalized, tone };
 }
 
 function InfoChip({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/70 bg-background/75 p-4 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-violet-500/10 dark:border-white/10 dark:bg-white/5">
+    <div className="rounded-[1.5rem] border border-[#E8E1D5] bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-violet-100 p-2 text-violet-600 shadow-sm dark:bg-violet-500/15 dark:text-violet-300">
+        <div className="rounded-2xl bg-[#F5F2EA] p-2 text-[#0F4D3F] shadow-sm">
           {icon}
         </div>
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#A9771E]">
             {label}
           </p>
-          <p className="mt-1 text-sm font-medium leading-6 text-slate-950 dark:text-white">
+          <p className="mt-1 text-sm font-medium leading-6 text-[#183028]">
             {value}
           </p>
         </div>
@@ -77,20 +76,20 @@ function InfoChip({ icon, label, value }: { icon: React.ReactNode; label: string
 
 function MemberMeta({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-white/70 bg-background/75 p-3 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
-      <div className="rounded-xl bg-violet-100 p-2 text-violet-600 shadow-sm dark:bg-violet-500/15 dark:text-violet-300">
+    <div className="flex items-start gap-3 rounded-[1.5rem] border border-[#E8E1D5] bg-white p-3 shadow-sm">
+      <div className="rounded-2xl bg-[#F5F2EA] p-2 text-[#0F4D3F] shadow-sm">
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">{label}</p>
-        <p className="mt-1 line-clamp-1 text-sm font-medium leading-6 text-slate-950 dark:text-white">{value}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#A9771E]">{label}</p>
+        <p className="mt-1 line-clamp-1 text-sm font-medium leading-6 text-[#183028]">{value}</p>
       </div>
     </div>
   );
 }
 
 function StatusBadge({ label, tone }: { label: string; tone: string }) {
-  return <Badge className={`rounded-full border px-3 py-1 text-[11px] font-medium ${tone}`}>{label}</Badge>;
+  return <Badge className={`rounded-full border border-[#E8E1D5] px-3 py-1 text-[11px] font-medium ${tone}`}>{label}</Badge>;
 }
 
 function TeamMemberPass({
@@ -119,7 +118,6 @@ function TeamMemberPass({
   const qrUrl = resolveQrUrl(member?.qr_code_path);
   const memberName = member?.name || "Team member";
   const memberRoleLabel = member?.is_leader ? "Captain" : "Participant";
-  const initial = String(memberName || member?.email || "M").charAt(0).toUpperCase();
 
   function handleDownload() {
     if (!qrUrl) return;
@@ -143,7 +141,7 @@ function TeamMemberPass({
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       className="group h-full"
     >
-      <Card className="overflow-hidden rounded-[2.5rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.82)_0%,rgba(255,255,255,0.62)_100%)] shadow-2xl shadow-violet-500/10 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-violet-500/15 dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(24,24,27,0.82)_0%,rgba(24,24,27,0.56)_100%)]">
+      <Card className="overflow-hidden rounded-[2.5rem] border border-[#E8E1D5] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
         <div className="relative h-[180px] overflow-hidden sm:h-[210px]">
           {member?.event_image_url || member?.image_url ? (
             <img
@@ -152,19 +150,18 @@ function TeamMemberPass({
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />
           ) : (
-            <div className="h-full w-full bg-gradient-to-br from-violet-500/20 via-indigo-500/15 to-blue-500/10" />
+            <div className="h-full w-full bg-[linear-gradient(135deg,#0F4D3F_0%,#183028_100%)]" />
           )}
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.08)_0%,rgba(15,23,42,0.26)_40%,rgba(15,23,42,0.82)_100%)]" />
-          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/25 via-transparent to-blue-500/10" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.15),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,0.1),transparent_22%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,77,63,0.14)_0%,rgba(24,48,40,0.3)_40%,rgba(24,48,40,0.82)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,146,47,0.22),transparent_55%)]" />
 
           <div className="absolute inset-x-0 top-0 flex items-center justify-between p-5 sm:p-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
-              <Ticket className="h-3.5 w-3.5 text-violet-200" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[11px] font-medium text-white shadow-sm">
+              <Ticket className="h-3.5 w-3.5 text-[#F4D98B]" />
               Member Pass
             </div>
-            <div className="hidden items-center gap-2 rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150 sm:inline-flex">
-              <ShieldCheck className="h-3.5 w-3.5 text-violet-200" />
+            <div className="hidden items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[11px] font-medium text-white shadow-sm sm:inline-flex">
+              <ShieldCheck className="h-3.5 w-3.5 text-[#F4D98B]" />
               Wallet Ready
             </div>
           </div>
@@ -172,14 +169,14 @@ function TeamMemberPass({
           <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
             <div className="flex items-end justify-between gap-3">
               <div className="max-w-3xl">
-                <h2 className="text-2xl font-bold tracking-tight text-white drop-shadow-md sm:text-3xl">
+                <h2 className="text-2xl font-semibold tracking-tight text-white drop-shadow-sm sm:text-3xl">
                   {memberName}
                 </h2>
                 <p className="mt-2 text-sm text-white/85 sm:text-base">
                   Team digital pass
                 </p>
               </div>
-              <Badge className={`rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150 ${member?.is_leader ? "" : ""}`}>
+              <Badge className="rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[11px] font-medium text-white shadow-sm">
                 {memberRoleLabel}
               </Badge>
             </div>
@@ -189,8 +186,8 @@ function TeamMemberPass({
         <CardContent className="space-y-5 p-5 sm:p-8">
           <div className="grid gap-3 md:grid-cols-3">
             <StatusBadge label={statusLabel} tone={statusTone} />
-            <StatusBadge label={isPaid ? "Paid" : "Free"} tone={isPaid ? "bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300" : "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300"} />
-            <StatusBadge label={typeLabel} tone="bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-300" />
+            <StatusBadge label={isPaid ? "Paid" : "Free"} tone={isPaid ? "bg-[#FFF6E7] text-[#A9771E]" : "bg-[#F5F2EA] text-[#183028]"} />
+            <StatusBadge label={typeLabel} tone="bg-[#F5F2EA] text-[#183028]" />
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -208,13 +205,13 @@ function TeamMemberPass({
           </div>
 
           <div className="flex items-center justify-center">
-            <div className="w-full max-w-[340px] rounded-[2rem] border border-white/70 bg-white p-4 shadow-xl shadow-slate-900/10 dark:border-white/10">
-              <div className="rounded-[1.5rem] bg-background p-5">
-                <div className="flex items-center justify-center rounded-[1.25rem] bg-white p-4">
+            <div className="w-full max-w-[340px] rounded-[2rem] border border-[#E8E1D5] bg-[#F5F2EA] p-4 shadow-sm">
+              <div className="rounded-[1.5rem] bg-white p-5">
+                <div className="flex items-center justify-center rounded-[1.25rem] bg-[#F5F2EA] p-4">
                   {qrUrl ? (
                     <img src={qrUrl} alt={`${memberName} QR code`} className="h-[220px] w-[220px] object-contain" />
                   ) : (
-                    <div className="flex h-[220px] w-[220px] items-center justify-center rounded-[1.25rem] border border-dashed border-violet-300/70 bg-violet-50 text-violet-600 dark:border-violet-500/25 dark:bg-white/5 dark:text-violet-300">
+                    <div className="flex h-[220px] w-[220px] items-center justify-center rounded-[1.25rem] border border-dashed border-[#E8E1D5] bg-white text-[#0F4D3F]">
                       <QrCode className="h-16 w-16" />
                     </div>
                   )}
@@ -223,12 +220,12 @@ function TeamMemberPass({
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white/70 bg-background/80 p-5 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
+          <div className="rounded-[2rem] border border-[#E8E1D5] bg-[#F5F2EA] p-5 shadow-sm">
             <div className="flex items-start gap-3">
-              <QrCode className="mt-0.5 h-5 w-5 text-violet-600 dark:text-violet-300" />
+              <QrCode className="mt-0.5 h-5 w-5 text-[#0F4D3F]" />
               <div>
-                <p className="font-medium text-slate-950 dark:text-white">Pass details</p>
-                <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                <p className="font-medium text-[#183028]">Pass details</p>
+                <p className="mt-1 text-sm leading-6 text-[#5E665F]">
                   Present this member pass at the event entrance. The organizer will scan the QR code to verify this specific member.
                 </p>
               </div>
@@ -237,7 +234,7 @@ function TeamMemberPass({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <Button
-              className="h-12 rounded-full bg-violet-600 text-white shadow-lg shadow-violet-600/25 hover:bg-violet-500"
+              className="h-12 rounded-full bg-[#0F4D3F] text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#0B3E33]"
               onClick={handleDownload}
             >
               <Download className="mr-2 h-4 w-4" />
@@ -245,7 +242,7 @@ function TeamMemberPass({
             </Button>
             <Button
               variant="outline"
-              className="h-12 rounded-full border-violet-200/80 bg-white px-4 text-slate-950 shadow-sm hover:border-violet-300 hover:bg-violet-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+              className="h-12 rounded-full border-[#E8E1D5] bg-white px-4 text-[#183028] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#F5F2EA]"
               onClick={handlePrint}
             >
               <Printer className="mr-2 h-4 w-4" />
@@ -292,28 +289,28 @@ export default function TeamPassPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-muted/30 p-6">
+      <div className="min-h-screen bg-[#FAF8F4] p-6">
         <div className="mx-auto max-w-5xl space-y-6">
           <PageHeaderSkeleton />
-          <Card className="overflow-hidden rounded-[2rem] border border-white/70 bg-background/90 shadow-sm shadow-slate-900/5 dark:border-white/10">
-            <div className="h-[180px] animate-pulse bg-gradient-to-br from-violet-500/10 via-blue-500/10 to-muted/40" />
+          <Card className="overflow-hidden rounded-[2rem] border border-[#E8E1D5] bg-white shadow-sm">
+            <div className="h-[180px] animate-pulse bg-[linear-gradient(135deg,#F5F2EA_0%,#E8E1D5_100%)]" />
             <CardContent className="space-y-5 p-5 sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-3">
-                  <div className="h-5 w-32 rounded-full bg-muted/70" />
-                  <div className="h-9 w-72 rounded-full bg-muted/60" />
-                  <div className="h-4 w-52 rounded-full bg-muted/60" />
+                  <div className="h-5 w-32 rounded-full bg-[#F5F2EA]" />
+                  <div className="h-9 w-72 rounded-full bg-[#F5F2EA]" />
+                  <div className="h-4 w-52 rounded-full bg-[#F5F2EA]" />
                 </div>
-                <div className="h-16 w-24 rounded-2xl bg-muted/60" />
+                <div className="h-16 w-24 rounded-2xl bg-[#F5F2EA]" />
               </div>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="h-20 rounded-2xl bg-muted/60" />
+                  <div key={index} className="h-20 rounded-2xl bg-[#F5F2EA]" />
                 ))}
               </div>
               <div className="grid gap-5">
-                <div className="h-[720px] rounded-[2.5rem] bg-muted/60" />
-                <div className="h-[720px] rounded-[2.5rem] bg-muted/60" />
+                <div className="h-[720px] rounded-[2.5rem] bg-[#F5F2EA]" />
+                <div className="h-[720px] rounded-[2.5rem] bg-[#F5F2EA]" />
               </div>
             </CardContent>
           </Card>
@@ -324,7 +321,7 @@ export default function TeamPassPage() {
 
   if (error || !team) {
     return (
-      <div className="min-h-screen bg-muted/30 p-6">
+      <div className="min-h-screen bg-[#FAF8F4] p-6">
         <div className="mx-auto max-w-5xl">
           <EmptyState
             icon={<Ticket className="h-6 w-6" />}
@@ -349,9 +346,9 @@ export default function TeamPassPage() {
   const bannerImage = team.event_image_url || team.image_url || team.event?.image_url;
 
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-[#FAF8F4]">
       <div className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.12),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.08),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.06),transparent_30%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.16),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.12),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.1),transparent_30%)]" />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#FAF8F4,#F5F2EA)]" />
 
         <motion.div
           className="mx-auto max-w-6xl px-6 py-8 lg:py-10"
@@ -359,24 +356,23 @@ export default function TeamPassPage() {
           animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
-          <Card className="overflow-hidden rounded-[2.5rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.82)_0%,rgba(255,255,255,0.6)_100%)] shadow-2xl shadow-violet-500/10 backdrop-blur-xl dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(24,24,27,0.82)_0%,rgba(24,24,27,0.56)_100%)]">
+          <Card className="overflow-hidden rounded-[2.5rem] border border-[#E8E1D5] bg-white shadow-sm">
             <div className="relative h-[180px] overflow-hidden sm:h-[220px]">
               {bannerImage ? (
                 <img src={bannerImage} alt={eventName} className="h-full w-full object-cover" />
               ) : (
-                <div className="h-full w-full bg-gradient-to-br from-violet-500/20 via-indigo-500/15 to-blue-500/10" />
+                <div className="h-full w-full bg-[linear-gradient(135deg,#0F4D3F_0%,#183028_100%)]" />
               )}
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.08)_0%,rgba(15,23,42,0.26)_40%,rgba(15,23,42,0.82)_100%)]" />
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/25 via-transparent to-blue-500/10" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.15),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,0.1),transparent_22%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,77,63,0.14)_0%,rgba(24,48,40,0.3)_40%,rgba(24,48,40,0.82)_100%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(198,146,47,0.22),transparent_55%)]" />
 
               <div className="absolute inset-x-0 top-0 flex items-center justify-between p-5 sm:p-6">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
-                  <Ticket className="h-3.5 w-3.5 text-violet-200" />
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[11px] font-medium text-white shadow-sm">
+                  <Ticket className="h-3.5 w-3.5 text-[#F4D98B]" />
                   Team Pass
                 </div>
-                <div className="hidden items-center gap-2 rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150 sm:inline-flex">
-                  <Smartphone className="h-3.5 w-3.5 text-violet-200" />
+                <div className="hidden items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[11px] font-medium text-white shadow-sm sm:inline-flex">
+                  <Smartphone className="h-3.5 w-3.5 text-[#F4D98B]" />
                   Wallet Ready
                 </div>
               </div>
@@ -384,13 +380,13 @@ export default function TeamPassPage() {
               <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
                 <div className="max-w-4xl space-y-4">
                   <div className="flex flex-wrap gap-2">
-                    <Badge className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
+                    <Badge className="rounded-full border border-white/20 bg-white/15 px-3 py-1 text-[11px] font-medium text-white shadow-sm">
                       Team digital pass
                     </Badge>
                     <StatusBadge label={statusInfo.label} tone={statusInfo.tone} />
-                    <StatusBadge label={paymentLabel} tone={team.is_paid_event ? "bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300" : "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300"} />
+                    <StatusBadge label={paymentLabel} tone={team.is_paid_event ? "bg-[#FFF6E7] text-[#A9771E]" : "bg-[#F5F2EA] text-[#183028]"} />
                   </div>
-                  <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-md sm:text-5xl">
+                  <h1 className="text-3xl font-semibold tracking-tight text-white drop-shadow-sm sm:text-5xl">
                     {teamName}
                   </h1>
                   <p className="max-w-3xl text-sm text-white/85 sm:text-base">
@@ -408,17 +404,17 @@ export default function TeamPassPage() {
                 <InfoChip icon={<Building2 className="h-4 w-4" />} label="Organizer" value={organizer} />
               </div>
 
-              <div className="rounded-[2rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.72)_0%,rgba(255,255,255,0.94)_100%)] p-5 shadow-sm shadow-slate-900/5 dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0.04)_100%)]">
+              <div className="rounded-[2rem] border border-[#E8E1D5] bg-white p-5 shadow-sm">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-300">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#A9771E]">
                       Team information
                     </p>
-                    <p className="mt-1 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
+                    <p className="mt-1 text-2xl font-semibold tracking-tight text-[#183028]">
                       {teamName}
                     </p>
                   </div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-violet-200/80 bg-violet-50 px-4 py-2 text-sm font-medium text-violet-700 shadow-sm dark:border-violet-500/20 dark:bg-violet-500/15 dark:text-violet-300">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D5] bg-[#F5F2EA] px-4 py-2 text-sm font-medium text-[#0F4D3F] shadow-sm">
                     <ShieldCheck className="h-4 w-4" />
                     Verified team pass
                   </div>
@@ -433,11 +429,11 @@ export default function TeamPassPage() {
               <div className="space-y-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-300">Members</p>
-                    <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">Individual member passes</h2>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#A9771E]">Members</p>
+                    <h2 className="mt-1 text-2xl font-semibold tracking-tight text-[#183028]">Individual member passes</h2>
                   </div>
-                  <div className="hidden items-center gap-2 rounded-full border border-white/70 bg-white/80 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-200 sm:inline-flex">
-                    <QrCode className="h-4 w-4 text-violet-600 dark:text-violet-300" />
+                  <div className="hidden items-center gap-2 rounded-full border border-[#E8E1D5] bg-[#F5F2EA] px-4 py-2 text-sm font-medium text-[#183028] shadow-sm sm:inline-flex">
+                    <QrCode className="h-4 w-4 text-[#0F4D3F]" />
                     {team.members?.length || 0} passes
                   </div>
                 </div>

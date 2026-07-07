@@ -1,4 +1,3 @@
-from backend.app.models.registration import Registration
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -8,29 +7,25 @@ from backend.app.core.dependencies import (
     get_db,
 )
 
+from backend.app.core.roles import (
+    ROLE_ADMIN,
+    ROLE_ORGANIZER,
+)
+
 from backend.app.core.errors import (
     ConflictError,
     NotFoundError,
 )
 
 from backend.app.models.user import User
-from backend.app.core.roles import ROLE_ADMIN, ROLE_ORGANIZER
+from backend.app.models.event import Event
+from backend.app.models.registration import Registration
 
-from backend.app.schemas.participant import (
-    ParticipantRead,
-)
+from backend.app.schemas.participant import ParticipantRead
+from backend.app.schemas.registrations import RegistrationRead
+from backend.app.schemas.team import TeamSummary
 
-from backend.app.schemas.registrations import (
-    RegistrationRead,
-)
-
-from backend.app.schemas.team import (
-    TeamSummary,
-)
-
-from backend.app.services.event_service import (
-    get_event,
-)
+from backend.app.services.event_service import get_event
 
 from backend.app.services.registration_service import (
     cancel_registration,
@@ -42,6 +37,7 @@ from backend.app.services.registration_service import (
 from backend.app.services.team_service import (
     get_my_team_registrations,
 )
+
 
 router = APIRouter(
     prefix="",
@@ -59,6 +55,16 @@ def register(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+
+    if current_user.role in [
+        ROLE_ADMIN,
+        ROLE_ORGANIZER,
+    ]:
+        raise HTTPException(
+            status_code=403,
+            detail="Only participants can register",
+        )
+
     try:
         get_event(db, event_id)
 
@@ -70,13 +76,13 @@ def register(
 
     except NotFoundError as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=404,
             detail=str(exc),
         )
 
     except ConflictError as exc:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=409,
             detail=str(exc),
         )
 
@@ -90,6 +96,16 @@ def unregister(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+
+    if current_user.role in [
+        ROLE_ADMIN,
+        ROLE_ORGANIZER,
+    ]:
+        raise HTTPException(
+            status_code=403,
+            detail="Only participants can unregister",
+        )
+
     try:
         cancel_registration(
             db,
@@ -99,7 +115,7 @@ def unregister(
 
     except NotFoundError as exc:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=404,
             detail=str(exc),
         )
 
@@ -112,6 +128,7 @@ def list_my_registrations(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+
     return my_registrations(
         db,
         current_user.id,
@@ -126,6 +143,7 @@ def list_my_team_registrations(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+
     return get_my_team_registrations(
         db,
         current_user.id,
@@ -143,17 +161,33 @@ def participants(
         get_current_organizer_or_admin
     ),
 ):
-    try:
-        return get_event_participants(
-            db,
-            event_id,
-        )
 
-    except NotFoundError as exc:
+    event = db.get(
+        Event,
+        event_id,
+    )
+
+    if not event:
         raise HTTPException(
             status_code=404,
-            detail=str(exc),
+            detail="Event not found",
         )
+
+
+    if (
+        current_user.role == ROLE_ORGANIZER
+        and event.created_by != current_user.id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Not your event",
+        )
+
+
+    return get_event_participants(
+        db,
+        event_id,
+    )
 
 
 @router.get(
@@ -162,10 +196,9 @@ def participants(
 def get_registration_details(
     registration_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        get_current_user
-    ),
+    current_user: User = Depends(get_current_user),
 ):
+
     registration = db.get(
         Registration,
         registration_id,
@@ -178,16 +211,15 @@ def get_registration_details(
         )
 
     if (
-        current_user.role
-        not in [ROLE_ADMIN, ROLE_ORGANIZER]
-        and registration.user_id
-        != current_user.id
+        current_user.role not in [ROLE_ADMIN, ROLE_ORGANIZER]
+        and registration.user_id != current_user.id
     ):
         raise HTTPException(
             status_code=403,
             detail="Not authorized",
         )
 
+   
     return {
         "registration_id": registration.id,
         "participant_name": registration.user.name,
@@ -195,4 +227,6 @@ def get_registration_details(
         "event_name": registration.event.title,
         "event_id": registration.event_id,
         "user_id": registration.user_id,
+        "event_date": registration.event.start_date,  # <-- Added relationship mapping
+        "event_location": registration.event.location,  # <-- Added relationship mapping
     }

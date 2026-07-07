@@ -16,20 +16,18 @@ type NavItem = {
 
 const ROLE_NAV: Record<string, NavItem[]> = {
   admin: [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/events", label: "Events" },
-    { href: "/my-registrations", label: "My Registrations" },
-    { href: "/admin/users", label: "Users" },
-    { href: "/create-event", label: "Create Event" },
-    { href: "/scanner", label: "Scanner" },
-    { href: "/profile", label: "Profile" },
-  ],
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/events", label: "Events" },
+  { href: "/admin/users", label: "Users" },
+  { href: "/create-event", label: "Create Event" },
+  { href: "/scanner", label: "Scanner" },
+  { href: "/profile", label: "Profile" },
+],
   organizer: [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/organizer/events", label: "My Events" },
     { href: "/organizer/analytics", label: "Analytics" },
     { href: "/create-event", label: "Create Event" },
-    { href: "/events", label: "Participants" },
     { href: "/scanner", label: "Attendance" },
     { href: "/profile", label: "Profile" },
   ],
@@ -42,6 +40,11 @@ const ROLE_NAV: Record<string, NavItem[]> = {
 
 export default function Navbar() {
   const pathname = usePathname();
+
+const isPublic =
+  pathname === "/" ||
+  pathname === "/login" ||
+  pathname === "/register";
   const router = useRouter();
   const [loggedIn, setLoggedIn] = useState(false);
   const [role, setRole] = useState("user");
@@ -122,40 +125,60 @@ export default function Navbar() {
 
   return (
     <nav
-      className={cn(
-        "sticky top-0 z-50 border-b bg-background/90 backdrop-blur-md transition-shadow",
-        scrolled && "shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:shadow-[0_12px_32px_rgba(2,6,23,0.35)]"
-      )}
-    >
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6">
+  className={cn(
+    "sticky top-0 z-50 border-b border-[#E8E1D5] bg-background/90 backdrop-blur-md transition-shadow",
+    scrolled && "shadow-sm"
+  )}
+>
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between md:px-6">
         <div className="flex items-center justify-between gap-4">
           <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-2xl px-1 py-1 text-xl font-extrabold tracking-tight bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent md:text-2xl"
-          >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-violet-600/10 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300">
-              E
-            </span>
-            EventSphere
-          </Link>
+  href="/"
+  className="flex items-center"
+>
+
+  <div>
+
+    <h1 className="text-[18px] font-bold">
+
+      <span className="text-[#0F4D3F]">
+        Event
+      </span>
+
+      <span className="text-[#C6922F]">
+        Sphere
+      </span>
+
+    </h1>
+
+
+    <p className="text-xs text-[#C6922F]">
+      Events. Seamless. Everywhere.
+    </p>
+
+  </div>
+
+</Link>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 md:gap-3">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 hover:bg-muted hover:text-foreground",
-                isActive(item.href)
-                  ? "bg-violet-100 text-violet-700 shadow-sm dark:bg-violet-500/15 dark:text-violet-200"
-                  : "text-muted-foreground"
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </div>
+        {!isPublic && (
+  <div className="flex flex-wrap items-center gap-2 md:gap-3">
+    {navItems.map((item) => (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={cn(
+          "rounded-full px-4 py-2 text-sm font-medium transition-all duration-200",
+          isActive(item.href)
+            ? "bg-[#0F4D3F] text-white shadow-md"
+            : "text-[#5E665F] hover:bg-[#F5F2EA] hover:text-[#183028]"
+        )}
+      >
+        {item.label}
+      </Link>
+    ))}
+  </div>
+)}
 
         <div className="flex items-center gap-2 self-start md:self-auto">
           <ThemeToggle />
@@ -169,15 +192,19 @@ export default function Navbar() {
               </Link>
 
               <Link href="/login">
-                <Button className="rounded-full px-4">
+                <Button className="rounded-full bg-[#0F4D3F] hover:bg-[#0B3E33] text-white px-4">
                   Login
                 </Button>
               </Link>
             </>
           ) : (
-            <Button variant="destructive" onClick={logout} className="rounded-full px-4">
-              Logout
-            </Button>
+            <Button
+  variant="outline"
+  onClick={logout}
+  className="rounded-full border-[#E8E1D5] hover:bg-[#F5F2EA]"
+>
+  Logout
+</Button>
           )}
         </div>
       </div>

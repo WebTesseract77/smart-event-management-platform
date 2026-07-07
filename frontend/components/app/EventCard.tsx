@@ -10,9 +10,7 @@ import {
   Clock3,
   ImageIcon,
   MapPin,
-  Pencil,
   Ticket,
-  Trash2,
   Users,
 } from "lucide-react";
 
@@ -37,7 +35,8 @@ interface Event {
 
 interface EventCardProps {
   event: Event;
-  isAdmin: boolean;
+  role: string;
+  canManage: boolean;
   isRegistered: boolean;
   onRegister: (eventId: number) => void;
   onDelete: (eventId: number) => void;
@@ -51,36 +50,35 @@ function formatDate(date: string) {
   });
 }
 
-function MetaRow({
-  leftIcon,
-  leftLabel,
-  leftValue,
-  rightIcon,
-  rightLabel,
-  rightValue,
+function formatShortDate(date: string) {
+  return new Date(date).toLocaleDateString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "numeric",
+    month: "short",
+  });
+}
+
+function MetaItem({
+  icon,
+  label,
+  value,
 }: {
-  leftIcon: React.ReactNode;
-  leftLabel: string;
-  leftValue: string;
-  rightIcon: React.ReactNode;
-  rightLabel: string;
-  rightValue: string;
+  icon: React.ReactNode;
+  label: string;
+  value: string;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-3 text-sm">
-      <div className="min-w-0 flex items-start gap-2">
-        <span className="mt-0.5 shrink-0 text-violet-600">{leftIcon}</span>
-        <div className="min-w-0">
-          <div className="text-[10px] text-muted-foreground">{leftLabel}</div>
-          <div className="truncate font-medium text-foreground">{leftValue}</div>
+    <div className="flex min-w-0 items-start gap-2.5">
+      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EEF7F2] text-[#0F4D3F]">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <div className="truncate text-[11px] font-semibold uppercase tracking-[0.12em] text-[#8B948C]">
+          {label}
         </div>
-      </div>
-      <div className="min-w-0 flex items-start justify-end gap-2 text-right">
-        <div className="min-w-0">
-          <div className="text-[10px] text-muted-foreground">{rightLabel}</div>
-          <div className="truncate font-medium text-foreground">{rightValue}</div>
+        <div className="truncate text-[13px] font-semibold text-[#0F4D3F]" title={value}>
+          {value}
         </div>
-        <span className="mt-0.5 shrink-0 text-violet-600">{rightIcon}</span>
       </div>
     </div>
   );
@@ -88,7 +86,8 @@ function MetaRow({
 
 export default function EventCard({
   event,
-  isAdmin,
+  role,
+  canManage,
   isRegistered,
   onRegister,
   onDelete,
@@ -101,187 +100,155 @@ export default function EventCard({
   const isCompleted = now > end;
   const isLive = now >= start && now <= end;
   const isTeamEvent = Boolean(event.is_team_event);
-  const status = isCompleted ? "Closed" : isLive ? "Live" : "Upcoming";
+  const status = isCompleted ? "Ended" : isLive ? "Live" : "Upcoming";
+
   const statusClass = isCompleted
-    ? "bg-muted text-muted-foreground"
+    ? "bg-[#F3F1EC] text-[#6B7280]"
     : isLive
-      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-      : "bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300";
-  const occupancy = Math.min(100, (event.registered_count / event.capacity) * 100);
-  const spotsLeft = Math.max(0, event.capacity - event.registered_count);
+      ? "bg-[#E8F4EC] text-[#0F4D3F]"
+      : "bg-[#FFF6E7] text-[#C6922F]";
+
+  const hasRemainingData =
+    typeof event.capacity === "number" && typeof event.registered_count === "number";
+  const remaining = hasRemainingData
+    ? Math.max(0, event.capacity - event.registered_count)
+    : event.capacity;
 
   return (
     <motion.div
-      whileHover={reduceMotion ? undefined : { y: -6 }}
-      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={reduceMotion ? undefined : { y: -4 }}
+      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
       className="group h-full"
     >
-      <Card className="group h-full overflow-hidden rounded-[2rem] border bg-background/90 shadow-sm transition-all duration-300 hover:shadow-2xl hover:shadow-violet-500/10">
-        <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-violet-500/15 via-blue-500/10 to-transparent">
+      <Card className="group flex h-full flex-col overflow-hidden rounded-[24px] border border-[#E8E1D5] bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#0F4D3F]/30 hover:shadow-[0_16px_42px_rgba(15,77,63,0.10)]">
+        <div className="relative h-[160px] shrink-0 overflow-hidden bg-[#FAF8F4] sm:h-[190px]">
           {event.image_url ? (
             <motion.img
               src={event.image_url}
               alt={event.title}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              whileHover={reduceMotion ? undefined : { scale: 1.03 }}
+              className="h-full w-full object-cover transition-transform duration-500"
+              whileHover={reduceMotion ? undefined : { scale: 1.02 }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             />
           ) : (
-            <div className="flex h-full items-center justify-center">
-              <div className="rounded-full border border-dashed border-violet-400/30 bg-background/70 p-5 text-violet-600 backdrop-blur-sm dark:text-violet-300">
-                <ImageIcon className="h-6 w-6" />
+            <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#F5F2EA] to-[#EDE7DA]">
+              <div className="rounded-full border border-dashed border-[#D8CFBE] bg-white/70 p-5 text-[#0F4D3F]">
+                <ImageIcon className="h-5 w-5" />
               </div>
             </div>
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/5 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/0 to-transparent" />
 
-          <div className="absolute left-4 top-4 flex gap-1.5">
-            <Badge className={`rounded-full px-2 py-0.5 text-[10px] ${statusClass}`}>{status}</Badge>
-            <Badge className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] text-slate-700 dark:bg-slate-500/15 dark:text-slate-300">
+          <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+            <Badge className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${statusClass}`}>
+              {status}
+            </Badge>
+            <Badge className="rounded-full border border-[#E8E1D5] bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-[#183028]">
               {isTeamEvent ? "Team" : "Individual"}
             </Badge>
           </div>
 
-          <div className="absolute bottom-4 left-4">
-            <div className="inline-flex items-center gap-2 rounded-full bg-background/85 px-2.5 py-1 text-[10px] font-medium text-foreground shadow-lg backdrop-blur-md">
-              <Calendar className="h-3 w-3 text-violet-600" />
+          <div className="absolute bottom-3 left-3">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E1D5] bg-white px-3 py-1 text-[10px] font-semibold text-[#183028] shadow-sm">
+              <Calendar className="h-3 w-3 text-[#C6922F]" />
               <span className="truncate">{formatDate(event.start_date)}</span>
             </div>
           </div>
         </div>
 
-        <CardContent className="flex h-auto flex-col p-4">
-          <div className="space-y-2.5">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <div className="flex min-w-0 items-center gap-2">
-                  <h3 className="line-clamp-1 min-w-0 flex-1 text-[1.15rem] font-bold tracking-tight">
-                    {event.title}
-                  </h3>
-                  {event.is_paid_event ? (
-                    <Badge className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
-                      <Ticket className="mr-1 h-2.5 w-2.5" />
-                      Paid
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="shrink-0 rounded-full px-2 py-0.5 text-[10px]">
-                      Free
-                    </Badge>
-                  )}
-                </div>
-                <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">
-                  {event.description}
-                </p>
-              </div>
-            </div>
-
-            {isTeamEvent ? (
-              <MetaRow
-                leftIcon={<MapPin className="h-3 w-3" />}
-                leftLabel="Location"
-                leftValue={event.location}
-                rightIcon={<Users className="h-3 w-3" />}
-                rightLabel="Team size"
-                rightValue={
-                  event.min_team_size && event.max_team_size
-                    ? `${event.min_team_size} - ${event.max_team_size}`
-                    : "Team Registration"
-                }
-              />
+        <CardContent className="flex flex-1 flex-col px-6 py-5">
+          <div className="flex items-center gap-2">
+            <h3 className="line-clamp-1 min-w-0 flex-1 text-[20px] font-bold tracking-tight text-[#0F3D32]">
+              {event.title}
+            </h3>
+            {event.is_paid_event ? (
+              <Badge className="shrink-0 rounded-full border border-[#E8E1D5] bg-[#FFF6E7] px-2.5 py-1 text-[10px] font-semibold text-[#A9771E]">
+                <Ticket className="mr-1 h-3 w-3" />
+                Paid
+              </Badge>
             ) : (
-              <MetaRow
-                leftIcon={<MapPin className="h-3 w-3" />}
-                leftLabel="Location"
-                leftValue={event.location}
-                rightIcon={<Users className="h-3 w-3" />}
-                rightLabel="Capacity"
-                rightValue={`${event.capacity}`}
-              />
+              <Badge variant="secondary" className="shrink-0 rounded-full border border-[#D6E8DC] bg-[#EEF7F2] px-2.5 py-1 text-[10px] font-semibold text-[#0F4D3F]">
+                Free
+              </Badge>
             )}
-
-            {isTeamEvent ? (
-              <MetaRow
-                leftIcon={<Clock3 className="h-3 w-3" />}
-                leftLabel="Registration"
-                leftValue={formatDate(event.registration_deadline)}
-                rightIcon={<Ticket className="h-3 w-3" />}
-                rightLabel="Team Event"
-                rightValue=""
-              />
-            ) : (
-              <MetaRow
-                leftIcon={<Clock3 className="h-3 w-3" />}
-                leftLabel="Registration"
-                leftValue={formatDate(event.registration_deadline)}
-                rightIcon={<Ticket className="h-3 w-3" />}
-                rightLabel="Occupancy"
-                rightValue={`${Math.round(occupancy)}%`}
-              />
-            )}
-
-            {!isTeamEvent ? (
-              <div className="text-[10px] text-muted-foreground">
-                Registered: {event.registered_count} <span className="px-1">-</span> Spots Left: {spotsLeft}
-              </div>
-            ) : null}
           </div>
 
-          <div className="mt-3 flex flex-nowrap items-center gap-2">
-            <Link href={`/events/${event.id}`} className="min-w-0 flex-1">
-              <Button variant="outline" className="h-8 w-full rounded-full px-3 text-sm">
-                View
-              </Button>
-            </Link>
+          <p className="mt-3 text-sm leading-relaxed text-[#5E665F] line-clamp-2 break-words">
+            {event.description}
+          </p>
 
-            <Button
-              variant="default"
-              className="h-8 flex-1 rounded-full px-3 text-sm"
-              disabled={isRegistered || isCompleted || registrationClosed}
-              onClick={() => {
-                if (event.is_team_event) {
-                  window.location.href = `/team-register/${event.id}`;
-                } else {
-                  onRegister(event.id);
-                }
-              }}
-            >
-              {isRegistered ? "Registered" : isCompleted || registrationClosed ? "Closed" : "Register"}
-            </Button>
-
-            {isAdmin && !isCompleted ? (
-              <>
-                <Link href={`/edit-event/${event.id}`}>
-                  <Button
-                    variant="secondary"
-                    className="h-8 w-8 shrink-0 rounded-full p-0"
-                    aria-label="Edit"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </Link>
-
-                <Button
-                  variant="destructive"
-                  className="h-8 w-8 shrink-0 rounded-full p-0"
-                  onClick={() => onDelete(event.id)}
-                  aria-label="Delete"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-
-                <Link href={`/attendance/${event.id}`}>
-                  <Button
-                    variant="outline"
-                    className="h-8 w-8 shrink-0 rounded-full p-0"
-                    aria-label="Attendance"
-                  >
-                    <Calendar className="h-4 w-4" />
-                  </Button>
-                </Link>
-              </>
-            ) : null}
+          <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4">
+            <MetaItem
+              icon={<MapPin className="h-3.5 w-3.5" />}
+              label="Location"
+              value={event.location}
+            />
+            <MetaItem
+              icon={<Users className="h-3.5 w-3.5" />}
+              label={isTeamEvent ? "Team Size" : "Capacity"}
+              value={isTeamEvent ? `${event.min_team_size} - ${event.max_team_size}` : `${event.capacity}`}
+            />
+            <MetaItem
+              icon={<Clock3 className="h-3.5 w-3.5" />}
+              label="Starts"
+              value={formatShortDate(event.start_date)}
+            />
+            <MetaItem
+              icon={<Ticket className="h-3.5 w-3.5" />}
+              label={isTeamEvent ? "Slots Left" : "Seats Left"}
+              value={`${remaining}`}
+            />
           </div>
+
+          <div className="mt-6 flex items-center gap-3">
+
+  <Link href={`/events/${event.id}`} className="flex-1">
+    <Button
+      variant="outline"
+      className="h-11 w-full rounded-[14px] border-[#E8E1D5] bg-[#FAF8F4] text-sm hover:bg-[#F0EBDF]"
+    >
+      Details
+    </Button>
+  </Link>
+
+
+  {role !== "admin" && role !== "organizer" && (
+    <Button
+      className="h-11 flex-1 rounded-[14px] bg-[#0F4D3F] text-sm text-white hover:bg-[#0B3E33]"
+      disabled={
+        isRegistered ||
+        isCompleted ||
+        registrationClosed
+      }
+      onClick={() => {
+        if (event.is_team_event) {
+          window.location.href =
+            `/team-register/${event.id}`;
+        } else {
+          onRegister(event.id);
+        }
+      }}
+    >
+      {isRegistered
+        ? "Registered"
+        : isCompleted || registrationClosed
+        ? "Closed"
+        : "Register"}
+    </Button>
+  )}
+
+
+  {canManage && (
+    <Button
+      onClick={() => onDelete(event.id)}
+      className="h-11 flex-1 rounded-[14px] bg-red-600 text-white hover:bg-red-700"
+    >
+      Delete
+    </Button>
+  )}
+
+</div>
         </CardContent>
       </Card>
     </motion.div>

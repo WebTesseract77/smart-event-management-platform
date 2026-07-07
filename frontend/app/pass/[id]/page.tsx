@@ -26,26 +26,29 @@ import {
 
 function formatDateTime(date?: string) {
   if (!date) return "Date unavailable";
-
-  return new Date(date).toLocaleString("en-IN", {
-    timeZone: "Asia/Kolkata",
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  try {
+    return new Date(date).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  } catch (e) {
+    return "Date unavailable";
+  }
 }
 
 function InfoChip({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/70 bg-background/75 p-4 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
+    <div className="rounded-[1.5rem] border border-[#E8E1D5] bg-[#FFFFFF] p-4 shadow-[0_12px_30px_rgba(24,48,40,0.05)] w-full min-w-0">
       <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-violet-100 p-2 text-violet-600 shadow-sm dark:bg-violet-500/15 dark:text-violet-300">
+        <div className="rounded-2xl bg-[#F5F2EA] p-2 text-[#0F4D3F] shrink-0">
           {icon}
         </div>
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.16em] text-[#5E665F]">
             {label}
           </p>
-          <p className="mt-1 text-sm font-medium leading-6 text-slate-950 dark:text-white">
+          <p className="mt-1 text-xs sm:text-sm font-medium leading-relaxed text-[#183028] break-words">
             {value}
           </p>
         </div>
@@ -55,7 +58,7 @@ function InfoChip({ icon, label, value }: { icon: React.ReactNode; label: string
 }
 
 function StatusBadge({ label, tone }: { label: string; tone: string }) {
-  return <Badge className={`rounded-full border px-3 py-1 text-[11px] font-medium ${tone}`}>{label}</Badge>;
+  return <Badge className={`rounded-full border border-[#E8E1D5] px-3 py-1 text-[10px] sm:text-[11px] font-medium justify-center ${tone}`}>{label}</Badge>;
 }
 
 export default function PassPage() {
@@ -69,39 +72,62 @@ export default function PassPage() {
   useEffect(() => {
     async function loadRegistration() {
       const id = params?.id;
-
       if (!id) {
         setLoading(false);
         return;
       }
-
       try {
         const token = localStorage.getItem("token");
-
         if (!token) {
           setLoading(false);
           return;
         }
-
         const data = await getRegistration(token, Number(id));
+        console.log("CRITICAL INVENTORY - API Data Payload:", data);
         setRegistration(data);
       } catch (error) {
-        console.error(error);
+        console.error("Fetch Error:", error);
       } finally {
         setLoading(false);
       }
     }
-
     loadRegistration();
   }, [params]);
 
+  // Comprehensive deep key resolution matrix for asynchronous lazy-loaded relations
+  const eventName = 
+    registration?.event_name || 
+    registration?.event?.title || 
+    registration?.event?.name || 
+    "Event Pass";
+
+  const eventDate = 
+    registration?.event_date || 
+    registration?.start_date || 
+    registration?.event?.start_date || 
+    registration?.event?.date ||
+    registration?.date;
+
+  const eventLocation = 
+    registration?.event_location || 
+    registration?.location || 
+    registration?.event?.location || 
+    registration?.event?.venue ||
+    registration?.venue;
+
+  const organizerName = 
+    registration?.organizer_name || 
+    registration?.event?.organizer_name || 
+    registration?.event?.organizer?.name || 
+    "EventSphere";
+  
   const qrData = useMemo(
     () =>
       JSON.stringify({
-        registration_id: registration?.registration_id,
-        event_id: registration?.event_id,
+        registration_id: registration?.registration_id || registration?.id,
+        event_id: registration?.event_id || registration?.event?.id,
         user_id: registration?.user_id,
-        participant_name: registration?.participant_name,
+        participant_name: registration?.participant_name || registration?.user?.name,
       }),
     [registration]
   );
@@ -112,11 +138,7 @@ export default function PassPage() {
 
   function handleDownload() {
     const svg = qrWrapRef.current?.querySelector("svg");
-
-    if (!svg) {
-      return;
-    }
-
+    if (!svg) return;
     const svgData = new XMLSerializer().serializeToString(svg);
     const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -129,35 +151,9 @@ export default function PassPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-muted/30 p-6">
+      <div className="min-h-screen bg-[#FAF8F4] pt-24 px-4 w-full">
         <div className="mx-auto max-w-5xl space-y-6">
           <PageHeaderSkeleton />
-          <Card className="overflow-hidden rounded-[2rem] border border-white/70 bg-background/90 shadow-sm shadow-slate-900/5 dark:border-white/10">
-            <div className="h-[180px] animate-pulse bg-gradient-to-br from-violet-500/10 via-blue-500/10 to-muted/40" />
-            <CardContent className="space-y-5 p-6 sm:p-8">
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-3">
-                  <div className="h-5 w-28 rounded-full bg-muted/70" />
-                  <div className="h-9 w-72 rounded-full bg-muted/60" />
-                  <div className="h-4 w-48 rounded-full bg-muted/60" />
-                </div>
-                <div className="h-16 w-24 rounded-2xl bg-muted/60" />
-              </div>
-              <div className="grid gap-3 md:grid-cols-2">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="h-20 rounded-2xl bg-muted/60" />
-                ))}
-              </div>
-              <div className="flex items-center justify-center pt-2">
-                <div className="h-64 w-64 rounded-[2rem] bg-muted/60" />
-              </div>
-              <div className="h-12 rounded-2xl bg-muted/60" />
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="h-11 rounded-full bg-muted/60" />
-                <div className="h-11 rounded-full bg-muted/60" />
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </div>
     );
@@ -165,7 +161,7 @@ export default function PassPage() {
 
   if (!registration) {
     return (
-      <div className="min-h-screen bg-muted/30 p-6">
+      <div className="min-h-screen bg-[#FAF8F4] pt-24 px-4 w-full">
         <div className="mx-auto max-w-5xl">
           <EmptyState
             icon={<Ticket className="h-5 w-5" />}
@@ -179,139 +175,125 @@ export default function PassPage() {
     );
   }
 
-  const isPaid = Boolean(registration.is_paid_event);
-  const isTeam = Boolean(registration.is_team_event);
+  const isPaid = Boolean(registration.is_paid_event || registration?.event?.is_paid || registration?.payment_status === "completed");
+  const isTeam = Boolean(registration.is_team_event || registration?.event?.is_team || registration?.team_id);
   const statusLabel = registration.status ? String(registration.status).replaceAll("_", " ") : "Active";
   const statusTone = statusLabel.toLowerCase().includes("cancel")
-    ? "bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300"
-    : "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300";
+    ? "bg-[#FCEBEB] text-[#A24A3E]"
+    : "bg-[#ECF4EF] text-[#0F4D3F]";
   const paymentLabel = isPaid ? "Paid" : "Free";
-  const paymentTone = isPaid
-    ? "bg-violet-100 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300"
-    : "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300";
+  const paymentTone = isPaid ? "bg-[#FFF7E8] text-[#A9771E]" : "bg-[#F5F2EA] text-[#183028]";
   const typeLabel = isTeam ? "Team" : "Individual";
-  const typeTone = "bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-300";
+  const typeTone = "bg-[#F5F2EA] text-[#183028]";
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.12),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.08),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.06),transparent_30%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.16),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.12),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.1),transparent_30%)]" />
-
+    // Consolidated viewport control ensuring fluid breakout over restricted sidebar wrapper widths
+    <main className="w-full min-h-screen bg-[#F4FAF7] text-[#183028] block overflow-x-hidden">
+      <div className="relative isolate w-full min-h-screen pb-12">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#F2F8F3] via-[#F9F5EB] to-[#FFF9F2]" />
+        
         <motion.div
-          className="mx-auto max-w-5xl px-6 py-8 lg:py-10"
-          initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+          className="mx-auto w-full max-w-5xl px-4 pt-24 sm:px-6 md:pt-16 lg:px-8"
+          initial={reduceMotion ? false : { opacity: 0, y: 12 }}
           animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
         >
-          <Card className="overflow-hidden rounded-[2.5rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.82)_0%,rgba(255,255,255,0.6)_100%)] shadow-2xl shadow-violet-500/10 backdrop-blur-xl dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(24,24,27,0.82)_0%,rgba(24,24,27,0.56)_100%)]">
-            <div className="relative h-[180px] overflow-hidden sm:h-[220px]">
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.08)_0%,rgba(15,23,42,0.26)_40%,rgba(15,23,42,0.78)_100%)]" />
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-500/25 via-transparent to-blue-500/10" />
+          {/* Header Block */}
+          <div className="mb-8 w-full">
+            <span className="inline-flex items-center gap-2 rounded-full bg-[#EFF7F1] px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-[#0F4D3F] shadow-sm">
+              <Ticket className="h-3.5 w-3.5" />
+              Wallet pass
+            </span>
+            <h1 className="mt-5 font-serif text-3xl sm:text-4xl md:text-[3.2rem] leading-[1.15] md:leading-[1.0] tracking-[-0.04em] text-[#183028]">
+              Your event pass is ready.
+            </h1>
+          </div>
 
-              <div className="absolute left-0 top-0 h-full w-full bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.15),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,0.1),transparent_22%)]" />
-
-              <div className="absolute inset-x-0 top-0 flex items-center justify-between p-5 sm:p-6">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
-                  <Ticket className="h-3.5 w-3.5 text-violet-200" />
-                  EventSphere Pass
-                </div>
-                <div className="hidden items-center gap-2 rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150 sm:inline-flex">
-                  <Smartphone className="h-3.5 w-3.5 text-violet-200" />
-                  Wallet Ready
-                </div>
-              </div>
-
-              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
-                <div className="max-w-3xl">
-                  <h1 className="text-3xl font-bold tracking-tight text-white drop-shadow-md sm:text-5xl">
-                    {registration.event_name}
-                  </h1>
-                  <p className="mt-3 text-sm text-white/85 sm:text-base">
-                    Event Registration Pass
-                  </p>
-                </div>
+          {/* Unified Ticket Architecture */}
+          <div className="w-full rounded-[2rem] md:rounded-[2.5rem] border border-[#E8E1D5] bg-white shadow-[0_25px_70px_rgba(24,48,40,0.06)] overflow-hidden">
+            
+            {/* Top Banner Accent */}
+            <div className="bg-[#183028] pb-8 pt-8 px-5 sm:px-8">
+              <div className="w-full">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-[#D2E4D5]">
+                  EventSphere Digital Pass
+                </p>
+                <h2 className="mt-2 font-serif text-2xl sm:text-3xl md:text-[2.5rem] leading-[1.2] text-white tracking-tight break-words">
+                  {eventName}
+                </h2>
               </div>
             </div>
 
-            <CardContent className="space-y-6 p-5 sm:p-8">
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <InfoChip icon={<UserRound className="h-4 w-4" />} label="Participant" value={registration.participant_name || "Participant"} />
-                <InfoChip icon={<Calendar className="h-4 w-4" />} label="Event date & time" value={formatDateTime(registration.event_date || registration.start_date)} />
-                <InfoChip icon={<MapPin className="h-4 w-4" />} label="Location" value={registration.event_location || registration.location || "Location unavailable"} />
-                <InfoChip icon={<Building2 className="h-4 w-4" />} label="Organizer" value={registration.organizer_name || "EventSphere"} />
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-3">
-                <StatusBadge label={statusLabel} tone={statusTone} />
-                <StatusBadge label={paymentLabel} tone={paymentTone} />
-                <StatusBadge label={typeLabel} tone={typeTone} />
-              </div>
-
-              <div className="rounded-[2rem] border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.72)_0%,rgba(255,255,255,0.94)_100%)] p-5 shadow-sm shadow-slate-900/5 dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0.04)_100%)]">
-                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-300">
-                      Registration ID
-                    </p>
-                    <p className="mt-1 text-2xl font-bold tracking-tight text-slate-950 dark:text-white">
-                      #{registration.registration_id}
-                    </p>
+            {/* Inner Content Grid */}
+            <CardContent className="p-4 sm:p-6 md:p-8 space-y-6">
+              <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                
+                {/* Details Pillar */}
+                <div className="space-y-4 w-full min-w-0">
+                  <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
+                    <InfoChip icon={<UserRound className="h-4 w-4" />} label="Participant" value={registration.participant_name || registration?.user_name || "Participant"} />
+                    <InfoChip icon={<Calendar className="h-4 w-4" />} label="Event date & time" value={formatDateTime(eventDate)} />
+                    <InfoChip icon={<MapPin className="h-4 w-4" />} label="Location" value={eventLocation || "Venue unavailable"} />
+                    <InfoChip icon={<Building2 className="h-4 w-4" />} label="Organizer" value={organizerName} />
                   </div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-violet-200/80 bg-violet-50 px-4 py-2 text-sm font-medium text-violet-700 shadow-sm dark:border-violet-500/20 dark:bg-violet-500/15 dark:text-violet-300">
-                    <ShieldCheck className="h-4 w-4" />
-                    Verified Entry Pass
-                  </div>
-                </div>
-              </div>
 
-              <div className="flex items-center justify-center">
-                <div
-                  ref={qrWrapRef}
-                  className="w-full max-w-[320px] rounded-[2rem] border border-white/70 bg-white p-4 shadow-xl shadow-slate-900/10 dark:border-white/10"
-                >
-                  <div className="rounded-[1.5rem] bg-background p-5">
-                    <div className="flex items-center justify-center rounded-[1.25rem] bg-white p-4">
-                      <QRCode value={qrData} size={220} />
+                  <div className="grid gap-2 grid-cols-3 w-full pt-1">
+                    <StatusBadge label={statusLabel} tone={statusTone} />
+                    <StatusBadge label={paymentLabel} tone={paymentTone} />
+                    <StatusBadge label={typeLabel} tone={typeTone} />
+                  </div>
+
+                  {/* Pass Metadata Box */}
+                  <div className="rounded-[1.5rem] border border-[#E8E1D5] bg-[#F9FBF8] p-5 shadow-sm mt-2">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#5E665F]">
+                          Registration ID
+                        </p>
+                        <p className="mt-1 text-xl font-bold text-[#183028]">
+                          #{registration.registration_id || registration?.id}
+                        </p>
+                      </div>
+                      <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[#D9D3C1] bg-white px-3 py-1 text-xs font-semibold text-[#0F4D3F]">
+                        <ShieldCheck className="h-3.5 w-3.5" /> Verified Entry
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="rounded-[2rem] border border-white/70 bg-background/80 p-5 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
-                <div className="flex items-start gap-3">
-                  <QrCode className="mt-0.5 h-5 w-5 text-violet-600 dark:text-violet-300" />
-                  <div>
-                    <p className="font-medium text-slate-950 dark:text-white">Entry Instructions</p>
-                    <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                      Present this QR code at the event entrance. The organizer will scan it to verify your registration.
+                {/* Interactive Scanner QR Pillar */}
+                <div className="space-y-4 w-full">
+                  <div className="rounded-[1.75rem] bg-[#F5F7F4] p-4 sm:p-6 text-center border border-[#E8E1D5]">
+                    <div className="rounded-[1.25rem] bg-white p-4 inline-block shadow-sm mx-auto max-w-full">
+                      <div ref={qrWrapRef} className="w-full flex items-center justify-center">
+                        <QRCode value={qrData} size={200} style={{ height: "auto", maxWidth: "100%", width: "100%" }} />
+                      </div>
+                    </div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#0F4D3F] mt-4">
+                      Secure QR pass
+                    </p>
+                    <p className="mt-1.5 text-xs text-[#5E665F] max-w-xs mx-auto leading-normal">
+                      Present this interface layout directly to the coordinator scanner upon entry.
                     </p>
                   </div>
                 </div>
+
               </div>
 
-              <div className="sticky bottom-4 z-10 rounded-[2rem] border border-white/70 bg-background/90 p-3 shadow-2xl shadow-slate-900/10 backdrop-blur-xl dark:border-white/10 dark:bg-background/85">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Button
-                    className="h-12 rounded-full bg-violet-600 text-white shadow-lg shadow-violet-600/25 hover:bg-violet-500"
-                    onClick={handleDownload}
-                  >
-                    <Download className="mr-2 h-4 w-4" />
-                    Download Pass
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-12 rounded-full border-violet-200/80 bg-white px-4 text-slate-950 shadow-sm hover:border-violet-300 hover:bg-violet-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
-                    onClick={handlePrint}
-                  >
-                    <Printer className="mr-2 h-4 w-4" />
-                    Print Pass
-                  </Button>
-                </div>
+              {/* Functional CTA Footnotes */}
+              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 pt-2">
+                <Button className="h-12 rounded-full bg-[#0F4D3F] text-white font-medium transition hover:bg-[#0C4238] w-full" onClick={handleDownload}>
+                  <Download className="mr-2 h-4 w-4" /> Download Ticket Pass
+                </Button>
+                <Button variant="outline" className="h-12 rounded-full border-[#E8E1D5] bg-white text-[#183028] font-medium transition hover:bg-[#F5F2EA] w-full" onClick={handlePrint}>
+                  <Printer className="mr-2 h-4 w-4" /> Print Ticket hardcopy
+                </Button>
               </div>
+
             </CardContent>
-          </Card>
+          </div>
         </motion.div>
       </div>
-    </div>
+    </main>
   );
 }

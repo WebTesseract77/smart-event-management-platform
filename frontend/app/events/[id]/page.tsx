@@ -25,6 +25,7 @@ import {
   getEvent,
   getMyRegistrations,
   getMyTeamRegistrations,
+  deleteEvent,
 } from "@/lib/api";
 import { runEventRegistration } from "@/lib/event-registration";
 import { Button } from "@/components/ui/button";
@@ -50,17 +51,19 @@ function InfoCard({
   value: string;
 }) {
   return (
-    <Card className="rounded-2xl border border-white/70 bg-background/90 shadow-sm shadow-slate-900/5 transition-all duration-300 hover:-translate-y-1 hover:bg-background hover:shadow-lg hover:shadow-violet-500/10 dark:border-white/10">
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <div className="rounded-xl bg-violet-100 p-2 text-violet-600 shadow-sm dark:bg-violet-500/15 dark:text-violet-300">
+    <Card className="rounded-[24px] border border-[#E8E1D5] bg-white shadow-[0_18px_40px_rgba(15,77,63,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_52px_rgba(15,77,63,0.07)] flex flex-col justify-between h-full overflow-hidden">
+      <CardContent className="p-4 flex-1">
+        <div className="flex items-start gap-3 h-full">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[18px] bg-[#F5F2EA] text-[#0F4D3F] shadow-sm">
             {icon}
           </div>
-          <div className="min-w-0">
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+          <div className="min-w-0 flex-1 w-full">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#7C8B83] truncate">
               {label}
             </p>
-            <p className="mt-1 text-sm font-medium leading-6 text-foreground">{value}</p>
+            <p className="mt-1.5 text-sm font-semibold leading-relaxed text-[#183028] break-words whitespace-pre-wrap">
+              {value}
+            </p>
           </div>
         </div>
       </CardContent>
@@ -78,17 +81,17 @@ function SectionCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="rounded-3xl border border-white/70 bg-background/90 shadow-sm shadow-slate-900/5 transition-all duration-300 hover:-translate-y-1 hover:bg-background hover:shadow-lg hover:shadow-violet-500/10 dark:border-white/10">
+    <Card className="rounded-[24px] border border-[#E8E1D5] bg-white shadow-[0_18px_40px_rgba(15,77,63,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_52px_rgba(15,77,63,0.07)] overflow-hidden">
       <CardContent className="p-5 sm:p-6">
         {eyebrow ? (
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-violet-600 dark:text-violet-300">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#0F4D3F]">
             {eyebrow}
           </p>
         ) : null}
-        <h2 className={`font-semibold tracking-tight text-slate-950 dark:text-white ${eyebrow ? "mt-1 text-xl sm:text-2xl" : "text-lg sm:text-xl"}`}>
+        <h2 className={`font-semibold tracking-tight text-[#183028] break-words ${eyebrow ? "mt-2 text-xl sm:text-2xl" : "text-lg sm:text-xl"}`}>
           {title}
         </h2>
-        <div className="mt-4 space-y-4">{children}</div>
+        <div className="mt-5 space-y-5 w-full overflow-hidden break-words">{children}</div>
       </CardContent>
     </Card>
   );
@@ -116,7 +119,7 @@ function ActionButton({
       variant={variant}
       onClick={onClick}
       disabled={disabled}
-      className={`h-11 rounded-full px-4 transition-all duration-300 hover:-translate-y-0.5 ${className}`}
+      className={`h-11 rounded-full px-5 font-medium transition-all duration-300 hover:-translate-y-0.5 ${className}`}
     >
       {icon}
       {children}
@@ -124,7 +127,7 @@ function ActionButton({
   );
 
   if (href && !disabled) {
-    return <Link href={href}>{button}</Link>;
+    return <Link href={href} className="inline-block w-auto">{button}</Link>;
   }
 
   return button;
@@ -147,32 +150,32 @@ function ActionRow({
 }) {
   const content = (
     <div
-      className={`flex w-full items-center justify-between gap-3 rounded-2xl border border-white/70 bg-background/80 px-4 py-3 text-left shadow-sm shadow-slate-900/5 transition-all duration-300 hover:-translate-y-0.5 hover:bg-background hover:shadow-md hover:shadow-violet-500/10 dark:border-white/10 ${
-        destructive ? "hover:border-red-300/70 dark:hover:border-red-500/50" : ""
+      className={`flex w-full items-center justify-between gap-3 rounded-2xl border border-[#E8E1D5] bg-white px-4 py-3 text-left shadow-sm shadow-slate-900/5 transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#FAF8F4] hover:shadow-md hover:shadow-[#0F4D3F]/5  ${
+        destructive ? "hover:border-red-300/70 " : ""
       }`}
     >
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="flex min-w-0 items-center gap-3 flex-1">
         <div
-          className={`rounded-xl p-2 ${
+          className={`rounded-xl p-2 shrink-0 ${
             destructive
-              ? "bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-300"
-              : "bg-violet-100 text-violet-600 dark:bg-violet-500/15 dark:text-violet-300"
+              ? "bg-red-50 text-red-600 "
+              : "bg-[#F5F2EA]  text-[#0F4D3F] "
           }`}
         >
           {icon}
         </div>
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-foreground">{title}</p>
-          <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-medium text-[#183028] break-words">{title}</p>
+          <p className="text-xs text-[#5E665F] break-words line-clamp-1">{subtitle}</p>
         </div>
       </div>
-      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-0.5" />
+      <ArrowRight className="h-4 w-4 shrink-0 text-[#7C8B83] transition-transform duration-300 group-hover:translate-x-0.5" />
     </div>
   );
 
   if (href) {
     return (
-      <Link href={href} className="group block">
+      <Link href={href} className="group block w-full">
         {content}
       </Link>
     );
@@ -193,11 +196,11 @@ function StatPill({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/70 bg-background/80 px-4 py-3 shadow-sm shadow-slate-900/5 dark:border-white/10">
-      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
+    <div className="rounded-[20px] border border-[#E8E1D5] bg-[#FAF8F4] px-4 py-3 shadow-[0_10px_24px_rgba(15,77,63,0.02)] min-w-0 w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-sm w-full">
+        <p className="font-semibold uppercase tracking-[0.15em] text-[#7C8B83] text-xs shrink-0">{label}</p>
+        <p className="text-sm font-semibold text-[#183028] break-words sm:text-right flex-1 min-w-0 w-full">{value}</p>
+      </div>
     </div>
   );
 }
@@ -209,6 +212,7 @@ export default function EventDetailsPage() {
 
   const [event, setEvent] = useState<any>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
   const [registeredEvents, setRegisteredEvents] = useState<number[]>([]);
   const [registering, setRegistering] = useState(false);
 
@@ -220,6 +224,7 @@ export default function EventDetailsPage() {
         if (token) {
           const user = await getCurrentUser(token);
           setRole(user.role);
+          setUserId(user.id);
         }
 
         const data = await getEvent(Number(params.id));
@@ -244,7 +249,14 @@ export default function EventDetailsPage() {
     loadData();
   }, [params.id]);
 
-  const isAdmin = role === "admin" || role === "organizer";
+  const canManage =
+  role === "organizer" &&
+  userId !== null &&
+  (
+    Number(event?.organizer_id) === Number(userId) ||
+    Number(event?.created_by) === Number(userId) ||
+    Number(event?.organizer?.id) === Number(userId)
+  );
 
   const startDate = useMemo(() => (event ? new Date(event.start_date) : null), [event]);
   const endDate = useMemo(() => (event ? new Date(event.end_date) : null), [event]);
@@ -255,21 +267,21 @@ export default function EventDetailsPage() {
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-muted/30 p-6">
+      <div className="min-h-screen bg-[#FAF8F4] p-6">
         <div className="mx-auto max-w-7xl space-y-6">
           <PageHeaderSkeleton />
           <div className="grid gap-6 lg:grid-cols-[minmax(0,2.1fr)_minmax(320px,0.9fr)]">
             <div className="space-y-6">
-              <div className="h-[28rem] animate-pulse rounded-[2rem] bg-background/80" />
+              <div className="h-[28rem] animate-pulse rounded-[2rem] bg-white" />
               <div className="grid gap-4 sm:grid-cols-2">
                 {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="h-24 animate-pulse rounded-3xl bg-background/80" />
+                  <div key={index} className="h-24 animate-pulse rounded-3xl bg-white" />
                 ))}
               </div>
             </div>
             <div className="space-y-4">
-              <div className="h-[22rem] animate-pulse rounded-[2rem] bg-background/80" />
-              <div className="h-40 animate-pulse rounded-[2rem] bg-background/80" />
+              <div className="h-[22rem] animate-pulse rounded-[2rem] bg-white" />
+              <div className="h-40 animate-pulse rounded-[2rem] bg-white" />
             </div>
           </div>
         </div>
@@ -286,13 +298,15 @@ export default function EventDetailsPage() {
   const status = isCompleted ? "Ended" : isLive ? "Live" : "Upcoming";
   const occupancy = Math.min(100, (event.registered_count / event.capacity) * 100);
   const seatsRemaining = Math.max(0, event.capacity - event.registered_count);
-  const teamsRemaining = isTeamEvent ? Math.max(0, (event.max_team_size || 0) - (event.min_team_size || 0)) : 0;
+  const teamsRemaining = isTeamEvent ? Math.max(0, event.capacity - event.registered_count) : 0;
+  
   const priceLabel = isPaid
-    ? `Paid - ${Number(event.registration_fee || 0).toLocaleString("en-IN", {
+    ? `${Number(event.registration_fee || 0).toLocaleString("en-IN", {
         style: "currency",
         currency: "INR",
       })}`
     : "Free";
+    
   const heroDate = startDate ? formatDateTime(startDate.toISOString()) : "";
   const heroLocation = event.location || "Location not specified";
   const registrationCountdown =
@@ -312,7 +326,7 @@ export default function EventDetailsPage() {
     if (registering || isCompleted || registrationClosed || isRegistered) {
       return;
     }
-
+  
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -368,84 +382,129 @@ export default function EventDetailsPage() {
     }
   }
 
+  async function handleDelete() {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this event?"
+    );
+
+    if (!confirmDelete) return;
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
+
+    try {
+      await deleteEvent(token, event.id);
+
+      toast.success("Event deleted successfully");
+
+      router.push("/events");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete event");
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-muted/30">
+    <div className="min-h-screen bg-[#F7FBF6]">
       <div className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.14),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.1),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.08),transparent_30%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.18),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.14),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.12),transparent_30%)]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_20%,rgba(72,187,120,0.08),transparent_24%),radial-gradient(circle_at_85%_10%,rgba(15,77,63,0.05),transparent_18%)]" />
 
         <motion.div
-          className="mx-auto max-w-7xl px-6 py-8 lg:py-10"
+          className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:py-8"
           initial={reduceMotion ? false : { opacity: 0, y: 14 }}
           animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.8fr)_minmax(340px,0.9fr)] lg:items-start">
-            <div className="space-y-8">
-              <Card className="overflow-hidden rounded-[2.25rem] border border-white/70 bg-background/90 shadow-lg shadow-slate-900/5 dark:border-white/10">
-                <div className="relative h-[480px] min-h-[480px] overflow-hidden bg-gradient-to-br from-violet-500/20 via-blue-500/12 to-transparent sm:h-[500px] lg:h-[520px]">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.75fr)_minmax(340px,0.9fr)] lg:items-start">
+            <div className="space-y-6">
+              <Card className="overflow-hidden rounded-[28px] border border-[#E8E1D5] bg-white shadow-[0_26px_70px_rgba(15,77,63,0.06)] relative">
+                <div className="relative w-full h-[280px] sm:h-[340px] overflow-hidden">
+                  <div className="absolute inset-0 bg-[#0F4D3F]/5 z-10" />
                   {event.image_url ? (
                     <motion.img
                       src={event.image_url}
                       alt={event.title}
-                      className="h-full w-full object-cover"
-                      whileHover={reduceMotion ? undefined : { scale: 1.03 }}
+                      className="w-full h-full object-cover"
+                      whileHover={reduceMotion ? undefined : { scale: 1.01 }}
                       transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                     />
                   ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <ImageIcon className="h-16 w-16 text-violet-600/70" />
+                    <div className="flex h-full w-full items-center justify-center bg-[#F5F2EA]">
+                      <ImageIcon className="h-12 w-12 text-[#0F4D3F]" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.12)_0%,rgba(15,23,42,0.2)_35%,rgba(15,23,42,0.82)_100%)]" />
-
-                  <div className="absolute left-5 right-5 top-5 flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap gap-2">
-                      <Badge className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
-                        {status}
-                      </Badge>
-                      <Badge className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
-                        {isTeamEvent ? "Team Event" : "Individual Event"}
-                      </Badge>
-                      <Badge className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
-                        {priceLabel}
-                      </Badge>
-                    </div>
-                    <div className="rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
-                      {event.registered_count}/{event.capacity}
-                    </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
+                  
+                  <div className="absolute top-4 left-4 right-4 flex flex-wrap gap-2 z-20">
+                    <span className="rounded-full border border-[#E8E1D5] bg-white/95 backdrop-blur-sm px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#0F4D3F] shadow-sm">
+                      {status}
+                    </span>
+                    <span className="rounded-full border border-[#E8E1D5] bg-white/95 backdrop-blur-sm px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#0F4D3F] shadow-sm">
+                      {isTeamEvent ? "Team Event" : "Individual"}
+                    </span>
+                    <span className="rounded-full border border-[#E8E1D5] bg-white/95 backdrop-blur-sm px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#C6922F] shadow-sm">
+                      {isPaid ? `Paid` : "Free"}
+                    </span>
                   </div>
+                </div>
 
-                  <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 lg:p-8">
-                    <div className="max-w-4xl">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
-                          <Calendar className="h-3.5 w-3.5 text-violet-200" />
-                          {heroDate}
-                        </div>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/12 px-3 py-1 text-[11px] font-medium text-white shadow-lg backdrop-blur-xl backdrop-saturate-150">
-                          <MapPin className="h-3.5 w-3.5 text-violet-200" />
-                          {heroLocation}
+                <div className="p-4 sm:p-6 lg:p-7 bg-white relative z-20">
+                  <div className="relative rounded-[24px] border border-[#E8E1D5] bg-white/95 p-5 sm:p-6 shadow-[0_12px_36px_rgba(15,77,63,0.06)] backdrop-blur-sm w-full">
+                    <div className="relative pr-0 md:pr-36">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#7C8B83]">Featured Event</p>
+                      <h1 className="mt-4 font-serif text-[3rem] leading-[0.92] tracking-[-0.05em] text-[#183028] break-words whitespace-pre-wrap sm:text-[3.8rem]">
+                          {event.title}
+                     </h1>
+                      
+                      <div className="absolute top-0 right-0 hidden md:block shrink-0">
+                        <div className="inline-flex items-center justify-center text-center rounded-full border border-[#E8E1D5] bg-[#FAF8F4] px-4 py-2 text-xs font-bold text-[#0F4D3F] whitespace-nowrap">
+                          {event.registered_count} / {event.capacity} Filled
                         </div>
                       </div>
 
-                      <h1 className="mt-6 max-w-4xl text-5xl font-bold tracking-tight text-white drop-shadow-md sm:text-6xl lg:text-7xl">
-                        {event.title}
-                      </h1>
-
-                      <p className="mt-5 max-w-3xl text-base leading-7 text-white/90 sm:text-lg">
+                      <p className="mt-3 text-sm leading-relaxed text-[#5E665F] line-clamp-3 break-words">
                         {event.description}
                       </p>
+                    </div>
 
-                      <div className="mt-8 flex flex-wrap gap-3">
+                    <div className="mt-4 md:hidden block">
+                      <div className="inline-flex items-center rounded-full border border-[#E8E1D5] bg-[#FAF8F4] px-3.5 py-1.5 text-xs font-bold text-[#0F4D3F]">
+                        {event.registered_count} / {event.capacity} Spots Filled
+                      </div>
+                    </div>
+
+                    <div className="mt-6 grid gap-3 sm:grid-cols-3 border-t border-[#E8E1D5]/60 pt-5">
+                      <div className="rounded-[18px] bg-[#FAF8F4] border border-[#E8E1D5]/40 px-4 py-3 min-w-0">
+                        <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-[#7C8B83]">Date & Time</span>
+                        <span className="mt-1 block text-sm font-semibold text-[#183028] break-words leading-normal">{heroDate}</span>
+                      </div>
+                      <div className="rounded-[18px] bg-[#FAF8F4] border border-[#E8E1D5]/40 px-4 py-3 min-w-0">
+                        <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-[#7C8B83]">Location / Venue</span>
+                        <span className="mt-1 block text-sm font-semibold text-[#183028] break-words leading-normal">{heroLocation}</span>
+                      </div>
+                      <div className="rounded-[18px] bg-[#FAF8F4] border border-[#E8E1D5]/40 px-4 py-3 min-w-0">
+                        <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-[#7C8B83]">Availability</span>
+                        <span className="mt-1 block text-sm font-semibold text-[#0F4D3F] break-words leading-normal">
+                          {isTeamEvent ? `${teamsRemaining} spots left` : `${seatsRemaining} seats left`}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 flex flex-wrap items-center gap-3">
+                      {role !== "admin" && role !== "organizer" && (
                         <ActionButton
                           href={
                             !isCompleted && !registrationClosed && isTeamEvent
                               ? `/team-register/${event.id}`
                               : undefined
                           }
-                        onClick={!isTeamEvent ? handleRegister : undefined}
+                          onClick={!isTeamEvent ? handleRegister : undefined}
                           disabled={isCompleted || registrationClosed || isRegistered || registering}
-                          className="min-w-[160px] bg-violet-600 text-white shadow-lg shadow-violet-600/30 hover:bg-violet-500"
+                          className="bg-[#0F4D3F] text-white hover:bg-[#0B3E33] px-6 text-sm"
                         >
                           {isRegistered
                             ? "Registered"
@@ -453,118 +512,102 @@ export default function EventDetailsPage() {
                               ? "Registration Closed"
                               : registering
                                 ? "Registering..."
-                                : "Register"}
+                                : "Register Spot"}
                         </ActionButton>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="h-11 rounded-full border border-white/20 bg-white/10 px-5 text-white shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/15 hover:text-white"
-                          onClick={async () => {
-                            if (navigator.share) {
-                              try {
-                                await navigator.share({
-                                  title: event.title,
-                                  text: event.description,
-                                  url: window.location.href,
-                                });
-                                return;
-                              } catch (error) {
-                                console.error(error);
-                              }
+                      )}
+                      
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="h-11 rounded-full border border-[#E8E1D5] bg-white px-5 text-sm font-medium text-[#183028] hover:bg-[#FAF8F4]"
+                        onClick={async () => {
+                          if (navigator.share) {
+                            try {
+                              await navigator.share({
+                                title: event.title,
+                                text: event.description,
+                                url: window.location.href,
+                              });
+                              return;
+                            } catch (error) {
+                              console.error(error);
                             }
-
-                            await navigator.clipboard?.writeText(window.location.href);
-                          }}
-                        >
-                          <Share2 className="mr-2 h-4 w-4" />
-                          Share
-                        </Button>
-                      </div>
+                          }
+                          await navigator.clipboard?.writeText(window.location.href);
+                          toast.success("Link copied to clipboard!");
+                        }}
+                      >
+                        <Share2 className="mr-2 h-4 w-4 shrink-0" />
+                        Share Event
+                      </Button>
                     </div>
                   </div>
                 </div>
               </Card>
 
               <div className="grid gap-6">
-                <SectionCard eyebrow="About" title="About Event">
-                  <p className="max-w-4xl text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-[15px]">
+                <SectionCard eyebrow="Overview" title="What to expect">
+                  <p className="text-sm leading-relaxed text-[#5E665F] whitespace-pre-wrap break-words tracking-normal">
                     {event.description}
                   </p>
                 </SectionCard>
 
+                <SectionCard eyebrow="Timeline" title="Schedule Details">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <InfoCard icon={<Calendar className="h-5 w-5" />} label="Event Starts" value={formatDateTime(event.start_date)} />
+                    <InfoCard icon={<Calendar className="h-5 w-5" />} label="Event Ends" value={event.end_date ? formatDateTime(event.end_date) : "TBA"} />
+                    <InfoCard icon={<Clock className="h-5 w-5" />} label="Registration Window Closes" value={formatDateTime(event.registration_deadline)} />
+                    <InfoCard icon={<Clock className="h-5 w-5" />} label="Time Remaining" value={registrationCountdown} />
+                  </div>
+                </SectionCard>
+
                 {event.rules ? (
-                  <SectionCard eyebrow="Guidelines" title="Rules">
-                    <p className="text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-[15px]">{event.rules}</p>
+                  <SectionCard eyebrow="Guidelines" title="Event Rules">
+                    <p className="text-sm leading-relaxed text-[#5E665F] whitespace-pre-wrap break-words">{event.rules}</p>
                   </SectionCard>
                 ) : null}
 
                 {event.requirements ? (
-                  <SectionCard eyebrow="Eligibility" title="Requirements">
-                    <p className="text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-[15px]">
-                      {event.requirements}
-                    </p>
+                  <SectionCard eyebrow="Eligibility" title="Requirements & Prerequisites">
+                    <p className="text-sm leading-relaxed text-[#5E665F] whitespace-pre-wrap break-words">{event.requirements}</p>
                   </SectionCard>
                 ) : null}
 
                 {event.notes ? (
-                  <SectionCard eyebrow="Additional" title="Notes">
-                    <p className="text-sm leading-7 text-slate-600 dark:text-slate-300 sm:text-[15px]">{event.notes}</p>
+                  <SectionCard eyebrow="Additional Information" title="Important Notes">
+                    <p className="text-sm leading-relaxed text-[#5E665F] whitespace-pre-wrap break-words">{event.notes}</p>
                   </SectionCard>
                 ) : null}
 
-                <SectionCard eyebrow="Details" title="Event Information">
-                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                    <InfoCard icon={<Calendar className="h-5 w-5" />} label="Date" value={formatDateTime(event.start_date)} />
-                    <InfoCard
-                      icon={<Ticket className="h-5 w-5" />}
-                      label="Registration Window"
-                      value={`${formatDateTime(event.registration_deadline)} deadline`}
-                    />
-                    <InfoCard icon={<MapPin className="h-5 w-5" />} label="Venue" value={event.location} />
-                    <InfoCard
-                      icon={<FileText className="h-5 w-5" />}
-                      label="Organizer"
-                      value={`Event creator #${event.created_by}`}
-                    />
-                    <InfoCard
-                      icon={<Users className="h-5 w-5" />}
-                      label="Team Size"
-                      value={isTeamEvent ? `${event.min_team_size || 0} - ${event.max_team_size || 0}` : "Individual Event"}
-                    />
-                    <InfoCard
-                      icon={<Users className="h-5 w-5" />}
-                      label="Capacity"
-                      value={isTeamEvent ? "Team Registration" : `${event.capacity}`}
-                    />
-                    <InfoCard icon={<CreditCard className="h-5 w-5" />} label="Payment" value={priceLabel} />
-                  </div>
-                </SectionCard>
-
-                {isAdmin ? (
-                  <SectionCard eyebrow="Management" title="Admin Actions">
+                {canManage ? (
+                  <SectionCard 
+                    eyebrow="Management Dashboard"
+                    title="Management Options"
+                  >
                     <div className="grid gap-3">
                       <ActionRow
                         href={`/edit-event/${event.id}`}
                         icon={<Pencil className="h-4 w-4" />}
-                        title="Edit event"
-                        subtitle="Update event details"
+                        title="Edit Event Matrix"
+                        subtitle="Update general rules, dates, imagery, or capacity limits"
                       />
                       <ActionRow
-                        href={`/events/${event.id}/participants`}
+                        href={`/organizer/events/${event.id}/participants`}
                         icon={<Users className="h-4 w-4" />}
-                        title="Participants"
-                        subtitle="View attendees and teams"
+                        title="Manage Registrations"
+                        subtitle="View full rosters, roster exports, and team parameters"
                       />
                       <ActionRow
-                        href={`/attendance/${event.id}`}
-                        icon={<Calendar className="h-4 w-4" />}
-                        title="Attendance"
-                        subtitle="Open scan and attendance tools"
-                      />
+  href={`/organizer/events/${event.id}/attendance`}
+  icon={<Calendar className="h-4 w-4" />}
+  title="Attendance Tracker"
+  subtitle="Launch on-site ticket lookup and QR scanner tools"
+/>
                       <ActionRow
                         icon={<Trash2 className="h-4 w-4" />}
-                        title="Delete event"
-                        subtitle="Remove this event"
+                        title="Delete Event"
+                        subtitle="Permanently remove this event"
+                        onClick={handleDelete}
                         destructive
                       />
                     </div>
@@ -573,102 +616,89 @@ export default function EventDetailsPage() {
               </div>
             </div>
 
-            <div className="space-y-4 lg:sticky lg:top-24">
-              <Card className="rounded-[2rem] border border-white/70 bg-[linear-gradient(180deg,rgba(124,58,237,0.08)_0%,rgba(255,255,255,0.92)_20%,rgba(255,255,255,0.96)_100%)] shadow-lg shadow-violet-500/5 dark:border-white/10 dark:bg-[linear-gradient(180deg,rgba(124,58,237,0.16)_0%,rgba(24,24,27,0.94)_20%,rgba(24,24,27,0.98)_100%)]">
+            <div className="space-y-6 lg:sticky lg:top-24">
+              <Card className="rounded-[24px] border border-[#E8E1D5] bg-white shadow-[0_18px_42px_rgba(15,77,63,0.04)] overflow-hidden">
                 <CardContent className="p-5 sm:p-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-300">
-                        Registration Status
-                      </p>
-                      <h2 className="mt-1 text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">
-                        {isCompleted ? "Event ended" : registrationClosed ? "Registration closed" : "Registration open"}
-                      </h2>
-                      <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                        {isTeamEvent ? "Register your team before the deadline." : "Reserve your spot now."}
-                      </p>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#0F4D3F]">
+                      Registration Desk
+                    </p>
+                    <h2 className="mt-2 text-xl font-semibold tracking-tight text-[#183028] break-words">
+                      {isCompleted ? "Booking Concluded" : registrationClosed ? "Passes Sold Out" : "Secure Your Entry"}
+                    </h2>
+                  </div>
+
+                  <div className="mt-5 space-y-3.5 border-y border-[#E8E1D5]/60 py-4">
+                    <div className="flex items-start justify-between gap-4 text-sm">
+                      <span className="text-[#5E665F] font-medium shrink-0">Pass Category</span>
+                      <span className="font-semibold text-[#183028] break-words text-right">{isPaid ? "Paid Access" : "Complimentary"}</span>
                     </div>
-                    <div className="rounded-full bg-violet-100 px-3 py-1 text-[11px] font-semibold text-violet-700 shadow-sm dark:bg-violet-500/15 dark:text-violet-300">
-                      {isPaid ? "Paid" : "Free"}
+                    <div className="flex items-start justify-between gap-4 text-sm">
+                      <span className="text-[#5E665F] font-medium shrink-0">Ticket Value</span>
+                      <span className="font-semibold text-[#C6922F] break-words text-right">{priceLabel}</span>
+                    </div>
+                    <div className="flex items-start justify-between gap-4 text-sm">
+                      <span className="text-[#5E665F] font-medium shrink-0">Closing Window</span>
+                      <span className="font-semibold text-[#183028] break-words text-right text-xs sm:text-sm">{formatDateTime(event.registration_deadline)}</span>
+                    </div>
+                    <div className="flex items-start justify-between gap-4 text-sm">
+                      <span className="text-[#5E665F] font-medium shrink-0">Time Left</span>
+                      <span className="font-semibold text-[#0F4D3F] break-words text-right">{registrationCountdown}</span>
+                    </div>
+                    <div className="flex items-start justify-between gap-4 text-sm">
+                      <span className="text-[#5E665F] font-medium shrink-0">Availability</span>
+                      <span className="font-semibold text-[#183028] break-words text-right">{event.registered_count} / {event.capacity} Spaces Filled</span>
+                    </div>
+                    
+                    <div className="pt-2">
+                      <div className="h-2 overflow-hidden rounded-full bg-[#E8E1D5]/60 w-full">
+                        <div className="h-full rounded-full bg-[#0F4D3F]" style={{ width: `${occupancy}%` }} />
+                      </div>
+                      <div className="mt-2 flex items-center justify-between text-[11px] text-[#5E665F]">
+                        <span>{Math.round(occupancy)}% Capacity Booked</span>
+                        {isTeamEvent && <span className="font-semibold text-[#183028]">{event.min_team_size || 0}–{event.max_team_size || 0} setup</span>}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-6 rounded-2xl border border-white/70 bg-white/70 p-4 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
-                    <div className="flex items-center justify-between gap-4 text-sm">
-                      <span className="text-slate-500 dark:text-slate-400">Price</span>
-                      <span className="font-medium text-foreground">{priceLabel}</span>
-                    </div>
-                    <div className="mt-4 flex items-center justify-between gap-4 text-sm">
-                      <span className="text-slate-500 dark:text-slate-400">Deadline</span>
-                      <span className="max-w-[55%] truncate font-medium text-foreground">
-                        {formatDateTime(event.registration_deadline)}
-                      </span>
-                    </div>
-                    <div className="mt-4 flex items-center justify-between gap-4 text-sm">
-                      <span className="text-slate-500 dark:text-slate-400">Countdown</span>
-                      <span className="font-medium text-foreground">{registrationCountdown}</span>
-                    </div>
-                    <div className="mt-4 space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-slate-500 dark:text-slate-400">Progress</span>
-                        <span className="font-medium text-foreground">{event.registered_count}/{event.capacity}</span>
-                      </div>
-                      <div className="h-2 rounded-full bg-slate-200/90 dark:bg-white/10">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-violet-600 via-violet-500 to-blue-600 shadow-sm shadow-violet-600/30"
-                          style={{ width: `${occupancy}%` }}
-                        />
-                      </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {isTeamEvent ? `${event.min_team_size || 0} - ${event.max_team_size || 0} team size` : `${Math.round(occupancy)}% full`}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <ActionButton
-                      href={
-                        !isCompleted && !registrationClosed && isTeamEvent
-                          ? `/team-register/${event.id}`
-                          : undefined
-                      }
-                      onClick={!isTeamEvent ? handleRegister : undefined}
-                      disabled={isCompleted || registrationClosed || isRegistered || registering}
-                      className="w-full bg-violet-600 text-white shadow-lg shadow-violet-600/30 hover:bg-violet-500"
-                    >
-                      {isRegistered
-                        ? "Registered"
-                        : isCompleted || registrationClosed
-                          ? "Registration Closed"
-                          : registering
-                            ? "Registering..."
-                            : "Register"}
-                    </ActionButton>
+                  <div className="mt-5">
+                    {role !== "admin" && role !== "organizer" && (
+                      <ActionButton
+                        href={
+                          !isCompleted && !registrationClosed && isTeamEvent
+                            ? `/team-register/${event.id}`
+                            : undefined
+                        }
+                        onClick={!isTeamEvent ? handleRegister : undefined}
+                        disabled={isCompleted || registrationClosed || isRegistered || registering}
+                        className="w-full bg-[#0F4D3F] text-white shadow-md hover:bg-[#0B3E33]"
+                      >
+                        {isRegistered
+                          ? "Pass Awarded"
+                          : isCompleted || registrationClosed
+                            ? "Registration Inactive"
+                            : registering
+                              ? "Securing Pass..."
+                              : "Claim Access Ticket"}
+                      </ActionButton>
+                    )}
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="rounded-[2rem] border border-white/70 bg-background/90 shadow-lg shadow-violet-500/5 dark:border-white/10">
+              <Card className="rounded-[24px] border border-[#E8E1D5] bg-white shadow-[0_18px_42px_rgba(15,77,63,0.04)] overflow-hidden">
                 <CardContent className="p-5 sm:p-6">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-300">
-                    Summary
+                  <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#0F4D3F]">
+                    Quick Facts Overview
                   </p>
-                  <div className="mt-4 grid gap-3">
-                    <StatPill label="Status" value={status} />
-                    <StatPill label="Location" value={heroLocation} />
-                    <StatPill label="Date" value={heroDate} />
-                    <StatPill label={isTeamEvent ? "Team size" : "Capacity"} value={isTeamEvent ? `${event.min_team_size || 0} - ${event.max_team_size || 0}` : `${event.capacity}`} />
-                    <StatPill label="Price" value={priceLabel} />
-                    <StatPill label={isTeamEvent ? "Teams left" : "Seats left"} value={isTeamEvent ? String(teamsRemaining) : String(seatsRemaining)} />
+                  <div className="mt-4 flex flex-col gap-3 w-full">
+                    <StatPill label="State" value={status} />
+                    <StatPill label="Venue Location" value={heroLocation} />
+                    <StatPill label="Start Matrix" value={heroDate} />
+                    <StatPill label={isTeamEvent ? "Team Metrics" : "Roster Size"} value={isTeamEvent ? `${event.min_team_size || 0}–${event.max_team_size || 0} Pax` : `${event.capacity} Slots`} />
+                    <StatPill label="Pass Valuation" value={priceLabel} />
+                    <StatPill label={isTeamEvent ? "Open Quotas" : "Available Seats"} value={isTeamEvent ? String(teamsRemaining) : String(seatsRemaining)} />
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="rounded-[2rem] border border-white/70 bg-background/90 shadow-lg shadow-violet-500/5 dark:border-white/10 lg:hidden">
-                <CardContent className="p-3">
-                  <Button className="h-12 w-full rounded-full text-base">
-                    {isCompleted || registrationClosed ? "Registration Closed" : "Register"}
-                  </Button>
                 </CardContent>
               </Card>
             </div>

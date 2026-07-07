@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.core.dependencies import (
     get_current_user,
+    get_current_organizer,
     get_current_organizer_or_admin,
     get_db,
 )
@@ -97,7 +98,7 @@ def add_event(
     payload: EventCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(
-        get_current_organizer_or_admin
+        get_current_organizer
     ),
 ):
     event = create_event(

@@ -12,20 +12,20 @@ import { RegistrationSkeleton } from "@/components/app/MyRegistrationsShared";
 
 function Header({ count }: { count: number }) {
   return (
-    <div className="rounded-[2rem] border border-white/70 bg-background/90 px-5 py-4 shadow-sm shadow-slate-900/5 backdrop-blur-sm dark:border-white/10 sm:px-6 sm:py-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="rounded-[32px] border border-[#E8E1D5] bg-white p-8 shadow-[0_16px_40px_rgba(24,48,40,0.06)]">
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-3xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-violet-600 dark:text-violet-300">My registrations</p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#0F4D3F]">My registrations</p>
+          <h1 className="mt-3 font-serif text-3xl font-bold tracking-tight text-[#183028] sm:text-4xl">
             Team Registrations
           </h1>
-          <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg">
+          <p className="mt-3 text-sm leading-6 text-[#5E665F] sm:text-base">
             Manage your team registrations and team passes.
           </p>
         </div>
-        <div className="rounded-2xl border border-violet-200/80 bg-violet-50 px-4 py-3 shadow-sm dark:border-violet-500/20 dark:bg-violet-500/10">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-600 dark:text-violet-300">Team registrations</p>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-slate-950 dark:text-white">{count}</p>
+        <div className="rounded-2xl border border-[#E8E1D5] bg-[#FAF8F4] p-4 shadow-sm lg:min-w-[180px]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0F4D3F]">Team registrations</p>
+          <p className="mt-1 font-serif text-3xl font-bold text-[#183028]">{count}</p>
         </div>
       </div>
     </div>
@@ -35,28 +35,28 @@ function Header({ count }: { count: number }) {
 function TeamCard({ team }: { team: any }) {
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }} className="group h-full">
-      <Card className="group h-full overflow-hidden rounded-3xl border border-white/70 bg-background/90 shadow-sm shadow-slate-900/5 transition-all duration-300 hover:-translate-y-1 hover:bg-background hover:shadow-lg hover:shadow-violet-500/10 dark:border-white/10">
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex items-start justify-between gap-3">
+      <Card className="group flex h-full flex-col overflow-hidden rounded-[24px] border border-[#E8E1D5] bg-white shadow-[0_4px_20px_rgba(24,48,40,0.02)] transition-all duration-300 hover:-translate-y-1 hover:border-[#0F4D3F]/30 hover:shadow-[0_16px_40px_rgba(24,48,40,0.06)]">
+        <CardContent className="flex flex-1 flex-col p-6">
+          <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <h2 className="line-clamp-1 text-xl font-semibold tracking-tight text-slate-950 dark:text-white">{team.team_name}</h2>
-              <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{team.event_title}</p>
+              <h2 className="line-clamp-1 font-serif text-xl font-semibold tracking-tight text-[#183028]">{team.team_name}</h2>
+              <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-[#5E665F]">{team.event_title}</p>
             </div>
-            <div className="rounded-2xl border border-violet-200/80 bg-violet-50 px-3 py-2 text-right shadow-sm dark:border-violet-500/20 dark:bg-violet-500/10">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-violet-600 dark:text-violet-300">Team ID</p>
-              <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-white">#{team.team_id}</p>
-            </div>
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-emerald-200/70 bg-emerald-50 px-4 py-2.5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
-            <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
-              <Users className="h-4 w-4" />
-              <span className="text-sm font-medium">Team registration confirmed</span>
+            <div className="rounded-xl border border-[#E8E1D5] bg-[#FAF8F4] px-3 py-1.5 text-right shadow-sm">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#0F4D3F]">Team ID</p>
+              <p className="mt-0.5 text-xs font-bold text-[#183028]">#{team.team_id}</p>
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Button asChild className="rounded-full bg-violet-600 px-5 text-white shadow-lg shadow-violet-600/25 hover:bg-violet-500">
+          <div className="mt-5 rounded-xl border border-[#E8E1D5] bg-[#EAF3ED] px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-2.5 text-[#0F4D3F]">
+              <Users className="h-4 w-4 shrink-0" />
+              <span className="text-xs font-semibold uppercase tracking-wider">Team registration confirmed</span>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button asChild className="w-full rounded-full bg-[#0F4D3F] px-5 text-sm font-semibold text-white hover:bg-[#0B3E33]">
               <Link href={`/team-pass/${team.team_id}`}>
                 <Users className="mr-2 h-4 w-4" />
                 View Team Pass
@@ -75,14 +75,24 @@ export default function TeamRegistrationsPage() {
   const [teamRegistrations, setTeamRegistrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
+ useEffect(() => {
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
-    async function loadData() {
+  if (!token) {
+    router.push("/login");
+    return;
+  }
+
+  if (
+    role === "admin" ||
+    role === "organizer"
+  ) {
+    router.push("/events");
+    return;
+  }
+
+  async function loadData() {
       try {
         const teamData = await getMyTeamRegistrations(token!);
         setTeamRegistrations(Array.isArray(teamData) ? teamData : []);
@@ -98,52 +108,54 @@ export default function TeamRegistrationsPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-muted/30">
-      <div className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.12),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.08),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.06),transparent_30%)] dark:bg-[radial-gradient(circle_at_20%_10%,rgba(124,58,237,0.16),transparent_28%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.12),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.1),transparent_30%)]" />
-        <div className="mx-auto max-w-7xl px-6 py-8 lg:py-10">
-          {loading ? (
-            <div className="space-y-6">
-              <div className="rounded-[2rem] border border-white/70 bg-background/90 p-6 shadow-sm shadow-slate-900/5 dark:border-white/10 sm:p-8">
-                <div className="max-w-3xl space-y-4">
-                  <div className="h-4 w-28 rounded-full bg-muted/70" />
-                  <div className="h-12 w-72 max-w-full rounded-full bg-muted/60" />
-                  <div className="h-5 w-[32rem] max-w-full rounded-full bg-muted/60" />
-                </div>
-              </div>
-              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                {Array.from({ length: 2 }).map((_, index) => (
-                  <RegistrationSkeleton key={index} />
-                ))}
+    <div className="min-h-screen bg-[#FAF8F4] py-8">
+      <div className="mx-auto max-w-[1490px] px-6">
+        {loading ? (
+          <div className="space-y-8">
+            <div className="rounded-[32px] border border-[#E8E1D5] bg-white p-8 shadow-[0_16px_40px_rgba(24,48,40,0.06)]">
+              <div className="max-w-3xl space-y-4">
+                <div className="h-4 w-28 rounded-full bg-[#E8E1D5]/50 animate-pulse" />
+                <div className="h-10 w-72 max-w-full rounded-full bg-[#E8E1D5]/50 animate-pulse" />
+                <div className="h-5 w-[32rem] max-w-full rounded-full bg-[#E8E1D5]/50 animate-pulse" />
               </div>
             </div>
-          ) : (
-            <motion.div initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={reduceMotion ? undefined : { opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }} className="space-y-8">
-              <Header count={teamRegistrations.length} />
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 2 }).map((_, index) => (
+                <RegistrationSkeleton key={index} />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="space-y-8"
+          >
+            <Header count={teamRegistrations.length} />
 
-              {teamRegistrations.length === 0 ? (
-                <Card className="rounded-[2rem] border border-white/70 bg-background/90 shadow-sm shadow-slate-900/5 dark:border-white/10">
-                  <CardContent className="flex flex-col items-center p-10 text-center sm:p-12">
-                    <div className="rounded-3xl border border-violet-200/80 bg-violet-50 p-5 text-violet-600 shadow-sm dark:border-violet-500/20 dark:bg-violet-500/10 dark:text-violet-300">
-                      <Users className="h-7 w-7" />
-                    </div>
-                    <h3 className="mt-6 text-2xl font-semibold tracking-tight text-slate-950 dark:text-white">No team registrations yet</h3>
-                    <p className="mt-3 max-w-md text-sm leading-6 text-slate-600 dark:text-slate-300">Register for a team event to see your team passes here.</p>
-                    <Button asChild className="mt-7 rounded-full bg-violet-600 px-5 text-white shadow-lg shadow-violet-600/25 hover:bg-violet-500">
-                      <Link href="/events">Browse Events</Link>
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-                  {teamRegistrations.map((team) => (
-                    <TeamCard key={team.team_id} team={team} />
-                  ))}
-                </div>
-              )}
-            </motion.div>
-          )}
-        </div>
+            {teamRegistrations.length === 0 ? (
+              <Card className="rounded-[28px] border border-[#E8E1D5] bg-white shadow-[0_16px_40px_rgba(24,48,40,0.06)]">
+                <CardContent className="flex flex-col items-center p-10 text-center sm:p-12">
+                  <div className="rounded-2xl border border-[#E8E1D5] bg-[#EAF3ED] p-5 text-[#0F4D3F] shadow-sm">
+                    <Users className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-6 font-serif text-2xl font-semibold tracking-tight text-[#183028]">No team registrations yet</h3>
+                  <p className="mt-2 max-w-md text-sm leading-6 text-[#5E665F]">Register for a team event to see your team passes here.</p>
+                  <Button asChild className="mt-6 rounded-full bg-[#0F4D3F] px-6 py-2.5 text-white hover:bg-[#0B3E33]">
+                    <Link href="/events">Browse Events</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {teamRegistrations.map((team) => (
+                  <TeamCard key={team.team_id} team={team} />
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
       </div>
     </div>
   );

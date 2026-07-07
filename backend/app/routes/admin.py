@@ -4,7 +4,6 @@ from fastapi import (
     HTTPException,
     status,
 )
-from sqlalchemy.orm import Session
 from backend.app.schemas.admin import (
     AnalyticsRead,
 )

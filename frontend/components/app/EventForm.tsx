@@ -12,6 +12,7 @@ import { toast } from "sonner";
 
 import { createEvent } from "@/lib/api";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 type EventFormMode = "individual" | "team";
@@ -23,7 +24,7 @@ type EventFormProps = {
 const muiTheme = createTheme({
   palette: {
     primary: {
-      main: "#7c3aed",
+      main: "#0F4D3F",
     },
   },
 });
@@ -31,29 +32,39 @@ const muiTheme = createTheme({
 function Section({
   title,
   description,
+  iconNumber,
   children,
 }: {
   title: string;
   description: string;
+  iconNumber: number;
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-3xl border border-zinc-200/80 bg-white p-8 shadow-sm">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-        <p className="mt-1 text-sm leading-6 text-muted-foreground">{description}</p>
+    <section className="rounded-[28px] border border-[#E8E1D5] bg-white p-8 shadow-[0_12px_32px_rgba(15,77,63,0.03)] transition-all duration-200">
+      <div className="mb-6 flex items-start gap-4">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0F4D3F] text-xs font-semibold text-white">
+          {iconNumber}
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold tracking-[-0.01em] text-[#183028]">
+            {title}
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-[#5E665F]">{description}</p>
+        </div>
       </div>
-      <div className="space-y-5">{children}</div>
+      <hr className="mb-6 border-[#E8E1D5]" />
+      <div className="space-y-6">{children}</div>
     </section>
   );
 }
 
 function Label({ children }: { children: React.ReactNode }) {
-  return <label className="mb-2 block text-sm font-medium text-foreground">{children}</label>;
+  return <label className="mb-2 block text-xs font-medium uppercase tracking-[0.1em] text-[#5E665F]">{children}</label>;
 }
 
 function ControlWrapper({ children }: { children: React.ReactNode }) {
-  return <div className="space-y-6">{children}</div>;
+  return <div className="grid gap-6">{children}</div>;
 }
 
 export default function EventForm({ mode }: EventFormProps) {
@@ -162,24 +173,23 @@ export default function EventForm({ mode }: EventFormProps) {
   };
 
   const inputClass =
-    "h-12 w-full rounded-2xl border border-border/70 bg-background px-4 shadow-none outline-none transition-colors duration-200 placeholder:text-muted-foreground/60 focus:border-violet-400 focus:ring-2 focus:ring-violet-500/20";
+    "h-12 w-full rounded-[14px] border border-[#E8E1D5] bg-[#FAF8F4] px-4 text-[#183028] placeholder:text-[#8A918B] transition-all duration-200 focus:border-[#0F4D3F] focus:ring-2 focus:ring-[#0F4D3F]/15 outline-none";
 
   return (
-    <main className="min-h-screen bg-muted/30">
+    <main className="min-h-screen bg-[#FAF8F4]">
       <div className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.12),transparent_28%),radial-gradient(circle_at_80%_24%,rgba(59,130,246,0.10),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.08),transparent_26%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.16),transparent_28%),radial-gradient(circle_at_80%_24%,rgba(59,130,246,0.12),transparent_22%),radial-gradient(circle_at_50%_100%,rgba(168,85,247,0.10),transparent_26%)]" />
-
-        <div className="mx-auto max-w-4xl px-6 py-8 lg:py-10">
+        <div className="mx-auto max-w-4xl px-6 py-10">
           <div className="max-w-3xl">
-            <h1 className="text-5xl font-bold tracking-tight lg:text-6xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-[#183028] lg:text-4xl">
               {isTeamEvent ? "Team Event" : "Individual Event"}
             </h1>
-            <p className="mt-5 max-w-2xl text-xl leading-8 text-muted-foreground">
+            <p className="mt-2 text-sm leading-6 text-[#5E665F]">
               Fill in the details below to create and schedule a new event.
             </p>
           </div>
-         <form onSubmit={handleSubmit} className="mt-16 space-y-10 pb-32">
-            <Section title="Basic Information" description="Set the identity and banner for the event.">
+          
+          <form onSubmit={handleSubmit} className="mt-10 space-y-6 pb-28">
+            <Section iconNumber={1} title="Event Information" description="Set the identity and banner for the event.">
               <ControlWrapper>
                 <div>
                   <Label>Event Title</Label>
@@ -194,31 +204,39 @@ export default function EventForm({ mode }: EventFormProps) {
 
                 <div>
                   <Label>Description</Label>
-                  <textarea
+                  <Textarea
                     required
-                    rows={4}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Describe the event, schedule and purpose"
-                    className={`${inputClass} min-h-[160px] py-3`}
+                    className="min-h-[140px] w-full resize-none break-words rounded-[14px] border border-[#E8E1D5] bg-[#FAF8F4] p-4 text-[#183028] placeholder:text-[#8A918B] transition-all duration-200 focus:border-[#0F4D3F] focus:ring-2 focus:ring-[#0F4D3F]/15 outline-none"
                   />
                 </div>
 
-                <div>
-                  <Label>Banner</Label>
-                  <input
-                    type="text"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="Paste banner image URL/ADDRESS"
-                    className={inputClass}
-                  />
-                </div>
+                <div className="space-y-4 rounded-[14px] border border-dashed border-[#E8E1D5] bg-[#FAF8F4] p-5">
+
+  <div>
+    <Label>Banner Image</Label>
+
+    <p className="max-w-xl text-xs leading-5 text-[#5E665F]">
+      Paste a hosted image URL to preview.
+    </p>
+  </div>
+
+  <Input
+    type="text"
+    value={imageUrl}
+    onChange={(e) => setImageUrl(e.target.value)}
+    placeholder="Paste image URL e.g. https://example.com/banner.jpg"
+    className="h-12 w-full rounded-[14px] border border-[#E8E1D5] bg-white px-4 text-[#183028] placeholder:text-[#8A918B] transition-all duration-200 focus:border-[#0F4D3F] focus:ring-2 focus:ring-[#0F4D3F]/15 outline-none"
+  />
+
+</div>
               </ControlWrapper>
             </Section>
 
-            <Section title="Schedule" description="Choose the timeline and registration window.">
-              <div className="grid gap-8 md:grid-cols-3">
+            <Section iconNumber={2} title="Schedule" description="Choose the timeline and registration window.">
+              <div className="grid gap-6 md:grid-cols-3">
                 <div>
                   <Label>Registration Deadline</Label>
                   <ThemeProvider theme={muiTheme}>
@@ -227,19 +245,21 @@ export default function EventForm({ mode }: EventFormProps) {
                         value={registrationDeadline}
                         onChange={(newValue) => setRegistrationDeadline(newValue)}
                         slotProps={{
-  textField: {
-    fullWidth: true,
-    sx: {
-      "& .MuiOutlinedInput-root": {
-        borderRadius: "16px",
-        height: 56,
-      },
-      "& .MuiInputBase-input": {
-        padding: "16px 14px",
-      },
-    },
-  },
-}}
+                          textField: {
+                            fullWidth: true,
+                            sx: {
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: "14px",
+                                height: 48,
+                                backgroundColor: "#FAF8F4",
+                                "& fieldset": { borderColor: "#E8E1D5" },
+                                "&:hover fieldset": { borderColor: "#0F4D3F" },
+                                "&.Mui-focused fieldset": { borderColor: "#0F4D3F", borderWidth: 2 },
+                              },
+                              "& .MuiInputBase-input": { padding: "12px 14px", color: "#183028" },
+                            },
+                          },
+                        }}
                       />
                     </LocalizationProvider>
                   </ThemeProvider>
@@ -253,19 +273,21 @@ export default function EventForm({ mode }: EventFormProps) {
                         value={startDate}
                         onChange={(newValue) => setStartDate(newValue)}
                         slotProps={{
-  textField: {
-    fullWidth: true,
-    sx: {
-      "& .MuiOutlinedInput-root": {
-        borderRadius: "16px",
-        height: 56,
-      },
-      "& .MuiInputBase-input": {
-        padding: "16px 14px",
-      },
-    },
-  },
-}}
+                          textField: {
+                            fullWidth: true,
+                            sx: {
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: "14px",
+                                height: 48,
+                                backgroundColor: "#FAF8F4",
+                                "& fieldset": { borderColor: "#E8E1D5" },
+                                "&:hover fieldset": { borderColor: "#0F4D3F" },
+                                "&.Mui-focused fieldset": { borderColor: "#0F4D3F", borderWidth: 2 },
+                              },
+                              "& .MuiInputBase-input": { padding: "12px 14px", color: "#183028" },
+                            },
+                          },
+                        }}
                       />
                     </LocalizationProvider>
                   </ThemeProvider>
@@ -279,19 +301,21 @@ export default function EventForm({ mode }: EventFormProps) {
                         value={endDate}
                         onChange={(newValue) => setEndDate(newValue)}
                         slotProps={{
-  textField: {
-    fullWidth: true,
-    sx: {
-      "& .MuiOutlinedInput-root": {
-        borderRadius: "16px",
-        height: 56,
-      },
-      "& .MuiInputBase-input": {
-        padding: "16px 14px",
-      },
-    },
-  },
-}}
+                          textField: {
+                            fullWidth: true,
+                            sx: {
+                              "& .MuiOutlinedInput-root": {
+                                borderRadius: "14px",
+                                height: 48,
+                                backgroundColor: "#FAF8F4",
+                                "& fieldset": { borderColor: "#E8E1D5" },
+                                "&:hover fieldset": { borderColor: "#0F4D3F" },
+                                "&.Mui-focused fieldset": { borderColor: "#0F4D3F", borderWidth: 2 },
+                              },
+                              "& .MuiInputBase-input": { padding: "12px 14px", color: "#183028" },
+                            },
+                          },
+                        }}
                       />
                     </LocalizationProvider>
                   </ThemeProvider>
@@ -299,11 +323,11 @@ export default function EventForm({ mode }: EventFormProps) {
               </div>
             </Section>
 
-            <Section title="Location & Capacity" description="Set the location and capacity for the event.">
-              <div className="grid gap-8 md:grid-cols-2">
+            <Section iconNumber={3} title="Location" description="Set the location and capacity limits for the event.">
+              <div className="grid gap-6 md:grid-cols-2">
                 <div>
-                  <Label>Location</Label>
-                  <input
+                  <Label>Venue Location</Label>
+                  <Input
                     required
                     type="text"
                     value={location}
@@ -315,8 +339,8 @@ export default function EventForm({ mode }: EventFormProps) {
 
                 {!isTeamEvent ? (
                   <div>
-                    <Label>Capacity</Label>
-                    <input
+                    <Label>Maximum Capacity</Label>
+                    <Input
                       type="number"
                       value={capacity}
                       onChange={(e) => setCapacity(Number(e.target.value))}
@@ -327,12 +351,47 @@ export default function EventForm({ mode }: EventFormProps) {
               </div>
             </Section>
 
+            <Section iconNumber={4} title="Registration Settings" description="Set whether the event is free or paid.">
+              <div className="space-y-6">
+                <label className="flex items-start gap-4 rounded-[14px] border border-[#E8E1D5] bg-[#FAF8F4] px-5 py-4 transition-all duration-200 hover:border-[#0F4D3F]/30 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isPaidEvent}
+                    onChange={(e) => setIsPaidEvent(e.target.checked)}
+                    className="mt-1 h-4 w-4 accent-[#0F4D3F]"
+                  />
+                  <div>
+                    <h3 className="text-sm font-semibold text-[#183028]">
+                      Require Paid Tickets
+                    </h3>
+                    <p className="mt-0.5 text-xs text-[#5E665F]">
+                      Charge attendees a registration fee to book their slots.
+                    </p>
+                  </div>
+                </label>
+
+                {isPaidEvent ? (
+                  <div className="max-w-xs animate-in fade-in duration-200">
+                    <Label>Registration Fee (₹)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="Enter amount"
+                      value={registrationFee}
+                      onChange={(e) => setRegistrationFee(e.target.value.replace(/\D/g, ""))}
+                      className={inputClass}
+                    />
+                  </div>
+                ) : null}
+              </div>
+            </Section>
+
             {isTeamEvent ? (
-              <Section title="Team Settings" description="Set the member limits and team capacity.">
-                <div className="grid gap-8 md:grid-cols-3">
+              <Section iconNumber={5} title="Team Settings" description="Set the member limits and team capacity constraints.">
+                <div className="grid gap-6 md:grid-cols-3">
                   <div>
                     <Label>Minimum Team Size</Label>
-                    <input
+                    <Input
                       type="number"
                       value={minTeamSize}
                       onChange={(e) => setMinTeamSize(Number(e.target.value))}
@@ -342,7 +401,7 @@ export default function EventForm({ mode }: EventFormProps) {
 
                   <div>
                     <Label>Maximum Team Size</Label>
-                    <input
+                    <Input
                       type="number"
                       value={maxTeamSize}
                       onChange={(e) => setMaxTeamSize(Number(e.target.value))}
@@ -351,8 +410,8 @@ export default function EventForm({ mode }: EventFormProps) {
                   </div>
 
                   <div>
-                    <Label>Maximum Teams</Label>
-                    <input
+                    <Label>Maximum Teams Limit</Label>
+                    <Input
                       type="number"
                       value={maxTeams}
                       onChange={(e) => setMaxTeams(Number(e.target.value))}
@@ -363,60 +422,27 @@ export default function EventForm({ mode }: EventFormProps) {
               </Section>
             ) : null}
 
-            <Section title="Pricing" description="Set whether the event is free or paid.">
-              <div className="space-y-5">
-                <label className="flex items-start gap-4 rounded-2xl border border-border/70 bg-background px-6 py-5 transition-colors hover:border-violet-300">
-                  <input
-                    type="checkbox"
-                    checked={isPaidEvent}
-                    onChange={(e) => setIsPaidEvent(e.target.checked)}
-                    className="mt-2"
-                  />
-                  <div>
-  <h3 className="font-semibold text-foreground">
-    Paid Event
-  </h3>
+            {/* Form Footer Action Controls */}
+            <div className="sticky bottom-0 left-0 z-20 border-t border-[#E8E1D5] bg-[#FAF8F4]/90 px-6 py-4 backdrop-blur-md shadow-[0_-10px_30px_rgba(15,77,63,0.04)] sm:px-0">
+              <div className="mx-auto flex max-w-4xl justify-end gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 rounded-full border border-[#E8E1D5] bg-white px-6 text-sm font-medium text-[#183028] hover:bg-[#FAF8F4]"
+                  onClick={() => router.push("/create-event")}
+                >
+                  Cancel
+                </Button>
 
-  <p className="mt-1 text-sm text-muted-foreground">
-    Charge attendees a registration fee.
-  </p>
-</div>
-                </label>
-
-                {isPaidEvent ? (
-                  <div>
-                    <Label>Registration Fee (₹)</Label>
-                    <input
-  type="number"
-  min="0"
-  placeholder="Enter the amount to be charged"
-  value={registrationFee}
-  onChange={(e) => setRegistrationFee(e.target.value.replace(/\D/g, ""))}
-  className={inputClass}
-/>
-                  </div>
-                ) : null}
+                <Button
+                  type="submit"
+                  disabled={loading || submitting}
+                  className="h-10 rounded-full bg-[#0F4D3F] px-6 text-sm font-medium text-white hover:bg-[#0A352B] disabled:opacity-50"
+                >
+                  {loading || submitting ? "Creating Event..." : "Create Event"}
+                </Button>
               </div>
-            </Section>
-
-            <div className="mt-10 flex justify-end gap-4">
-  <Button
-    type="button"
-    variant="outline"
-    className="h-12 rounded-full px-7 font-medium"
-    onClick={() => router.push("/create-event")}
-  >
-    Cancel
-  </Button>
-
-  <Button
-    type="submit"
-    disabled={loading || submitting}
-    className="h-12 rounded-full px-7 font-medium"
-  >
-    {loading || submitting ? "Creating Event..." : "Create Event"}
-  </Button>
-</div>
+            </div>
           </form>
         </div>
       </div>

@@ -34,10 +34,10 @@ def mark_attendance(
     )
 
     if existing:
-      raise HTTPException(
-        status_code=409,
-        detail="Attendance already recorded",
-    )
+          raise HTTPException(
+            status_code=409,
+            detail="Attendance already recorded",
+        )
     attendance = Attendance(
         event_id=event_id,
         user_id=user_id,
