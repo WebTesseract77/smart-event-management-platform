@@ -109,14 +109,31 @@ npm install
 npm run dev
 Frontend runs at: http://localhost:3000
 
-📸 Screenshots
-Home Page Landing
-User Sign In Portal
-Discover Events Feed
-Event Detail Metrics
-Creation Suite Hub
-Form Configuration Structure
-Registration Workspace Tracking
+## 📸 Screenshots
+
+### Home Page Landing
+<img src="https://raw.githubusercontent.com/WebTesseract77/smart-event-management-platform/main/frontend/docs/screenshots/hompage.png" width="100%" alt="Home Page"/>
+The landing page provides a centralized entry point for creating, managing, and exploring events with professional analytics insight summaries.
+
+### Discover Events Feed
+<img src="https://raw.githubusercontent.com/WebTesseract77/smart-event-management-platform/main/frontend/docs/screenshots/events.png" width="100%" alt="Events Feed"/>
+Comprehensive discovery board showcasing scheduled listings, real-time ticket availability tags, and quick-action detail layouts.
+
+### Event Detail Metrics
+<img src="https://raw.githubusercontent.com/WebTesseract77/smart-event-management-platform/main/frontend/docs/screenshots/Event_Details.png" width="100%" alt="Event Details"/>
+Granular registration metrics displaying venue records, date intervals, capacity caps, and instant registration status workflows.
+
+### Creation Suite Selector
+<img src="https://raw.githubusercontent.com/WebTesseract77/smart-event-management-platform/main/frontend/docs/screenshots/create_event.png" width="100%" alt="Create Event Hub"/>
+Dual-track creation portal letting organizers select and scale distinct entry specifications for individual or team entries.
+
+### Individual Form Configuration
+<img src="https://raw.githubusercontent.com/WebTesseract77/smart-event-management-platform/main/frontend/docs/screenshots/event_form.png" width="100%" alt="Individual Form"/>
+Structured parameters enabling planners to provision title records, banner structures, and descriptive metadata fields.
+
+### Registration Control Panel
+<img src="https://raw.githubusercontent.com/WebTesseract77/smart-event-management-platform/main/frontend/docs/screenshots/my_registrations.png" width="100%" alt="My Registrations"/>
+Unified dashboard enabling participants to toggle tracking modules, review distinct digital entry slots, and map team management hierarchies.
 🔗 API Endpoints
 Authentication
 POST /api/v1/auth/register
