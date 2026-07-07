@@ -25,7 +25,7 @@ A full-stack Event Management Platform built with FastAPI, Next.js (App Router),
 | :--- | :--- |
 | **Home Page** | ![Home](frontend/docs/screenshots/homepage.png)
 | **Events Feed** | ![Events](frontend/docs/screenshots/events.png) |
-| **Event Details** | ![Details](frontend/docs/screenshots/Event_Details.png) |
+| **Event Details** | ![Details](frontend/docs/screenshots/Event_info.png)
 | **Create Event** | ![Create](frontend/docs/screenshots/create_event.png) |
 | **Event Form** | ![Form](frontend/docs/screenshots/event_form.png) |
 | **My Registrations** | ![Registrations](frontend/docs/screenshots/my_registrations.png) |
