@@ -6,21 +6,34 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file="backend/.env",
+        env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
-)
+    )
+
+    
+
     app_name: str = "EventSphere"
+
     api_v1_prefix: str = "/api/v1"
-    razorpay_key_id: str = ""
-    razorpay_key_secret: str = ""
+
+    frontend_url: str = Field(
+        default="http://localhost:3000",
+        alias="FRONTEND_URL",
+    )
+
+
+
+
     database_url: str = Field(
         default="sqlite:///./smart_event.db",
         alias="DATABASE_URL",
     )
 
+
+
+
     secret_key: str = Field(
-        default="change-me",
         alias="SECRET_KEY",
     )
 
@@ -33,33 +46,33 @@ class Settings(BaseSettings):
         default=120,
         alias="ACCESS_TOKEN_EXPIRE_MINUTES",
     )
+
+
     admin_name: str = Field(
-       default="Administrator",
-       alias="ADMIN_NAME",
-)
+        default="Administrator",
+        alias="ADMIN_NAME",
+    )
+
     admin_email: str = Field(
-        default="admin@event.local",
         alias="ADMIN_EMAIL",
     )
+
     admin_password: str = Field(
-        default="change-me",
         alias="ADMIN_PASSWORD",
-)
-   
-    # Mail Settings
+    )
+
+
+    
 
     mail_username: str = Field(
-        default="",
         alias="MAIL_USERNAME",
     )
 
     mail_password: str = Field(
-        default="",
         alias="MAIL_PASSWORD",
     )
 
     mail_from: str = Field(
-        default="",
         alias="MAIL_FROM",
     )
 
@@ -81,6 +94,19 @@ class Settings(BaseSettings):
     mail_ssl_tls: bool = Field(
         default=False,
         alias="MAIL_SSL_TLS",
+    )
+
+
+
+
+    razorpay_key_id: str = Field(
+        default="",
+        alias="RAZORPAY_KEY_ID",
+    )
+
+    razorpay_key_secret: str = Field(
+        default="",
+        alias="RAZORPAY_KEY_SECRET",
     )
 
 
