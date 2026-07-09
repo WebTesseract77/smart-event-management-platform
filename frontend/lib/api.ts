@@ -1,4 +1,5 @@
-const API_URL = "http://127.0.0.1:8000/api/v1";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1";
 
 export async function registerUser(
   name: string,
@@ -195,7 +196,7 @@ export async function deleteEvent(
   eventId: number
 ) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/v1/events/${eventId}`,
+    `${API_URL}/events/${eventId}`,
     {
       method: "DELETE",
       headers: {
@@ -212,7 +213,7 @@ export async function updateEvent(
   data: any
 ) {
   const response = await fetch(
-    `http://127.0.0.1:8000/api/v1/events/${eventId}`,
+    `${API_URL}/events/${eventId}`,
     {
       method: "PATCH",
       headers: {
