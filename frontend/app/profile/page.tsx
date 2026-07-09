@@ -223,9 +223,7 @@ export default function ProfilePage() {
                   {memberSince && (
                     <InfoField icon={<Clock3 className="h-4 w-4" />} label="Member Since" value={memberSince} />
                   )}
-                  {user.id && (
-                    <InfoField icon={<CircleUserRound className="h-4 w-4" />} label="Account ID" value={user.id} />
-                  )}
+                 
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">

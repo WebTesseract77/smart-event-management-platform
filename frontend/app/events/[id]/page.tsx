@@ -679,7 +679,7 @@ export default function EventDetailsPage() {
                             ? "Registration Inactive"
                             : registering
                               ? "Securing Pass..."
-                              : "Claim Access Ticket"}
+                              : "Register for the Event "}
                       </ActionButton>
                     )}
                   </div>

@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/api";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +43,9 @@ export default function Navbar() {
 const isPublic =
   pathname === "/" ||
   pathname === "/login" ||
-  pathname === "/register";
+  pathname === "/register" ||
+  pathname === "/verify-email" ||
+  pathname === "/forgot-password";
   const router = useRouter();
   const [loggedIn, setLoggedIn] = useState(false);
   const [role, setRole] = useState("user");
@@ -180,8 +181,7 @@ const isPublic =
   </div>
 )}
 
-        <div className="flex items-center gap-2 self-start md:self-auto">
-          <ThemeToggle />
+       <div className="flex items-center gap-2 self-start md:self-auto">
 
           {!loggedIn ? (
             <>

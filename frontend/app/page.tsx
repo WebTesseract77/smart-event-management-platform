@@ -577,33 +577,31 @@ export default function HomePage() {
               variants={itemReveal}
               transition={{ duration: 0.45, delay: index * 0.05 }}
             >
-              <Link href="/events" className="block" aria-label={feature.title}>
-                <Card className="group h-full cursor-pointer rounded-[24px] border border-[#E8E1D5] bg-[#FFFFFF] shadow-[0_16px_40px_rgba(24,48,40,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4D3F]/30">
-                  <motion.div
-                    whileHover={reduceMotion ? undefined : cardHover}
-                    whileTap={reduceMotion ? undefined : { scale: 0.99 }}
-                    transition={{ duration: 0.25 }}
-                    className="rounded-[24px] h-full"
-                  >
-                    <CardContent className="p-5 sm:p-6 flex flex-col h-full justify-between">
-                      <div>
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="rounded-xl bg-[#EAF3ED] p-2.5 text-[#0F4D3F]">
-                            {feature.icon}
-                          </div>
-                          <ChevronRight className="h-4 w-4 text-[#5E665F] transform group-hover:translate-x-1 transition-transform" />
+              <Card className="group h-full rounded-[24px] border border-[#E8E1D5] bg-[#FFFFFF] shadow-[0_16px_40px_rgba(24,48,40,0.06)] transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-[#0F4D3F]/30">
+                <motion.div
+                  whileHover={reduceMotion ? undefined : cardHover}
+                  whileTap={reduceMotion ? undefined : { scale: 0.99 }}
+                  transition={{ duration: 0.25 }}
+                  className="rounded-[24px] h-full"
+                >
+                  <CardContent className="p-5 sm:p-6 flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="rounded-xl bg-[#EAF3ED] p-2.5 text-[#0F4D3F]">
+                          {feature.icon}
                         </div>
-                        <h3 className="mt-4 text-lg sm:text-xl font-semibold tracking-tight text-[#183028]">
-                          {feature.title}
-                        </h3>
-                        <p className="mt-2 text-xs sm:text-sm leading-relaxed sm:leading-6 text-[#5E665F]">
-                          {feature.description}
-                        </p>
+                        <ChevronRight className="h-4 w-4 text-[#5E665F] transform group-hover:translate-x-1 transition-transform" />
                       </div>
-                    </CardContent>
-                  </motion.div>
-                </Card>
-              </Link>
+                      <h3 className="mt-4 text-lg sm:text-xl font-semibold tracking-tight text-[#183028]">
+                        {feature.title}
+                      </h3>
+                      <p className="mt-2 text-xs sm:text-sm leading-relaxed sm:leading-6 text-[#5E665F]">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </CardContent>
+                </motion.div>
+              </Card>
             </motion.div>
           ))}
         </motion.div>

@@ -9,6 +9,7 @@ from fastapi import (
 from sqlalchemy.orm import Session
 
 from backend.app.core.dependencies import get_db
+
 from backend.app.core.errors import (
     AuthenticationError,
     ConflictError,
@@ -38,11 +39,16 @@ from backend.app.services.otp_service import (
     send_reset_otp,
 )
 
+
 router = APIRouter(
     prefix="/auth",
     tags=["Authentication"],
 )
 
+
+# =========================
+# REGISTER
+# =========================
 
 @router.post(
     "/register",
@@ -55,6 +61,7 @@ async def register(
     db: Session = Depends(get_db),
 ):
     try:
+
         user = create_user(
             db,
             name=payload.name,
@@ -62,11 +69,15 @@ async def register(
             password=payload.password,
         )
 
+
         otp = generate_otp()
 
         user.verification_otp = otp
 
+        user.is_verified = False
+
         db.commit()
+
 
         background_tasks.add_task(
             send_verification_otp,
@@ -74,14 +85,22 @@ async def register(
             otp,
         )
 
+
         return user
 
+
     except ConflictError as exc:
+
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=str(exc),
         )
 
+
+
+# =========================
+# LOGIN
+# =========================
 
 @router.post(
     "/login",
@@ -92,44 +111,77 @@ def login(
     db: Session = Depends(get_db),
 ):
     try:
+
         user = authenticate_user(
             db,
             payload.email,
             payload.password,
         )
 
+
     except AuthenticationError as exc:
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(exc),
         )
+
+
+    # block users without OTP verification
+    if not user.is_verified:
+
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please verify your email before login",
+        )
+
 
     token = create_access_token(
         subject=str(user.id),
         role=user.role,
     )
 
+
     return Token(
         access_token=token,
     )
 
 
-@router.post("/send-verification-otp")
+
+# =========================
+# RESEND EMAIL OTP
+# =========================
+
+@router.post(
+    "/send-verification-otp"
+)
 async def send_verification(
     email: str,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
+
     user = get_user_by_email(
         db,
         email,
     )
 
+
     if not user:
+
         raise HTTPException(
             status_code=404,
             detail="User not found",
         )
+
+
+    if user.is_verified:
+
+        return {
+            "message":
+            "Email already verified"
+        }
+
 
     otp = generate_otp()
 
@@ -137,44 +189,63 @@ async def send_verification(
 
     db.commit()
 
+
     background_tasks.add_task(
         send_verification_otp,
         user.email,
         otp,
     )
 
+
     return {
-        "message": "OTP sent successfully"
+        "message":
+        "OTP sent successfully"
     }
 
 
-@router.post("/verify-email")
+
+# =========================
+# VERIFY EMAIL
+# =========================
+
+@router.post(
+    "/verify-email"
+)
 def verify_email(
     email: str,
     otp: str,
     db: Session = Depends(get_db),
 ):
+
     user = get_user_by_email(
         db,
         email,
     )
 
+
     if not user:
+
         raise HTTPException(
             status_code=404,
             detail="User not found",
         )
 
+
     if user.verification_otp != otp:
+
         raise HTTPException(
             status_code=400,
             detail="Invalid OTP",
         )
 
+
     user.is_verified = True
+
     user.verification_otp = None
 
+
     db.commit()
+
 
     return {
         "message":
@@ -182,28 +253,41 @@ def verify_email(
     }
 
 
-@router.post("/forgot-password")
+
+# =========================
+# FORGOT PASSWORD
+# =========================
+
+@router.post(
+    "/forgot-password"
+)
 async def forgot_password(
     email: str,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
+
     user = get_user_by_email(
         db,
         email,
     )
 
+
     if not user:
+
         raise HTTPException(
             status_code=404,
             detail="User not found",
         )
 
+
     otp = generate_otp()
 
     user.reset_otp = otp
 
+
     db.commit()
+
 
     background_tasks.add_task(
         send_reset_otp,
@@ -211,43 +295,60 @@ async def forgot_password(
         otp,
     )
 
+
     return {
         "message":
         "Reset OTP sent"
     }
 
 
-@router.post("/reset-password")
+
+# =========================
+# RESET PASSWORD
+# =========================
+
+@router.post(
+    "/reset-password"
+)
 def reset_password(
     email: str,
     otp: str,
     new_password: str,
     db: Session = Depends(get_db),
 ):
+
     user = get_user_by_email(
         db,
         email,
     )
 
+
     if not user:
+
         raise HTTPException(
             status_code=404,
             detail="User not found",
         )
 
+
     if user.reset_otp != otp:
+
         raise HTTPException(
             status_code=400,
             detail="Invalid OTP",
         )
 
+
     user.password_hash = get_password_hash(
         new_password
     )
 
+
     user.reset_otp = None
 
+
     db.commit()
+
 
     return {
         "message":

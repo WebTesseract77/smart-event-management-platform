@@ -414,7 +414,7 @@ export default function AdminUsersPage() {
                                 </Avatar>
                                 <div className="min-w-0 flex-1">
                                   <p className="truncate text-base font-semibold text-[#183028]">{user.name}</p>
-                                  <p className="text-xs text-[#5E665F]">ID #{user.id}</p>
+                                 
                                 </div>
                               </div>
                               <Badge className={`rounded-full border border-[#E8E1D5] px-2.5 py-1 text-[11px] font-semibold shrink-0 whitespace-nowrap ${roleTone(normalizedRole)}`}>
