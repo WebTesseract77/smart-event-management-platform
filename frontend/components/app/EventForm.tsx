@@ -41,8 +41,8 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[28px] border border-[#E8E1D5] bg-white p-8 shadow-[0_12px_32px_rgba(15,77,63,0.03)] transition-all duration-200">
-      <div className="mb-6 flex items-start gap-4">
+    <section className="rounded-[28px] border border-[#E8E1D5] bg-white p-5 sm:p-8 shadow-[0_12px_32px_rgba(15,77,63,0.03)] transition-all duration-200">
+      <div className="mb-6 flex flex-col sm:flex-row items-start gap-4">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0F4D3F] text-xs font-semibold text-white">
           {iconNumber}
         </div>
@@ -53,7 +53,7 @@ function Section({
           <p className="mt-1 text-sm leading-6 text-[#5E665F]">{description}</p>
         </div>
       </div>
-      <hr className="mb-6 border-[#E8E1D5]" />
+      <hr className="my-5 border-[#E8E1D5]" />
       <div className="space-y-6">{children}</div>
     </section>
   );
@@ -178,7 +178,7 @@ export default function EventForm({ mode }: EventFormProps) {
   return (
     <main className="min-h-screen bg-[#FAF8F4]">
       <div className="relative isolate overflow-hidden">
-        <div className="mx-auto max-w-4xl px-6 py-10">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 py-6 sm:py-10">
           <div className="max-w-3xl">
             <h1 className="text-3xl font-semibold tracking-tight text-[#183028] lg:text-4xl">
               {isTeamEvent ? "Team Event" : "Individual Event"}
@@ -236,7 +236,7 @@ export default function EventForm({ mode }: EventFormProps) {
             </Section>
 
             <Section iconNumber={2} title="Schedule" description="Choose the timeline and registration window.">
-              <div className="grid gap-6 md:grid-cols-3">
+              <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div>
                   <Label>Registration Deadline</Label>
                   <ThemeProvider theme={muiTheme}>
@@ -248,16 +248,33 @@ export default function EventForm({ mode }: EventFormProps) {
                           textField: {
                             fullWidth: true,
                             sx: {
-                              "& .MuiOutlinedInput-root": {
-                                borderRadius: "14px",
-                                height: 48,
-                                backgroundColor: "#FAF8F4",
-                                "& fieldset": { borderColor: "#E8E1D5" },
-                                "&:hover fieldset": { borderColor: "#0F4D3F" },
-                                "&.Mui-focused fieldset": { borderColor: "#0F4D3F", borderWidth: 2 },
-                              },
-                              "& .MuiInputBase-input": { padding: "12px 14px", color: "#183028" },
-                            },
+  width: "100%",
+
+  "& .MuiOutlinedInput-root": {
+    width: "100%",
+    borderRadius: "14px",
+    height: 48,
+    backgroundColor: "#FAF8F4",
+
+    "& fieldset": {
+      borderColor: "#E8E1D5",
+    },
+
+    "&:hover fieldset": {
+      borderColor: "#0F4D3F",
+    },
+
+    "&.Mui-focused fieldset": {
+      borderColor: "#0F4D3F",
+      borderWidth: 2,
+    },
+  },
+
+  "& .MuiInputBase-input": {
+    padding: "12px 14px",
+    color: "#183028",
+  },
+},
                           },
                         }}
                       />
@@ -276,16 +293,33 @@ export default function EventForm({ mode }: EventFormProps) {
                           textField: {
                             fullWidth: true,
                             sx: {
-                              "& .MuiOutlinedInput-root": {
-                                borderRadius: "14px",
-                                height: 48,
-                                backgroundColor: "#FAF8F4",
-                                "& fieldset": { borderColor: "#E8E1D5" },
-                                "&:hover fieldset": { borderColor: "#0F4D3F" },
-                                "&.Mui-focused fieldset": { borderColor: "#0F4D3F", borderWidth: 2 },
-                              },
-                              "& .MuiInputBase-input": { padding: "12px 14px", color: "#183028" },
-                            },
+  width: "100%",
+
+  "& .MuiOutlinedInput-root": {
+    width: "100%",
+    borderRadius: "14px",
+    height: 48,
+    backgroundColor: "#FAF8F4",
+
+    "& fieldset": {
+      borderColor: "#E8E1D5",
+    },
+
+    "&:hover fieldset": {
+      borderColor: "#0F4D3F",
+    },
+
+    "&.Mui-focused fieldset": {
+      borderColor: "#0F4D3F",
+      borderWidth: 2,
+    },
+  },
+
+  "& .MuiInputBase-input": {
+    padding: "12px 14px",
+    color: "#183028",
+  },
+},
                           },
                         }}
                       />
@@ -304,16 +338,33 @@ export default function EventForm({ mode }: EventFormProps) {
                           textField: {
                             fullWidth: true,
                             sx: {
-                              "& .MuiOutlinedInput-root": {
-                                borderRadius: "14px",
-                                height: 48,
-                                backgroundColor: "#FAF8F4",
-                                "& fieldset": { borderColor: "#E8E1D5" },
-                                "&:hover fieldset": { borderColor: "#0F4D3F" },
-                                "&.Mui-focused fieldset": { borderColor: "#0F4D3F", borderWidth: 2 },
-                              },
-                              "& .MuiInputBase-input": { padding: "12px 14px", color: "#183028" },
-                            },
+  width: "100%",
+
+  "& .MuiOutlinedInput-root": {
+    width: "100%",
+    borderRadius: "14px",
+    height: 48,
+    backgroundColor: "#FAF8F4",
+
+    "& fieldset": {
+      borderColor: "#E8E1D5",
+    },
+
+    "&:hover fieldset": {
+      borderColor: "#0F4D3F",
+    },
+
+    "&.Mui-focused fieldset": {
+      borderColor: "#0F4D3F",
+      borderWidth: 2,
+    },
+  },
+
+  "& .MuiInputBase-input": {
+    padding: "12px 14px",
+    color: "#183028",
+  },
+},
                           },
                         }}
                       />
@@ -324,7 +375,7 @@ export default function EventForm({ mode }: EventFormProps) {
             </Section>
 
             <Section iconNumber={3} title="Location" description="Set the location and capacity limits for the event.">
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
                   <Label>Venue Location</Label>
                   <Input
@@ -353,7 +404,7 @@ export default function EventForm({ mode }: EventFormProps) {
 
             <Section iconNumber={4} title="Registration Settings" description="Set whether the event is free or paid.">
               <div className="space-y-6">
-                <label className="flex items-start gap-4 rounded-[14px] border border-[#E8E1D5] bg-[#FAF8F4] px-5 py-4 transition-all duration-200 hover:border-[#0F4D3F]/30 cursor-pointer">
+                <label className="flex flex-col sm:flex-row items-start gap-4 rounded-[14px] border border-[#E8E1D5] bg-[#FAF8F4] px-5 py-4 transition-all duration-200 hover:border-[#0F4D3F]/30 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isPaidEvent}
@@ -371,7 +422,7 @@ export default function EventForm({ mode }: EventFormProps) {
                 </label>
 
                 {isPaidEvent ? (
-                  <div className="max-w-xs animate-in fade-in duration-200">
+                  <div className="w-full sm:max-w-xs animate-in fade-in duration-200">
                     <Label>Registration Fee (₹)</Label>
                     <Input
                       type="number"
@@ -388,7 +439,7 @@ export default function EventForm({ mode }: EventFormProps) {
 
             {isTeamEvent ? (
               <Section iconNumber={5} title="Team Settings" description="Set the member limits and team capacity constraints.">
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                   <div>
                     <Label>Minimum Team Size</Label>
                     <Input
@@ -424,24 +475,24 @@ export default function EventForm({ mode }: EventFormProps) {
 
             {/* Form Footer Action Controls */}
             <div className="sticky bottom-0 left-0 z-20 border-t border-[#E8E1D5] bg-[#FAF8F4]/90 px-6 py-4 backdrop-blur-md shadow-[0_-10px_30px_rgba(15,77,63,0.04)] sm:px-0">
-              <div className="mx-auto flex max-w-4xl justify-end gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-10 rounded-full border border-[#E8E1D5] bg-white px-6 text-sm font-medium text-[#183028] hover:bg-[#FAF8F4]"
-                  onClick={() => router.push("/create-event")}
-                >
-                  Cancel
-                </Button>
+              <div className="mx-auto flex max-w-4xl flex-col-reverse sm:flex-row justify-end gap-3">
+  <Button
+    type="button"
+    variant="outline"
+    className="w-full sm:w-auto h-10 rounded-full border border-[#E8E1D5] bg-white px-6 text-sm font-medium text-[#183028] hover:bg-[#FAF8F4]"
+    onClick={() => router.push("/create-event")}
+  >
+    Cancel
+  </Button>
 
-                <Button
-                  type="submit"
-                  disabled={loading || submitting}
-                  className="h-10 rounded-full bg-[#0F4D3F] px-6 text-sm font-medium text-white hover:bg-[#0A352B] disabled:opacity-50"
-                >
-                  {loading || submitting ? "Creating Event..." : "Create Event"}
-                </Button>
-              </div>
+  <Button
+    type="submit"
+    disabled={loading || submitting}
+    className="w-full sm:w-auto h-10 rounded-full bg-[#0F4D3F] px-6 text-sm font-medium text-white hover:bg-[#0A352B] disabled:opacity-50"
+  >
+    {loading || submitting ? "Creating Event..." : "Create Event"}
+  </Button>
+</div>
             </div>
           </form>
         </div>

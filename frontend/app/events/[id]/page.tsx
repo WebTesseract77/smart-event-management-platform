@@ -82,7 +82,7 @@ function SectionCard({
 }) {
   return (
     <Card className="rounded-[24px] border border-[#E8E1D5] bg-white shadow-[0_18px_40px_rgba(15,77,63,0.05)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_22px_52px_rgba(15,77,63,0.07)] overflow-hidden">
-      <CardContent className="p-5 sm:p-6">
+      <CardContent className="p-4 sm:p-6">
         {eyebrow ? (
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#0F4D3F]">
             {eyebrow}
@@ -414,15 +414,18 @@ export default function EventDetailsPage() {
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_20%,rgba(72,187,120,0.08),transparent_24%),radial-gradient(circle_at_85%_10%,rgba(15,77,63,0.05),transparent_18%)]" />
 
         <motion.div
-          className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:py-8"
+          className="mx-auto
+max-w-7xl
+px-3
+sm:px-6 py-6 sm:px-6 lg:py-8"
           initial={reduceMotion ? false : { opacity: 0, y: 14 }}
           animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.75fr)_minmax(340px,0.9fr)] lg:items-start">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.75fr)_minmax(340px,0.9fr)] items-start">
             <div className="space-y-6">
               <Card className="overflow-hidden rounded-[28px] border border-[#E8E1D5] bg-white shadow-[0_26px_70px_rgba(15,77,63,0.06)] relative">
-                <div className="relative w-full h-[280px] sm:h-[340px] overflow-hidden">
+                <div className="relative w-full h-[220px] sm:h-[280px] lg:h-[340px] overflow-hidden">
                   <div className="absolute inset-0 bg-[#0F4D3F]/5 z-10" />
                   {event.image_url ? (
                     <motion.img
@@ -439,7 +442,16 @@ export default function EventDetailsPage() {
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10" />
                   
-                  <div className="absolute top-4 left-4 right-4 flex flex-wrap gap-2 z-20">
+                 <div className="
+absolute
+top-4
+left-4
+right-4
+flex
+flex-wrap
+gap-2
+max-w-[calc(100%-2rem)]
+">
                     <span className="rounded-full border border-[#E8E1D5] bg-white/95 backdrop-blur-sm px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#0F4D3F] shadow-sm">
                       {status}
                     </span>
@@ -452,11 +464,22 @@ export default function EventDetailsPage() {
                   </div>
                 </div>
 
-                <div className="p-4 sm:p-6 lg:p-7 bg-white relative z-20">
+                <div className="p-4
+sm:p-5
+lg:p-7 bg-white relative z-20">
                   <div className="relative rounded-[24px] border border-[#E8E1D5] bg-white/95 p-5 sm:p-6 shadow-[0_12px_36px_rgba(15,77,63,0.06)] backdrop-blur-sm w-full">
                     <div className="relative pr-0 md:pr-36">
                       <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#7C8B83]">Featured Event</p>
-                      <h1 className="mt-4 font-serif text-[3rem] leading-[0.92] tracking-[-0.05em] text-[#183028] break-words whitespace-pre-wrap sm:text-[3.8rem]">
+                      <h1 className="
+mt-4
+font-serif
+text-3xl
+sm:text-5xl
+lg:text-[3.8rem]
+leading-tight
+tracking-[-0.04em]
+break-words
+">
                           {event.title}
                      </h1>
                       
@@ -477,7 +500,8 @@ export default function EventDetailsPage() {
                       </div>
                     </div>
 
-                    <div className="mt-6 grid gap-3 sm:grid-cols-3 border-t border-[#E8E1D5]/60 pt-5">
+                    <div className="mt-6 grid gap-3 grid-cols-1
+sm:grid-cols-3 border-t border-[#E8E1D5]/60 pt-5">
                       <div className="rounded-[18px] bg-[#FAF8F4] border border-[#E8E1D5]/40 px-4 py-3 min-w-0">
                         <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-[#7C8B83]">Date & Time</span>
                         <span className="mt-1 block text-sm font-semibold text-[#183028] break-words leading-normal">{heroDate}</span>
@@ -494,7 +518,13 @@ export default function EventDetailsPage() {
                       </div>
                     </div>
 
-                    <div className="mt-6 flex flex-wrap items-center gap-3">
+                    <div className="
+mt-6
+flex
+flex-col
+sm:flex-row
+gap-3
+">
                       {role !== "admin" && role !== "organizer" && (
                         <ActionButton
                           href={
@@ -504,7 +534,7 @@ export default function EventDetailsPage() {
                           }
                           onClick={!isTeamEvent ? handleRegister : undefined}
                           disabled={isCompleted || registrationClosed || isRegistered || registering}
-                          className="bg-[#0F4D3F] text-white hover:bg-[#0B3E33] px-6 text-sm"
+                          className="w-full sm:w-auto bg-[#0F4D3F] text-white hover:bg-[#0B3E33] px-6 text-sm"
                         >
                           {isRegistered
                             ? "Registered"
@@ -553,7 +583,8 @@ export default function EventDetailsPage() {
                 </SectionCard>
 
                 <SectionCard eyebrow="Timeline" title="Schedule Details">
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-4 grid-cols-1
+md:grid-cols-2">
                     <InfoCard icon={<Calendar className="h-5 w-5" />} label="Event Starts" value={formatDateTime(event.start_date)} />
                     <InfoCard icon={<Calendar className="h-5 w-5" />} label="Event Ends" value={event.end_date ? formatDateTime(event.end_date) : "TBA"} />
                     <InfoCard icon={<Clock className="h-5 w-5" />} label="Registration Window Closes" value={formatDateTime(event.registration_deadline)} />
@@ -616,7 +647,9 @@ export default function EventDetailsPage() {
               </div>
             </div>
 
-            <div className="space-y-6 lg:sticky lg:top-24">
+            <div className="space-y-6 lg:sticky
+lg:top-24
+xl:top-28">
               <Card className="rounded-[24px] border border-[#E8E1D5] bg-white shadow-[0_18px_42px_rgba(15,77,63,0.04)] overflow-hidden">
                 <CardContent className="p-5 sm:p-6">
                   <div>
@@ -629,23 +662,53 @@ export default function EventDetailsPage() {
                   </div>
 
                   <div className="mt-5 space-y-3.5 border-y border-[#E8E1D5]/60 py-4">
-                    <div className="flex items-start justify-between gap-4 text-sm">
+                    <div className="flex
+flex-col
+sm:flex-row
+sm:items-start
+justify-between
+gap-1
+sm:gap-4 text-sm">
                       <span className="text-[#5E665F] font-medium shrink-0">Pass Category</span>
                       <span className="font-semibold text-[#183028] break-words text-right">{isPaid ? "Paid Access" : "Complimentary"}</span>
                     </div>
-                    <div className="flex items-start justify-between gap-4 text-sm">
+                    <div className="flex
+flex-col
+sm:flex-row
+sm:items-start
+justify-between
+gap-1
+sm:gap-4 text-sm">
                       <span className="text-[#5E665F] font-medium shrink-0">Ticket Value</span>
                       <span className="font-semibold text-[#C6922F] break-words text-right">{priceLabel}</span>
                     </div>
-                    <div className="flex items-start justify-between gap-4 text-sm">
+                    <div className="flex
+flex-col
+sm:flex-row
+sm:items-start
+justify-between
+gap-1
+sm:gap-4 text-sm">
                       <span className="text-[#5E665F] font-medium shrink-0">Closing Window</span>
                       <span className="font-semibold text-[#183028] break-words text-right text-xs sm:text-sm">{formatDateTime(event.registration_deadline)}</span>
                     </div>
-                    <div className="flex items-start justify-between gap-4 text-sm">
+                    <div className="flex
+flex-col
+sm:flex-row
+sm:items-start
+justify-between
+gap-1
+sm:gap-4 text-sm">
                       <span className="text-[#5E665F] font-medium shrink-0">Time Left</span>
                       <span className="font-semibold text-[#0F4D3F] break-words text-right">{registrationCountdown}</span>
                     </div>
-                    <div className="flex items-start justify-between gap-4 text-sm">
+                    <div className="flex
+flex-col
+sm:flex-row
+sm:items-start
+justify-between
+gap-1
+sm:gap-4 text-sm">
                       <span className="text-[#5E665F] font-medium shrink-0">Availability</span>
                       <span className="font-semibold text-[#183028] break-words text-right">{event.registered_count} / {event.capacity} Spaces Filled</span>
                     </div>
@@ -671,7 +734,7 @@ export default function EventDetailsPage() {
                         }
                         onClick={!isTeamEvent ? handleRegister : undefined}
                         disabled={isCompleted || registrationClosed || isRegistered || registering}
-                        className="w-full bg-[#0F4D3F] text-white shadow-md hover:bg-[#0B3E33]"
+                        className="w-full sm:w-auto bg-[#0F4D3F] text-white shadow-md hover:bg-[#0B3E33]"
                       >
                         {isRegistered
                           ? "Pass Awarded"
@@ -691,7 +754,12 @@ export default function EventDetailsPage() {
                   <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#0F4D3F]">
                     Quick Facts Overview
                   </p>
-                  <div className="mt-4 flex flex-col gap-3 w-full">
+                 <div className="
+mt-4
+grid
+gap-3
+grid-cols-1
+">
                     <StatPill label="State" value={status} />
                     <StatPill label="Venue Location" value={heroLocation} />
                     <StatPill label="Start Matrix" value={heroDate} />

@@ -26,7 +26,7 @@ export default function AdminDashboard({
   return (
     <>
       <motion.section variants={itemReveal} className="mb-8" id="analytics">
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+       <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
           <StatCard title="Total Users" value={analytics?.total_users ?? "N/A"} icon={<Users className="h-6 w-6" />} />
           <StatCard title="Total Events" value={analytics?.total_events ?? eventCount} icon={<Calendar className="h-6 w-6" />} />
           <StatCard title="Organizers Count" value={analytics?.organizers_count ?? "N/A"} icon={<Shield className="h-6 w-6" />} />

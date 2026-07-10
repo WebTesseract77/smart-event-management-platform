@@ -17,8 +17,8 @@ export default function StatCard({
     <Card
       className="
         group
-
-        min-h-[120px]
+        h-full
+        min-h-[130px]
         sm:min-h-[150px]
 
         rounded-[22px]
@@ -44,25 +44,24 @@ export default function StatCard({
           flex-col
           justify-between
 
-          p-4
+          p-3
           sm:p-5
         "
       >
         <div className="flex items-start justify-between gap-2">
-
-          <div className="min-w-0">
-
+          <div className="min-w-0 flex-1">
             <p
               className="
-                truncate
+                whitespace-normal
+                leading-tight
 
-                text-[0.65rem]
+                text-[0.58rem]
                 sm:text-[0.72rem]
 
                 font-semibold
                 uppercase
 
-                tracking-[0.12em]
+                tracking-[0.08em]
                 sm:tracking-[0.2em]
 
                 text-[#5E665F]
@@ -71,17 +70,16 @@ export default function StatCard({
               {title}
             </p>
 
-
             <h2
               className="
-                mt-3
+                mt-2
 
-                text-[1.8rem]
+                text-[1.55rem]
                 sm:text-[2.1rem]
 
                 font-semibold
 
-                leading-tight
+                leading-none
 
                 tracking-[-0.03em]
 
@@ -90,17 +88,15 @@ export default function StatCard({
             >
               {value}
             </h2>
-
           </div>
-
 
           {icon && (
             <div
               className="
                 flex
 
-                h-10
-                w-10
+                h-9
+                w-9
 
                 sm:h-12
                 sm:w-12
@@ -110,7 +106,7 @@ export default function StatCard({
                 items-center
                 justify-center
 
-                rounded-[16px]
+                rounded-xl
                 sm:rounded-[18px]
 
                 border
@@ -129,9 +125,7 @@ export default function StatCard({
               {icon}
             </div>
           )}
-
         </div>
-
 
         <div
           className="
@@ -148,11 +142,7 @@ export default function StatCard({
             text-[#5E665F]
           "
         >
-
-          <span>
-            Live dashboard metric
-          </span>
-
+          <span>Live dashboard metric</span>
 
           <span
             className="
@@ -166,13 +156,9 @@ export default function StatCard({
             "
           >
             <ArrowUpRight className="h-4 w-4 text-[#C6922F]" />
-
             Trend
-
           </span>
-
         </div>
-
       </CardContent>
     </Card>
   );

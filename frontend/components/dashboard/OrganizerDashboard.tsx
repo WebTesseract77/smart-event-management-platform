@@ -26,7 +26,7 @@ export default function OrganizerDashboard({
   return (
     <>
       <motion.section variants={itemReveal} className="mb-8">
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
           <StatCard title="My Events" value={myEventCount} icon={<Calendar className="h-6 w-6" />} />
           <StatCard title="Total Participants" value={myParticipantCount} icon={<BookUser className="h-6 w-6" />} />
           <StatCard title="Upcoming Events" value={upcomingEventsCount} icon={<Calendar className="h-6 w-6" />} />
