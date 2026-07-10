@@ -110,8 +110,21 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 md:p-8 bg-[#FAF8F4] selection:bg-[#0F4D3F]/10">
-      <div className="w-full max-w-5xl rounded-[2.5rem] border border-[#E8E1D5] bg-white overflow-hidden shadow-[0_8px_30px_rgb(24,48,40,0.02)] grid md:grid-cols-2 min-h-[600px]">
+   <div className="min-h-screen flex items-center justify-center px-4 py-6 sm:p-8 bg-[#FAF8F4] selection:bg-[#0F4D3F]/10">
+
+<div className="
+  w-full 
+  max-w-5xl 
+  rounded-[1.5rem] 
+  sm:rounded-[2.5rem]
+  border 
+  border-[#E8E1D5] 
+  bg-white 
+  overflow-hidden 
+  shadow-[0_8px_30px_rgb(24,48,40,0.02)]
+  grid 
+  md:grid-cols-2
+">
         
         {/* Left Pane */}
         <div className="hidden md:flex flex-col justify-between p-12 bg-gradient-to-b from-[#FAF8F4] to-[#F5F2EA] border-r border-[#E8E1D5]">
@@ -132,14 +145,30 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* Right Pane */}
-        <div className="flex flex-col justify-center p-8 sm:p-12 md:p-16 bg-white">
+        <div className="
+ flex 
+ flex-col 
+ justify-center 
+ px-5 
+ py-8
+ sm:p-12 
+ md:p-16 
+ bg-white
+">
           <div className="w-full max-w-md mx-auto">
             
             <header className="mb-8">
               <span className="text-xs font-semibold uppercase tracking-[0.24em] text-[#0F4D3F] block mb-2">
                 Password Recovery
               </span>
-              <h2 className="text-3xl font-semibold tracking-tight text-[#183028] mb-2">
+              <h2 className="
+ text-2xl
+ sm:text-3xl
+ font-semibold 
+ tracking-tight 
+ text-[#183028] 
+ mb-2
+">
                 {otpSent ? "Verify code" : "Reset your password"}
               </h2>
               <p className="text-sm text-[#5E665F] leading-relaxed">
@@ -178,7 +207,15 @@ export default function ForgotPasswordPage() {
                     <label className="block mb-3 text-xs font-semibold uppercase tracking-wider text-[#183028]">
                       Enter verification code
                     </label>
-                    <div className="flex items-center justify-between gap-2 sm:gap-3 dir-ltr max-w-sm mx-auto my-2">
+                    <div className="
+ flex 
+ items-center 
+ justify-center 
+ gap-2 
+ sm:gap-3
+ w-full
+ my-2
+">
                       {Array.from({ length: 6 }).map((_, index) => (
                         <input
                           key={index}
@@ -189,7 +226,28 @@ export default function ForgotPasswordPage() {
                           value={otp[index] || ""}
                           onChange={(e) => handleOtpChange(e.target.value, index)}
                           onKeyDown={(e) => handleKeyDown(e, index)}
-                          className="w-11 h-12 text-center font-serif text-xl font-bold text-[#183028] border border-[#E8E1D5] rounded-xl bg-[#FAF8F4]/40 focus:outline-none focus:border-[#0F4D3F] focus:ring-1 focus:ring-[#0F4D3F] transition-all disabled:opacity-50"
+                          className="
+ w-10
+ h-12
+ sm:w-11
+ sm:h-12
+ text-center
+ font-serif
+ text-lg
+ sm:text-xl
+ font-bold
+ text-[#183028]
+ border
+ border-[#E8E1D5]
+ rounded-xl
+ bg-[#FAF8F4]/40
+ focus:outline-none
+ focus:border-[#0F4D3F]
+ focus:ring-1
+ focus:ring-[#0F4D3F]
+ transition-all
+ disabled:opacity-50
+"
                         />
                       ))}
                     </div>

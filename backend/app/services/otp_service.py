@@ -1,11 +1,9 @@
 import random
+import os
 
-from fastapi_mail import (
-    FastMail,
-    MessageSchema,
-)
+import sib_api_v3_sdk
 
-from backend.app.services.email_service import conf
+from sib_api_v3_sdk.rest import ApiException
 
 
 def generate_otp() -> str:
@@ -17,59 +15,93 @@ def generate_otp() -> str:
     )
 
 
+def send_email(
+    email: str,
+    subject: str,
+    html: str,
+):
+    configuration = (
+        sib_api_v3_sdk.Configuration()
+    )
+
+    configuration.api_key[
+        "api-key"
+    ] = os.getenv(
+        "BREVO_API_KEY"
+    )
+
+    api = sib_api_v3_sdk.TransactionalEmailsApi(
+        sib_api_v3_sdk.ApiClient(
+            configuration
+        )
+    )
+
+
+    message = (
+        sib_api_v3_sdk.SendSmtpEmail(
+            sender={
+                "email": os.getenv(
+                    "MAIL_FROM"
+                ),
+                "name": "EventSphere",
+            },
+            to=[
+                {
+                    "email": email,
+                }
+            ],
+            subject=subject,
+            html_content=html,
+        )
+    )
+
+
+    try:
+        api.send_transac_email(
+            message
+        )
+
+    except ApiException as e:
+        print(e)
+
+
+
 async def send_verification_otp(
     email: str,
     otp: str,
 ):
-    html = f"""
-    <h2>Email Verification</h2>
 
-    <p>Your verification code is:</p>
+    send_email(
+        email,
+        "Verify Your Account",
+        f"""
+        <h2>Email Verification</h2>
 
-    <h1>{otp}</h1>
+        <h1>{otp}</h1>
 
-    <p>
-        Enter this code to verify
-        your account.
-    </p>
-    """
-
-    message = MessageSchema(
-        subject="Verify Your Account",
-        recipients=[email],
-        body=html,
-        subtype="html",
+        <p>
+        Enter this code to verify your account.
+        </p>
+        """,
     )
 
-    fm = FastMail(conf)
-
-    await fm.send_message(message)
 
 
 async def send_reset_otp(
     email: str,
     otp: str,
 ):
-    html = f"""
-    <h2>Password Reset</h2>
 
-    <p>Your password reset code is:</p>
+    send_email(
+        email,
+        "Password Reset OTP",
+        f"""
+        <h2>Password Reset</h2>
 
-    <h1>{otp}</h1>
+        <h1>{otp}</h1>
 
-    <p>
-        Enter this code to reset
-        your password.
-    </p>
-    """
-
-    message = MessageSchema(
-        subject="Password Reset OTP",
-        recipients=[email],
-        body=html,
-        subtype="html",
+        <p>
+        Enter this code to reset your password.
+        </p>
+        """,
     )
-
-    fm = FastMail(conf)
-
-    await fm.send_message(message)
