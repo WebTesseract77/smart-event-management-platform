@@ -56,7 +56,7 @@ async def send_registration_email(
         You can also view it online:
     </p>
 
-    <a href="http://localhost:3000/pass/{registration_id}">
+    <a href="{settings.frontend_url}/pass/{registration_id}">
         Open Event Pass
     </a>
 
@@ -122,7 +122,7 @@ async def send_team_registration_email(
         You can also view it online:
     </p>
 
-    <a href="http://localhost:3000/team-pass/{team_id}">
+    <a href="{settings.frontend_url}/team-pass/{team_id}">
         Open Team Pass
     </a>
 
