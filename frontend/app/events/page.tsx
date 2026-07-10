@@ -200,7 +200,7 @@ export default function EventsPage() {
       />
       <div className="relative isolate overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,#FAF8F4,#F5F2EA)]" />
-        <div className="mx-auto max-w-[1280px] px-5 py-6 sm:py-8 lg:py-10">
+        <div className="mx-auto max-w-[1280px] px-3 py-5 sm:px-5 sm:py-8 lg:py-10">
         {loading ? (
           <div className="space-y-7">
             <PageHeaderSkeleton />
@@ -223,7 +223,7 @@ export default function EventsPage() {
           </div>
         ) : (
           <>
-            <div className="mb-7 flex flex-col gap-5 rounded-[24px] border border-[#E8E1D5] bg-white p-6 shadow-[0_12px_32px_rgba(15,77,63,0.05)]">
+            <div className="mb-7 flex flex-col gap-5 rounded-[24px] border border-[#E8E1D5] bg-white p-4 shadow-[0_12px_32px_rgba(15,77,63,0.05)] sm:p-6">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-3xl">
                   <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D5] bg-[#F5F2EA] px-4 py-2 text-sm font-semibold text-[#183028] shadow-sm">
@@ -231,7 +231,7 @@ export default function EventsPage() {
                     Discover Events
                   </div>
 
-                 <h1 className="mt-7 font-serif text-[3.2rem] leading-[0.92] tracking-[-0.05em] text-[#183028] sm:text-[4rem]">
+                 <h1 className="mt-6 max-w-full break-words font-serif text-[2.6rem] leading-[0.95] tracking-[-0.05em] text-[#183028] sm:text-[4rem]">
                       Discover events that inspire.
                  </h1>
 
@@ -240,7 +240,7 @@ export default function EventsPage() {
                   </p>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
                   <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D5] bg-[#F5F2EA] px-4 py-2 text-sm font-medium text-[#183028] shadow-sm">
                     <Ticket className="h-4 w-4" />
                     {events.length} events
@@ -276,7 +276,7 @@ export default function EventsPage() {
               </div>
             ) : (
               <>
-                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                <div className="grid gap-4 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
                   {paginatedEvents.map((event) => (
                     <EventCard 
   key={event.id}
@@ -300,7 +300,7 @@ export default function EventsPage() {
                       <span className="font-semibold text-foreground">{totalPages}</span>
                     </p>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex max-w-full flex-wrap items-center justify-center gap-2">
                       <Button
                         size="sm"
                         variant="outline"

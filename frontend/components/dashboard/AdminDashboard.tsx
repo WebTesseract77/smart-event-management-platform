@@ -26,7 +26,7 @@ export default function AdminDashboard({
   return (
     <>
       <motion.section variants={itemReveal} className="mb-8" id="analytics">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
           <StatCard title="Total Users" value={analytics?.total_users ?? "N/A"} icon={<Users className="h-6 w-6" />} />
           <StatCard title="Total Events" value={analytics?.total_events ?? eventCount} icon={<Calendar className="h-6 w-6" />} />
           <StatCard title="Organizers Count" value={analytics?.organizers_count ?? "N/A"} icon={<Shield className="h-6 w-6" />} />
@@ -34,15 +34,21 @@ export default function AdminDashboard({
         </div>
       </motion.section>
 
-      <motion.section variants={itemReveal} className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <motion.section
+  variants={itemReveal}
+  className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+>
         <ActionCard href="/admin/users" title="Manage Users" description="Promote or demote platform users." icon={<Shield className="h-5 w-5" />} />
         <ActionCard href="/events" title="View Events" description="Review and manage the event list." icon={<Calendar className="h-5 w-5" />} />
         <ActionCard href="/events" title="Platform Analytics" description="Inspect platform performance." icon={<Activity className="h-5 w-5" />} />
       </motion.section>
 
-      <motion.section variants={itemReveal} className="mb-8 grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+      <motion.section
+  variants={itemReveal}
+  className="mb-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-[0.95fr_1.05fr]"
+>
         <Card className="rounded-3xl border border-[#E8E1D5] bg-white shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <SectionHeading eyebrow="Recent Events" title="Event management" icon={<Layers3 className="h-5 w-5" />} />
             <div className="space-y-4">
               {events.slice(0, 3).length ? (
@@ -69,7 +75,7 @@ export default function AdminDashboard({
         </Card>
 
         <Card className="rounded-3xl border border-[#E8E1D5] bg-white shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <SectionHeading eyebrow="Recent Activity" title="Registration overview" icon={<Users className="h-5 w-5" />} />
             <div className="space-y-4">
               <div className="rounded-2xl border bg-[#F5F2EA] border-[#E8E1D5] p-4">

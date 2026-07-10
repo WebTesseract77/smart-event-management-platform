@@ -44,26 +44,131 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
       : "Participant";
 
   return (
-    <header className="sticky top-0 z-30 flex h-[88px] items-center justify-between border-b border-[#E8E1D5] bg-[#FAF8F4] px-8">
-      {/* Hidden completely on Desktop, visible on mobile layouts */}
-      <button
-        type="button"
-        onClick={onMenuClick}
-        className="flex h-[48px] w-[48px] items-center justify-center rounded-full border border-[#E8E1D5] bg-white text-[#183028] shadow-[0_6px_16px_rgba(24,48,40,0.10)] hover:bg-[#F5F2EA] xl:hidden"
+  <header
+    className="
+      sticky
+      top-0
+      z-40
+
+      flex
+      h-[72px]
+      sm:h-[88px]
+
+      items-center
+      justify-between
+
+      border-b
+      border-[#E8E1D5]
+
+      bg-[#FAF8F4]/90
+      backdrop-blur-md
+
+      px-4
+      sm:px-8
+    "
+  >
+    {/* MENU */}
+    <button
+      type="button"
+      onClick={onMenuClick}
+      className="
+        flex
+        h-11
+        w-11
+
+        items-center
+        justify-center
+
+        rounded-full
+
+        border
+        border-[#E8E1D5]
+
+        bg-white
+
+        text-[#183028]
+
+        shadow-sm
+
+        xl:hidden
+      "
+    >
+      <Menu className="h-5 w-5" />
+    </button>
+
+
+    {/* MOBILE LOGO */}
+    <div className="xl:hidden">
+      <h1 className="text-[17px] font-bold leading-none">
+        <span className="text-[#0F4D3F]">
+          Event
+        </span>
+
+        <span className="text-[#C6922F]">
+          Sphere
+        </span>
+      </h1>
+
+      <p className="mt-1 text-[10px] text-[#C6922F]">
+        Event Management
+      </p>
+    </div>
+
+
+    {/* USER */}
+    <div
+      className="
+        flex
+
+        items-center
+
+        rounded-full
+
+        border
+        border-[#E8E1D5]
+
+        bg-white
+
+        p-1
+
+        shadow-sm
+      "
+    >
+      <div
+        className="
+          flex
+
+          h-10
+          w-10
+
+          items-center
+          justify-center
+
+          rounded-full
+
+          bg-[#0F4D3F]
+
+          text-sm
+          font-bold
+          text-white
+        "
       >
-        <Menu className="h-5 w-5" />
-      </button>
-
-      <div className="ml-auto flex h-[58px] items-center gap-3 rounded-full border border-[#E8E1D5] bg-white px-3 pr-5 shadow-[0_8px_24px_rgba(24,48,40,0.12)]">
-        <div className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-[#0F4D3F] text-[15px] font-bold text-white">
-          {initials}
-        </div>
-
-        <div className="hidden leading-tight sm:block">
-          <p className="text-[15px] font-semibold text-[#183028]">{name}</p>
-          <p className="mt-1 text-[12px] text-[#5E665F]">{roleLabel}</p>
-        </div>
+        {initials}
       </div>
-    </header>
-  );
+
+
+      <div className="hidden px-3 leading-tight sm:block">
+        <p className="text-sm font-semibold text-[#183028]">
+          {name}
+        </p>
+
+        <p className="text-xs text-[#5E665F]">
+          {roleLabel}
+        </p>
+      </div>
+
+    </div>
+
+  </header>
+);
 }

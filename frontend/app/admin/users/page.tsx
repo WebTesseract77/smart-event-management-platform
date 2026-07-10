@@ -215,8 +215,8 @@ export default function AdminUsersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF8F4] p-4 sm:p-6 md:p-8">
-        <div className="mx-auto max-w-[1490px] space-y-6">
+      <div className="min-h-screen bg-[#FAF8F4] p-4 sm:p-6 md:p-8 w-full overflow-x-hidden">
+        <div className="mx-auto max-w-[1490px] space-y-6 w-full">
           <PageHeaderSkeleton />
           <Card className="rounded-[2rem] border border-[#E8E1D5] bg-white shadow-sm">
             <CardContent className="p-6">
@@ -229,7 +229,7 @@ export default function AdminUsersPage() {
           </Card>
           <Card className="rounded-[2rem] border border-[#E8E1D5] bg-white shadow-sm">
             <CardContent className="p-4 md:p-0">
-              <div className="space-y-4 md:hidden">
+              <div className="space-y-4 md:hidden w-full min-w-0">
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className="h-32 w-full animate-pulse rounded-2xl bg-muted/60" />
                 ))}
@@ -258,8 +258,8 @@ export default function AdminUsersPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#FAF8F4] p-4 sm:p-6 md:p-8">
-        <div className="mx-auto max-w-[1490px]">
+      <div className="min-h-screen bg-[#FAF8F4] p-4 sm:p-6 md:p-8 w-full overflow-x-hidden">
+        <div className="mx-auto max-w-[1490px] w-full">
           <EmptyState
             icon={<AlertCircle className="h-6 w-6" />}
             title="Unable to load users"
@@ -273,25 +273,25 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF8F4]">
-      <div className="relative isolate overflow-hidden">
+    <div className="min-h-screen bg-[#FAF8F4] w-full overflow-x-hidden">
+      <div className="relative isolate overflow-hidden w-full">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_-10%,rgba(198,146,47,0.08),transparent_26%)]" />
         <motion.div
-          className="mx-auto max-w-[1490px] px-4 py-6 sm:px-6 sm:py-8 lg:py-12"
+          className="mx-auto max-w-[1490px] px-3 sm:px-6 py-6 sm:py-8 lg:py-12 w-full min-w-0"
           initial={reduceMotion ? false : { opacity: 0, y: 14 }}
           animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="space-y-6">
+          <div className="space-y-6 w-full">
             {/* HERO CARD */}
-            <Card className="overflow-hidden rounded-[24px] md:rounded-[34px] border border-[#E8E1D5] bg-white shadow-[0_12px_28px_rgba(24,48,40,.05)]">
-              <CardContent className="p-5 sm:p-10">
-                <div className="grid lg:grid-cols-[420px_1fr] items-center gap-6 lg:gap-12">
+            <Card className="overflow-hidden rounded-[24px] md:rounded-[34px] border border-[#E8E1D5] bg-white shadow-[0_12px_28px_rgba(24,48,40,.05)] w-full">
+              <CardContent className="p-5 sm:p-10 w-full">
+                <div className="grid lg:grid-cols-[420px_1fr] items-center gap-6 lg:gap-12 w-full">
                   
                   {/* LEFT */}
-                  <div className="max-w-[480px]">
+                  <div className="max-w-[480px] w-full">
                     <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D5] bg-[#F8F6EF] px-4 py-2 text-xs sm:text-sm font-medium text-[#183028]">
-                      <ShieldCheck className="h-4 w-4" />
+                      <ShieldCheck className="h-4 w-4 shrink-0" />
                       Admin user management
                     </div>
 
@@ -305,7 +305,7 @@ export default function AdminUsersPage() {
                   </div>
 
                   {/* RIGHT */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 w-full">
                     {[
                       { label: "TOTAL USERS", value: stats.total, icon: Users },
                       { label: "ADMINS", value: stats.admins, icon: ShieldCheck },
@@ -314,18 +314,18 @@ export default function AdminUsersPage() {
                     ].map(({ label, value, icon: Icon }) => (
                       <div
                         key={label}
-                        className="h-[140px] sm:h-[170px] rounded-[18px] sm:rounded-[22px] border border-[#E8E1D5] bg-white p-3 sm:p-4 shadow-[0_10px_28px_rgba(24,48,40,.05)] flex flex-col justify-between"
+                        className="h-[140px] sm:h-[170px] rounded-[18px] sm:rounded-[22px] border border-[#E8E1D5] bg-white p-3 sm:p-4 shadow-[0_10px_28px_rgba(24,48,40,.05)] flex flex-col justify-between min-w-0 w-full"
                       >
-                        <div>
-                          <div className="flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#EFF2E9]">
-                            <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#183028]" />
+                        <div className="min-w-0 w-full">
+                          <div className="flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-[#EFF2E9] shrink-0">
+                            <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-[#183028] shrink-0" />
                           </div>
                           <p className="mt-3 truncate text-[9px] sm:text-[10px] font-semibold tracking-[0.15em] sm:tracking-[0.22em] text-[#7C7C7C] uppercase">
                             {label}
                           </p>
                           <div className="mt-1 h-[2px] w-6 sm:w-8 rounded-full bg-[#C79A38]" />
                         </div>
-                        <p className="font-serif font-bold text-2xl sm:text-[28px] leading-none text-[#183028]">
+                        <p className="font-serif font-bold text-2xl sm:text-[28px] leading-none text-[#183028] truncate">
                           {value}
                         </p>
                       </div>
@@ -337,22 +337,22 @@ export default function AdminUsersPage() {
             </Card>
 
             {/* MAIN CONTENT CARD */}
-            <Card className="rounded-[24px] md:rounded-[28px] border border-[#E8E1D5] bg-white shadow-[0_16px_40px_rgba(24,48,40,0.05)]">
-              <CardContent className="p-4 sm:p-6">
+            <Card className="rounded-[24px] md:rounded-[28px] border border-[#E8E1D5] bg-white shadow-[0_16px_40px_rgba(24,48,40,0.05)] w-full">
+              <CardContent className="p-3 sm:p-6 w-full">
                 
                 {/* FILTERS PANEL */}
-                <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between w-full">
                   <div className="relative w-full lg:max-w-[430px]">
-                    <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8B938C]" />
+                    <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8B938C] shrink-0" />
                     <Input
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
                       placeholder="Search users..."
-                      className="h-[48px] sm:h-[56px] rounded-full border-[#E8E1D5] bg-[#FAF8F4] pl-12 text-sm sm:text-[16px] shadow-none focus-visible:ring-[#0F4D3F]"
+                      className="h-[48px] sm:h-[56px] rounded-full border-[#E8E1D5] bg-[#FAF8F4] pl-12 text-sm sm:text-[16px] shadow-none focus-visible:ring-[#0F4D3F] w-full"
                     />
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full lg:w-auto min-w-0">
                     {[
                       { label: "All", value: "all" },
                       { label: "Admins", value: "admin" },
@@ -379,7 +379,7 @@ export default function AdminUsersPage() {
                       onClick={refreshUsers}
                       className="h-[38px] sm:h-[46px] text-xs sm:text-sm rounded-full border-[#E8E1D5] px-4"
                     >
-                      <RefreshCcw className="mr-2 h-3.5 w-3.5" />
+                      <RefreshCcw className="mr-2 h-3.5 w-3.5 shrink-0" />
                       Refresh
                     </Button>
                   </div>
@@ -387,7 +387,7 @@ export default function AdminUsersPage() {
 
                 {/* RESPONSIVE USERS CONTAINER */}
                 {filteredUsers.length === 0 ? (
-                  <div className="py-12 border border-dashed rounded-[22px] border-[#E8E1D5]">
+                  <div className="py-12 border border-dashed rounded-[22px] border-[#E8E1D5] w-full">
                     <EmptyState
                       icon={<Users className="h-5 w-5" />}
                       title={users.length === 0 ? "No users found" : "No matches"}
@@ -397,16 +397,16 @@ export default function AdminUsersPage() {
                 ) : (
                   <>
                     {/* MOBILE STACKED CARD VIEW */}
-                    <div className="grid gap-4 md:hidden">
+                    <div className="grid gap-4 md:hidden w-full min-w-0">
                       {filteredUsers.map((user) => {
                         const normalizedRole = normalizeRole(user.role);
                         const isAdmin = normalizedRole === "admin";
                         const canPromote = normalizedRole === "user";
 
                         return (
-                          <div key={user.id} className="p-4 rounded-2xl border border-[#E8E1D5] bg-[#FAF8F4]/50 space-y-4">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex items-start gap-3 min-w-0">
+                          <div key={user.id} className="p-3 sm:p-4 rounded-2xl border border-[#E8E1D5] bg-[#FAF8F4]/50 space-y-4 w-full min-w-0">
+                            <div className="flex flex-wrap sm:flex-nowrap items-start justify-between gap-2 w-full min-w-0">
+                              <div className="flex items-start gap-3 min-w-0 flex-1">
                                 <Avatar className="h-11 w-11 shrink-0 border border-[#E8E1D5] bg-[#0F4D3F] text-white shadow-sm">
                                   <AvatarFallback className="bg-transparent text-xs font-semibold text-current">
                                     {getInitials(user.name)}
@@ -414,31 +414,30 @@ export default function AdminUsersPage() {
                                 </Avatar>
                                 <div className="min-w-0 flex-1">
                                   <p className="truncate text-base font-semibold text-[#183028]">{user.name}</p>
-                                 
                                 </div>
                               </div>
-                              <Badge className={`rounded-full border border-[#E8E1D5] px-2.5 py-1 text-[11px] font-semibold shrink-0 whitespace-nowrap ${roleTone(normalizedRole)}`}>
+                              <Badge className={`rounded-full border border-[#E8E1D5] px-2.5 py-1 text-[11px] font-semibold shrink-0 sm:whitespace-nowrap ${roleTone(normalizedRole)}`}>
                                 {roleLabel(user.role)}
                               </Badge>
                             </div>
 
-                            <div className="flex items-center gap-1.5 text-xs text-[#5E665F] min-w-0">
+                            <div className="flex items-center gap-1.5 text-xs text-[#5E665F] min-w-0 w-full">
                               <Mail className="h-3.5 w-3.5 shrink-0 text-[#C6922F]" />
-                              <span className="truncate break-all">{user.email}</span>
+                              <span className="truncate break-all flex-1 min-w-0">{user.email}</span>
                             </div>
 
-                            <div className="pt-3 border-t border-[#E8E1D5]/60 flex justify-end">
+                            <div className="pt-3 border-t border-[#E8E1D5]/60 flex justify-end w-full min-w-0">
                               {isAdmin ? (
-                                <Button size="sm" variant="outline" className="w-full h-9 rounded-full bg-[#F5F2EA] text-xs text-[#5E665F]" disabled>
+                                <Button size="sm" variant="outline" className="w-full h-9 rounded-full bg-[#F5F2EA] text-xs text-[#5E665F] flex items-center justify-center px-4" disabled>
                                   Administrator
                                 </Button>
                               ) : canPromote ? (
-                                <Button size="sm" className="w-full h-9 rounded-full bg-[#0F4D3F] text-xs text-white hover:bg-[#0B3E33]" onClick={() => openDialog(user, "organizer")}>
-                                  <UserRoundCheck className="mr-1.5 h-3.5 w-3.5" /> Promote
+                                <Button size="sm" className="w-full h-9 rounded-full bg-[#0F4D3F] text-xs text-white hover:bg-[#0B3E33] flex items-center justify-center px-4" onClick={() => openDialog(user, "organizer")}>
+                                  <UserRoundCheck className="mr-1.5 h-3.5 w-3.5 shrink-0" /> Promote
                                 </Button>
                               ) : (
-                                <Button size="sm" variant="outline" className="w-full h-9 rounded-full border-[#C6922F] text-xs bg-white text-[#183028]" onClick={() => openDialog(user, "user")}>
-                                  <UserRoundX className="mr-1.5 h-3.5 w-3.5" /> Demote
+                                <Button size="sm" variant="outline" className="w-full h-9 rounded-full border-[#C6922F] text-xs bg-white text-[#183028] flex items-center justify-center px-4" onClick={() => openDialog(user, "user")}>
+                                  <UserRoundX className="mr-1.5 h-3.5 w-3.5 shrink-0" /> Demote
                                 </Button>
                               )}
                             </div>
@@ -448,8 +447,8 @@ export default function AdminUsersPage() {
                     </div>
 
                     {/* DESKTOP TABLE VIEW */}
-                    <div className="hidden md:block">
-                      <Table className="overflow-hidden rounded-[22px]">
+                    <div className="hidden md:block w-full overflow-hidden">
+                      <Table className="overflow-hidden rounded-[22px] w-full">
                         <TableHeader className="border-b border-[#E8E1D5]">
                           <TableRow className="border-b border-[#E8E1D5]">
                             <TableHead className="pl-6 py-4 text-[0.95rem] font-medium text-[#5E665F]">User</TableHead>
@@ -468,14 +467,13 @@ export default function AdminUsersPage() {
                               <TableRow key={user.id} className="transition-colors hover:bg-[#FBFAF7]">
                                 <TableCell className="pl-6 py-5">
                                   <div className="flex items-center gap-3">
-                                    <Avatar className="h-11 w-11 border border-[#E8E1D5] bg-[#0F4D3F] text-white shadow-sm">
+                                    <Avatar className="h-11 w-11 border border-[#E8E1D5] bg-[#0F4D3F] text-white shadow-sm shrink-0">
                                       <AvatarFallback className="bg-transparent text-xs font-semibold text-current">
                                         {getInitials(user.name)}
                                       </AvatarFallback>
                                     </Avatar>
                                     <div className="min-w-0">
                                       <p className="truncate text-base font-semibold text-[#183028]">{user.name}</p>
-                                      <p className="text-xs text-[#5E665F]">ID #{user.id}</p>
                                     </div>
                                   </div>
                                 </TableCell>
@@ -497,11 +495,11 @@ export default function AdminUsersPage() {
                                     </Button>
                                   ) : canPromote ? (
                                     <Button size="sm" className="h-10 rounded-full bg-[#0F4D3F] px-4 text-xs text-white hover:bg-[#0B3E33]" onClick={() => openDialog(user, "organizer")}>
-                                      <UserRoundCheck className="mr-2 h-4 w-4" /> Promote
+                                      <UserRoundCheck className="mr-2 h-4 w-4 shrink-0" /> Promote
                                     </Button>
                                   ) : (
                                     <Button size="sm" variant="outline" className="h-10 rounded-full border-[#C6922F] bg-white px-4 text-xs hover:bg-[#FBFAF7]" onClick={() => openDialog(user, "user")}>
-                                      <UserRoundX className="mr-2 h-4 w-4" /> Demote
+                                      <UserRoundX className="mr-2 h-4 w-4 shrink-0" /> Demote
                                     </Button>
                                   )}
                                 </TableCell>
@@ -519,10 +517,10 @@ export default function AdminUsersPage() {
         </motion.div>
       </div>
 
-      <footer className="border-t border-[#E8E1D5] bg-[#FAF8F4] py-6">
-        <div className="mx-auto flex max-w-[1320px] items-center justify-center gap-3 px-4 text-sm text-[#5E665F]">
-          <ShieldCheck className="h-5 w-5 text-[#183028]" />
-          <span>© 2026 EventSphere. All rights reserved.</span>
+      <footer className="border-t border-[#E8E1D5] bg-[#FAF8F4] py-6 w-full overflow-hidden">
+        <div className="mx-auto flex flex-col sm:flex-row items-center justify-center text-center gap-2 sm:gap-3 px-4 text-xs sm:text-sm text-[#5E665F] w-full min-w-0">
+          <ShieldCheck className="h-5 w-5 text-[#183028] shrink-0" />
+          <span className="truncate max-w-full">© 2026 EventSphere. All rights reserved.</span>
         </div>
       </footer>
 
@@ -538,21 +536,38 @@ export default function AdminUsersPage() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-6 flex flex-col-reverse sm:flex-row gap-2 sm:justify-end border-t pt-4">
-            <Button
-              variant="outline"
-              className="rounded-full w-full sm:w-auto px-5"
-              onClick={() => setDialogOpen(false)}
-              disabled={saving}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="rounded-full w-full sm:w-auto bg-violet-600 px-5 text-white hover:bg-violet-500"
-              onClick={confirmRoleChange}
-              disabled={saving}
-            >
-              {dialogConfirmLabel}
-            </Button>
+           <Button
+  variant="outline"
+  className="
+    rounded-full 
+    w-full sm:w-auto 
+    border-[#0F4D3F]
+    bg-[#FAF8F4]
+    px-5 
+    text-[#0F4D3F]
+    hover:bg-[#EAF3ED]
+  "
+  onClick={() => setDialogOpen(false)}
+  disabled={saving}
+>
+  Cancel
+</Button>
+
+<Button
+  className="
+    rounded-full 
+    w-full sm:w-auto 
+    bg-[#0F4D3F]
+    px-5 
+    text-white
+    shadow-[0_8px_20px_rgba(15,77,63,0.25)]
+    hover:bg-[#0B3E33]
+  "
+  onClick={confirmRoleChange}
+  disabled={saving}
+>
+  {dialogConfirmLabel}
+</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -26,7 +26,7 @@ export default function OrganizerDashboard({
   return (
     <>
       <motion.section variants={itemReveal} className="mb-8">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
           <StatCard title="My Events" value={myEventCount} icon={<Calendar className="h-6 w-6" />} />
           <StatCard title="Total Participants" value={myParticipantCount} icon={<BookUser className="h-6 w-6" />} />
           <StatCard title="Upcoming Events" value={upcomingEventsCount} icon={<Calendar className="h-6 w-6" />} />
@@ -34,16 +34,22 @@ export default function OrganizerDashboard({
         </div>
       </motion.section>
 
-      <motion.section variants={itemReveal} className="mb-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <motion.section
+  variants={itemReveal}
+  className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
+>
         <ActionCard href="/organizer/events" title="My Events" description="Review and manage the events you created." icon={<Calendar className="h-5 w-5" />} />
         <ActionCard href="/create-event" title="Create Event" description="Start a new organizer event." icon={<Plus className="h-5 w-5" />} />
         <ActionCard href="/organizer/events" title="View Participants" description="Open participant lists via My Events." icon={<BookUser className="h-5 w-5" />} />
         <ActionCard href="/organizer/events" title="Attendance Tracker" description="Open attendance from your event management page." icon={<ClipboardCheck className="h-5 w-5" />} />
       </motion.section>
 
-      <motion.section variants={itemReveal} className="mb-8 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+      <motion.section
+  variants={itemReveal}
+  className="mb-8 grid gap-4 lg:grid-cols-2 xl:grid-cols-[1.05fr_0.95fr]"
+>
         <Card className="rounded-3xl border border-[#E8E1D5] bg-white shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <SectionHeading eyebrow="My Events" title="Organizer workspace" icon={<Calendar className="h-5 w-5" />} />
             <div className="space-y-4">
               {myEvents.length ? (
@@ -72,7 +78,7 @@ export default function OrganizerDashboard({
         </Card>
 
         <Card className="rounded-3xl border border-[#E8E1D5] bg-white shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <SectionHeading eyebrow="Quick Actions" title="Get things done" icon={<Zap className="h-5 w-5" />} />
             <div className="space-y-4">
               <div className="rounded-2xl border bg-[#F5F2EA] border-[#E8E1D5] p-4">

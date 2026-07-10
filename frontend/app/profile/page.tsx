@@ -147,7 +147,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#FAF8F4]">
-      <div className="mx-auto max-w-[1490px] px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-[1490px] px-3 py-5 sm:px-6 sm:py-8">
         <motion.div
           className="space-y-6"
           initial={reduceMotion ? false : { opacity: 0, y: 16 }}
@@ -156,7 +156,7 @@ export default function ProfilePage() {
         >
           {/* PAGE HERO CARD */}
           <Card className="overflow-hidden rounded-[24px] sm:rounded-[32px] border border-[#E8E1D5] bg-white shadow-[0_18px_45px_rgba(24,48,40,0.06)]">
-            <CardContent className="p-5 sm:p-8">
+            <CardContent className="p-4 sm:p-8">
               <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
                 {/* HERO LEFT */}
                 <div className="space-y-3 sm:space-y-4">
@@ -174,7 +174,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* HERO RIGHT: PROFILE IDENTITY */}
-                <div className="flex flex-col gap-4 rounded-2xl border border-[#E8E1D5] bg-[#FAF8F4] p-4 sm:p-5 sm:flex-row sm:items-center sm:gap-6 lg:min-w-[400px] min-w-0">
+                <div className="flex min-w-0 flex-col gap-4 rounded-2xl border border-[#E8E1D5] bg-[#FAF8F4] p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-5 lg:min-w-[400px]">
                   <div className="relative h-20 w-20 sm:h-24 sm:w-24 flex-shrink-0 rounded-full bg-[#0F4D3F] shadow-md flex items-center justify-center text-2xl sm:text-3xl font-semibold text-white mx-auto sm:mx-0">
                     {getInitial(user.name)}
                     {canShowVerification && (
@@ -184,10 +184,10 @@ export default function ProfilePage() {
                     )}
                   </div>
                   <div className="min-w-0 flex-1 space-y-1 sm:space-y-1.5 text-center sm:text-left">
-                    <h2 className="truncate text-lg sm:text-xl font-semibold text-[#183028]">
+                    <h2 className="break-words text-lg font-semibold text-[#183028] sm:text-xl">
                       {user.name || "User Name"}
                     </h2>
-                    <p className="truncate text-xs sm:text-sm text-[#5E665F]">
+                    <p className="break-all text-xs text-[#5E665F] sm:text-sm">
                       {user.email}
                     </p>
                     <div className="pt-0.5">
@@ -226,7 +226,7 @@ export default function ProfilePage() {
                  
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <div className="flex flex-col gap-3 pt-2 sm:flex-row">
                   <Button
                     onClick={() => router.push("/profile/edit")}
                     className="w-full sm:w-auto rounded-full bg-[#0F4D3F] px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-[#0A352B] transition-colors"

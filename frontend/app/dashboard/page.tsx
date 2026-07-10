@@ -113,7 +113,23 @@ export default function Dashboard() {
           </div>
         ) : (
           <>
-            <motion.section variants={itemReveal} className="mb-7 rounded-[24px] border border-[#E8E1D5] bg-white p-6 shadow-[0_12px_32px_rgba(15,77,63,0.05)]">
+            <motion.section
+  variants={itemReveal}
+  className="
+    mb-7
+    rounded-[24px]
+    border
+    border-[#E8E1D5]
+    bg-white
+
+    p-5
+    sm:p-6
+
+    overflow-hidden
+
+    shadow-[0_12px_32px_rgba(15,77,63,0.05)]
+  "
+>
               <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-2xl">
                   <p className="inline-flex items-center gap-2 rounded-full border border-[#E8E1D5] bg-[#F5F2EA] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-[#183028] shadow-sm">
@@ -124,13 +140,27 @@ export default function Dashboard() {
   className="
     mt-7
     font-serif
-    text-[3.2rem]
+    font-semibold
+    text-[#183028]
+
+    text-[2.7rem]
+    sm:text-[3.2rem]
+    lg:text-[4rem]
+
     leading-[0.92]
     tracking-[-0.05em]
-    text-[#183028]
+
+    max-w-full
+    break-words
+    overflow-hidden
   "
 >
-  Welcome back, {userName}
+  Welcome back,
+  <br />
+
+  <span className="break-words">
+    {userName}
+  </span>
 </h1>
                   <p className="mt-3 max-w-2xl text-sm leading-7 text-[#5E665F]">
                     {role === "admin"

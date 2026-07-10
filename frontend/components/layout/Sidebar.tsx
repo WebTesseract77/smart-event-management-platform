@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -114,26 +113,40 @@ export default function Sidebar({
   return (
     <>
       {open && (
-        <button
-          onClick={onClose}
-          className="fixed inset-0 z-30 bg-[#183028]/20 xl:hidden"
-        />
-      )}
+  <button
+    onClick={onClose}
+    className="
+      fixed
+      inset-0
+      z-[80]
 
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-40 flex flex-col border-r border-[#E8E1D5] bg-[#FAF8F4] shadow-lg transition-all duration-300 ease-in-out",
-          collapsed ? "w-[280px] xl:w-[88px]" : "w-[280px]",
-          open ? "translate-x-0" : "-translate-x-full xl:translate-x-0"
-        )}
-      >
+      bg-[#183028]/25
+      backdrop-blur-sm
+
+      xl:hidden
+    "
+  />
+)}
+
+     <aside
+  className={cn(
+    "fixed inset-y-0 left-0 z-[100] flex flex-col border-r border-[#E8E1D5] bg-[#FAF8F4] shadow-2xl transition-all duration-300 ease-in-out",
+    collapsed
+      ? "w-[86vw] max-w-[330px] xl:w-[88px]"
+      : "w-[86vw] max-w-[330px] xl:w-[280px]",
+    open
+      ? "translate-x-0"
+      : "-translate-x-full xl:translate-x-0"
+  )}
+>
         {/* LOGO & CLAUDE TOGGLE AREA */}
         <div
-          className={cn(
-            "flex h-[88px] items-center border-b border-[#E8E1D5] px-5 transition-all duration-300",
-            collapsed ? "xl:justify-center xl:px-0" : "justify-between"
-          )}
-        >
+            className={cn(
+              "flex h-[76px] items-center px-6 transition-all duration-300",
+             collapsed ? "xl:justify-center xl:px-0" : "justify-between"
+             )}
+             >
+        
           <Link
             href="/"
             className={cn(
@@ -167,7 +180,7 @@ export default function Sidebar({
         </div>
 
         {/* LINKS */}
-        <nav className="flex-1 space-y-3 px-4 py-5">
+        <nav className="flex-1 space-y-3 px-4 pt-8 pb-5">
           {menu.map((item) => {
             const Icon = item.icon;
             const active =
@@ -175,8 +188,9 @@ export default function Sidebar({
 
             return (
               <Link
-                key={item.href}
-                href={item.href}
+                  key={item.href}
+                  href={item.href}
+                  onClick={onClose}
                 className={cn(
                   "flex h-[50px] items-center rounded-[16px] px-4 transition-all duration-300",
                   collapsed ? "gap-3 xl:justify-center xl:gap-0" : "gap-3",

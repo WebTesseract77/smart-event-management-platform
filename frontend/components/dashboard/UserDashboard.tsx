@@ -58,10 +58,8 @@ export default function UserDashboard({
   return (
     <>
     
-
-      {/* Stat Cards */}
       <motion.section variants={itemReveal} className="mb-8">
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 xl:grid-cols-4">
           <StatCard title="Registered Events" value={registrationCount} icon={<Ticket className="h-6 w-6" />} />
           <StatCard title="Upcoming Events" value={upcomingCount} icon={<Calendar className="h-6 w-6" />} />
           <StatCard title="Active QR Passes" value={activePasses} icon={<QrCode className="h-6 w-6" />} />
@@ -70,21 +68,27 @@ export default function UserDashboard({
       </motion.section>
 
       {/* Quick Actions */}
-      <motion.section variants={itemReveal} className="mb-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <motion.section
+  variants={itemReveal}
+  className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+>
         <ActionCard href="/events" title="Browse Events" description="Discover upcoming events." icon={<Calendar className="h-5 w-5" />} />
         <ActionCard href="/my-registrations" title="My Registrations" description="View your event passes." icon={<Ticket className="h-5 w-5" />} />
         <ActionCard href="/profile" title="Profile" description="Manage your account." icon={<Users className="h-5 w-5" />} />
       </motion.section>
 
       {/* Main Dashboard Grid */}
-      <motion.section variants={itemReveal} className="mb-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr] items-start">
+      <motion.section
+  variants={itemReveal}
+  className="mb-8 grid gap-4 sm:gap-6 xl:grid-cols-[1.2fr_0.8fr] items-start"
+>
         {/* Left: Recent Registrations */}
         <div className="flex flex-col gap-6 w-full h-full justify-start">
           {recentRegistrations.length > 0 ? (
             <div className="flex flex-col gap-6 w-full">
               <RegistrationCard item={recentRegistrations[0]} />
               {recentRegistrations.length > 1 && (
-                <div className="grid gap-6 md:grid-cols-2 w-full items-stretch">
+                <div className="grid gap-4 sm:grid-cols-2 w-full items-stretch">
                   {recentRegistrations[1] && <RegistrationCard item={recentRegistrations[1]} />}
                   {recentRegistrations[2] && <RegistrationCard item={recentRegistrations[2]} />}
                 </div>
@@ -105,7 +109,7 @@ export default function UserDashboard({
 
         {/* Right: Upcoming Events */}
         <Card className="rounded-3xl border border-[#E8E1D5] bg-white shadow-sm h-full flex flex-col w-full">
-          <CardContent className="p-6 flex flex-col gap-6 h-full">
+          <CardContent className="p-4 sm:p-6 flex flex-col gap-4 sm:gap-6 h-full">
             <SectionHeading eyebrow="Upcoming Events" title="Plan ahead" icon={<Layers3 className="h-5 w-5" />} />
             <div className="space-y-4 flex-1">
               {upcomingEvents.length ? (

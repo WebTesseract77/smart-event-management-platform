@@ -16,24 +16,24 @@ import {
 
 function Header({ count, active }: { count: number; active: number }) {
   return (
-    <div className="rounded-[32px] border border-[#E8E1D5] bg-white p-8 shadow-[0_16px_40px_rgba(24,48,40,0.06)]">
+    <div className="rounded-[24px] sm:rounded-[32px] border border-[#E8E1D5] bg-white p-5 sm:p-8 shadow-[0_16px_40px_rgba(24,48,40,0.06)]">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-2xl">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#0F4D3F]">My registrations</p>
-          <h1 className="mt-3 font-serif text-3xl font-bold tracking-tight text-[#183028] sm:text-4xl">
+          <p className="break-words text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.14em] sm:tracking-[0.24em] text-[#0F4D3F]">My registrations</p>
+          <h1 className="mt-3 break-words font-serif text-3xl font-bold tracking-tight text-[#183028] sm:text-4xl">
             Individual Registrations
           </h1>
           <p className="mt-3 text-sm leading-6 text-[#5E665F] sm:text-base">
             View your individual event registrations and digital passes.
           </p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:min-w-[340px]">
+        <div className="grid w-full gap-4 sm:grid-cols-2 lg:w-auto lg:min-w-[340px]">
           <div className="rounded-2xl border border-[#E8E1D5] bg-[#FAF8F4] p-4 shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0F4D3F]">Total registrations</p>
+            <p className="break-words text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.12em] sm:tracking-[0.18em] text-[#0F4D3F]">Total registrations</p>
             <p className="mt-1 font-serif text-3xl font-bold text-[#183028]">{count}</p>
           </div>
           <div className="rounded-2xl border border-[#E8E1D5] bg-[#EAF3ED] p-4 shadow-sm">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0F4D3F]">Active passes</p>
+            <p className="break-words text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.12em] sm:tracking-[0.18em] text-[#0F4D3F]">Active passes</p>
             <p className="mt-1 font-serif text-3xl font-bold text-[#0F4D3F]">{active}</p>
           </div>
         </div>
@@ -90,10 +90,10 @@ export default function IndividualRegistrationsPage() {
 
   return (
     <div className="min-h-screen bg-[#FAF8F4] py-8">
-      <div className="mx-auto max-w-[1490px] px-6">
+      <div className="mx-auto max-w-[1490px] px-3 sm:px-6">
         {loading ? (
           <div className="space-y-8">
-            <div className="rounded-[32px] border border-[#E8E1D5] bg-white p-8 shadow-[0_16px_40px_rgba(24,48,40,0.06)]">
+            <div className="rounded-[24px] sm:rounded-[32px] border border-[#E8E1D5] bg-white p-5 sm:p-8 shadow-[0_16px_40px_rgba(24,48,40,0.06)]">
               <div className="max-w-3xl space-y-4">
                 <div className="h-4 w-32 rounded-full bg-[#E8E1D5]/50 animate-pulse" />
                 <div className="h-10 w-72 max-w-full rounded-full bg-[#E8E1D5]/50 animate-pulse" />
@@ -117,7 +117,7 @@ export default function IndividualRegistrationsPage() {
 
             {registrations.length === 0 ? (
               <Card className="rounded-[28px] border border-[#E8E1D5] bg-white shadow-[0_16px_40px_rgba(24,48,40,0.06)]">
-                <CardContent className="flex flex-col items-center p-10 text-center sm:p-12">
+                <CardContent className="flex flex-col items-center p-6 text-center sm:p-12">
                   <div className="rounded-2xl border border-[#E8E1D5] bg-[#EAF3ED] p-5 text-[#0F4D3F] shadow-sm">
                     <Calendar className="h-6 w-6" />
                   </div>

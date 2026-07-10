@@ -149,16 +149,18 @@ export default function EventCard({
             </Badge>
           </div>
 
-          <div className="absolute bottom-3 left-3">
+          <div className="absolute bottom-3 left-3 right-3">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E1D5] bg-white px-3 py-1 text-[10px] font-semibold text-[#183028] shadow-sm">
               <Calendar className="h-3 w-3 text-[#C6922F]" />
-              <span className="truncate">{formatDate(event.start_date)}</span>
+              <span className="min-w-0 truncate">
+  {formatDate(event.start_date)}
+</span>
             </div>
           </div>
         </div>
 
-        <CardContent className="flex flex-1 flex-col px-6 py-5">
-          <div className="flex items-center gap-2">
+        <CardContent className="flex flex-1 flex-col px-4 py-5 sm:px-6">
+          <div className="flex min-w-0 items-center gap-2">
             <h3 className="line-clamp-1 min-w-0 flex-1 text-[20px] font-bold tracking-tight text-[#0F3D32]">
               {event.title}
             </h3>
@@ -178,7 +180,7 @@ export default function EventCard({
             {event.description}
           </p>
 
-          <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4">
+          <div className="mt-5 grid grid-cols-2 gap-x-3 gap-y-4 sm:gap-x-6">
             <MetaItem
               icon={<MapPin className="h-3.5 w-3.5" />}
               label="Location"
@@ -201,12 +203,12 @@ export default function EventCard({
             />
           </div>
 
-          <div className="mt-6 flex items-center gap-3">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
 
   <Link href={`/events/${event.id}`} className="flex-1">
     <Button
       variant="outline"
-      className="h-11 w-full rounded-[14px] border-[#E8E1D5] bg-[#FAF8F4] text-sm hover:bg-[#F0EBDF]"
+     className="h-11 flex-1 truncate rounded-[14px] bg-[#0F4D3F] text-sm text-white hover:bg-[#0B3E33]"
     >
       Details
     </Button>
