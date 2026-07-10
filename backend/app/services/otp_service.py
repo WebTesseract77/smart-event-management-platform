@@ -1,7 +1,11 @@
 import random
-import os
 
-import resend
+from fastapi_mail import (
+    FastMail,
+    MessageSchema,
+)
+
+from backend.app.services.email_service import conf
 
 
 def generate_otp() -> str:
@@ -13,85 +17,52 @@ def generate_otp() -> str:
     )
 
 
-def send_email(
-    email: str,
-    subject: str,
-    html: str,
-):
-
-    resend.api_key = os.getenv(
-        "RESEND_API_KEY"
-    )
-
-
-    try:
-
-        response = resend.Emails.send(
-            {
-                "from": f"EventSphere <{os.getenv('MAIL_FROM')}>",
-
-                "to": [
-                    email,
-                ],
-
-                "subject": subject,
-
-                "html": html,
-            }
-        )
-
-
-        print(
-            "RESEND EMAIL SENT:",
-            response,
-            flush=True,
-        )
-
-
-    except Exception as error:
-
-        print(
-            "RESEND FAILED:",
-            error,
-            flush=True,
-        )
-
-
-
-
-
 async def send_verification_otp(
     email: str,
     otp: str,
 ):
 
-    send_email(
-        email=email,
+    html = f"""
+    <div style="font-family:Arial">
 
+    <h2>
+    EventSphere Verification
+    </h2>
+
+    <p>Your verification OTP:</p>
+
+    <h1>{otp}</h1>
+
+    <p>
+    Enter this code to verify your account.
+    </p>
+
+    </div>
+    """
+
+
+    message = MessageSchema(
         subject="Verify Your EventSphere Account",
-
-        html=f"""
-        <div style="font-family:Arial">
-
-        <h2>
-        EventSphere Verification
-        </h2>
-
-
-        <p>Your verification code:</p>
+        recipients=[
+            email,
+        ],
+        body=html,
+        subtype="html",
+    )
 
 
-        <h1>
-        {otp}
-        </h1>
+    fm = FastMail(conf)
 
 
-        <p>
-        Enter this OTP to activate your account.
-        </p>
+    await fm.send_message(
+        message
+    )
 
-        </div>
-        """,
+
+    print(
+        "Verification OTP sent:",
+        email,
+        flush=True,
     )
 
 
@@ -103,31 +74,49 @@ async def send_reset_otp(
     otp: str,
 ):
 
-    send_email(
-        email=email,
+    html = f"""
+    <div style="font-family:Arial">
 
-        subject="EventSphere Password Reset",
-
-        html=f"""
-        <div style="font-family:Arial">
-
-        <h2>
-        Password Reset
-        </h2>
+    <h2>
+    Password Reset
+    </h2>
 
 
-        <p>Your reset code:</p>
+    <p>Your reset OTP:</p>
 
 
-        <h1>
-        {otp}
-        </h1>
+    <h1>{otp}</h1>
 
 
-        <p>
-        Ignore if this wasn't you.
-        </p>
+    <p>
+    Ignore this email if you did not request it.
+    </p>
 
-        </div>
-        """,
+
+    </div>
+    """
+
+
+    message = MessageSchema(
+        subject="EventSphere Password Reset OTP",
+        recipients=[
+            email,
+        ],
+        body=html,
+        subtype="html",
+    )
+
+
+    fm = FastMail(conf)
+
+
+    await fm.send_message(
+        message
+    )
+
+
+    print(
+        "Reset OTP sent:",
+        email,
+        flush=True,
     )
