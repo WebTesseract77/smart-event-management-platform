@@ -1,7 +1,7 @@
 import random
 import os
 
-import sib_api_v3_sdk
+import resend
 
 
 def generate_otp() -> str:
@@ -18,122 +18,31 @@ def send_email(
     subject: str,
     html: str,
 ):
-    print(
-        "========== BREVO DEBUG START ==========",
-        flush=True,
+
+    resend.api_key = os.getenv(
+        "RESEND_API_KEY"
     )
-
-
-    api_key = os.getenv(
-        "BREVO_API_KEY"
-    )
-
-
-    sender_email = os.getenv(
-        "MAIL_FROM"
-    )
-
-
-    print(
-        "API KEY EXISTS:",
-        bool(api_key),
-        flush=True,
-    )
-
-
-    print(
-        "MAIL FROM:",
-        sender_email,
-        flush=True,
-    )
-
-
-    print(
-        "SEND TO:",
-        email,
-        flush=True,
-    )
-
-
-    if not api_key:
-
-        print(
-            "BREVO_API_KEY missing",
-            flush=True,
-        )
-
-        return
-
-
-    if not sender_email:
-
-        print(
-            "MAIL_FROM missing",
-            flush=True,
-        )
-
-        return
-
-
-
-    configuration = (
-        sib_api_v3_sdk.Configuration()
-    )
-
-
-    configuration.api_key[
-        "api-key"
-    ] = api_key
-
-
-
-    api = (
-        sib_api_v3_sdk.TransactionalEmailsApi(
-            sib_api_v3_sdk.ApiClient(
-                configuration
-            )
-        )
-    )
-
-
-
-    message = (
-        sib_api_v3_sdk.SendSmtpEmail(
-            sender={
-                "name": "EventSphere",
-                "email": sender_email,
-            },
-
-            to=[
-                {
-                    "email": email,
-                }
-            ],
-
-            subject=subject,
-
-            html_content=html,
-        )
-    )
-
 
 
     try:
 
-        response = (
-            api.send_transac_email(
-                message
-            )
+        response = resend.Emails.send(
+            {
+                "from": f"EventSphere <{os.getenv('MAIL_FROM')}>",
+
+                "to": [
+                    email,
+                ],
+
+                "subject": subject,
+
+                "html": html,
+            }
         )
 
 
         print(
-            "BREVO EMAIL SENT SUCCESSFULLY",
-            flush=True,
-        )
-
-
-        print(
+            "RESEND EMAIL SENT:",
             response,
             flush=True,
         )
@@ -142,21 +51,10 @@ def send_email(
     except Exception as error:
 
         print(
-            "BREVO EMAIL FAILED",
-            flush=True,
-        )
-
-
-        print(
+            "RESEND FAILED:",
             error,
             flush=True,
         )
-
-
-    print(
-        "========== BREVO DEBUG END ==========",
-        flush=True,
-    )
 
 
 
@@ -167,33 +65,33 @@ async def send_verification_otp(
     otp: str,
 ):
 
-    html = f"""
-    <div style="font-family:Arial">
-
-        <h2>
-            EventSphere Email Verification
-        </h2>
-
-        <p>
-            Your verification code is:
-        </p>
-
-        <h1>
-            {otp}
-        </h1>
-
-        <p>
-            Enter this code to activate your account.
-        </p>
-
-    </div>
-    """
-
-
     send_email(
         email=email,
+
         subject="Verify Your EventSphere Account",
-        html=html,
+
+        html=f"""
+        <div style="font-family:Arial">
+
+        <h2>
+        EventSphere Verification
+        </h2>
+
+
+        <p>Your verification code:</p>
+
+
+        <h1>
+        {otp}
+        </h1>
+
+
+        <p>
+        Enter this OTP to activate your account.
+        </p>
+
+        </div>
+        """,
     )
 
 
@@ -205,34 +103,31 @@ async def send_reset_otp(
     otp: str,
 ):
 
-    html = f"""
-    <div style="font-family:Arial">
+    send_email(
+        email=email,
+
+        subject="EventSphere Password Reset",
+
+        html=f"""
+        <div style="font-family:Arial">
 
         <h2>
-            EventSphere Password Reset
+        Password Reset
         </h2>
 
 
-        <p>
-            Your password reset OTP is:
-        </p>
+        <p>Your reset code:</p>
 
 
         <h1>
-            {otp}
+        {otp}
         </h1>
 
 
         <p>
-            Ignore this email if you did not request it.
+        Ignore if this wasn't you.
         </p>
 
-    </div>
-    """
-
-
-    send_email(
-        email=email,
-        subject="EventSphere Password Reset OTP",
-        html=html,
+        </div>
+        """,
     )
