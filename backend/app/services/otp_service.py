@@ -3,8 +3,6 @@ import os
 
 import sib_api_v3_sdk
 
-from sib_api_v3_sdk.rest import ApiException
-
 
 def generate_otp() -> str:
     return str(
@@ -20,19 +18,71 @@ def send_email(
     subject: str,
     html: str,
 ):
+    print(
+        "========== BREVO DEBUG START =========="
+    )
+
+    api_key = os.getenv(
+        "BREVO_API_KEY"
+    )
+
+    sender_email = os.getenv(
+        "MAIL_FROM"
+    )
+
+
+    print(
+        "API KEY EXISTS:",
+        bool(api_key),
+    )
+
+    print(
+        "MAIL FROM:",
+        sender_email,
+    )
+
+    print(
+        "SEND TO:",
+        email,
+    )
+
+
+    if not api_key:
+        print(
+            "BREVO_API_KEY missing"
+        )
+
+        return
+
+
+    if not sender_email:
+        print(
+            "MAIL_FROM missing"
+        )
+
+        return
+
+
     configuration = (
         sib_api_v3_sdk.Configuration()
     )
 
+
     configuration.api_key[
         "api-key"
-    ] = os.getenv(
-        "BREVO_API_KEY"
-    )
+    ] = api_key
 
-    api = sib_api_v3_sdk.TransactionalEmailsApi(
+
+    api_client = (
         sib_api_v3_sdk.ApiClient(
             configuration
+        )
+    )
+
+
+    api = (
+        sib_api_v3_sdk.TransactionalEmailsApi(
+            api_client
         )
     )
 
@@ -40,10 +90,8 @@ def send_email(
     message = (
         sib_api_v3_sdk.SendSmtpEmail(
             sender={
-                "email": os.getenv(
-                    "MAIL_FROM"
-                ),
                 "name": "EventSphere",
+                "email": sender_email,
             },
             to=[
                 {
@@ -57,12 +105,39 @@ def send_email(
 
 
     try:
-        api.send_transac_email(
-            message
+
+        response = (
+            api.send_transac_email(
+                message
+            )
         )
 
-    except ApiException as e:
-        print(e)
+
+        print(
+            "BREVO EMAIL SENT SUCCESSFULLY"
+        )
+
+        print(
+            response
+        )
+
+
+    except Exception as error:
+
+        print(
+            "BREVO EMAIL FAILED"
+        )
+
+        print(
+            error
+        )
+
+
+    print(
+        "========== BREVO DEBUG END =========="
+    )
+
+
 
 
 
@@ -71,19 +146,39 @@ async def send_verification_otp(
     otp: str,
 ):
 
-    send_email(
-        email,
-        "Verify Your Account",
-        f"""
-        <h2>Email Verification</h2>
+    html = f"""
+    <div style="font-family:Arial">
 
-        <h1>{otp}</h1>
+        <h2>
+            EventSphere Email Verification
+        </h2>
+
 
         <p>
-        Enter this code to verify your account.
+            Your verification code is:
         </p>
-        """,
+
+
+        <h1>
+            {otp}
+        </h1>
+
+
+        <p>
+            This code is required to activate your account.
+        </p>
+
+    </div>
+    """
+
+
+    send_email(
+        email=email,
+        subject="Verify Your EventSphere Account",
+        html=html,
     )
+
+
 
 
 
@@ -92,16 +187,34 @@ async def send_reset_otp(
     otp: str,
 ):
 
-    send_email(
-        email,
-        "Password Reset OTP",
-        f"""
-        <h2>Password Reset</h2>
+    html = f"""
+    <div style="font-family:Arial">
 
-        <h1>{otp}</h1>
+        <h2>
+            EventSphere Password Reset
+        </h2>
+
 
         <p>
-        Enter this code to reset your password.
+            Your password reset OTP is:
         </p>
-        """,
+
+
+        <h1>
+            {otp}
+        </h1>
+
+
+        <p>
+            Ignore this email if you did not request a reset.
+        </p>
+
+    </div>
+    """
+
+
+    send_email(
+        email=email,
+        subject="EventSphere Password Reset OTP",
+        html=html,
     )
