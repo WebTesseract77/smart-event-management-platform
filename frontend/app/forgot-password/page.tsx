@@ -49,32 +49,57 @@ export default function ForgotPasswordPage() {
   };
 
   async function sendOtp() {
-    if (!email) {
-      toast.error("Enter your registered email address.");
+  if (!email) {
+    toast.error(
+      "Enter your registered email address."
+    );
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const response = await fetch(
+      `${API_URL}/auth/forgot-password?email=${email}`,
+      {
+        method: "POST",
+      }
+    );
+
+
+    if (!response.ok) {
+      toast.error(
+        "Verification request failed."
+      );
+
       return;
     }
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `${API_URL}/auth/forgot-password?email=${email}`,
-        { method: "POST" }
-      );
-      const data = await response.json();
 
-      if (!response.ok) {
-        toast.error(data.detail || "Verification request failed.");
-        return;
-      }
 
-      setOtpSent(true);
-      toast.success("Verification security code sent to your email.");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to transmit verification code.");
-    } finally {
-      setIsLoading(false);
-    }
+    setOtpSent(true);
+
+
+    toast.success(
+      "Verification security code sent to your email."
+    );
+
+
+  } catch (error) {
+
+    console.error(error);
+
+
+    toast.error(
+      "Unable to connect to server."
+    );
+
+
+  } finally {
+
+    setIsLoading(false);
+
   }
+}
 
   async function resetPassword() {
     if (otp.length < 6 || !newPassword || !confirmPassword) {
