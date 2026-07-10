@@ -4,7 +4,17 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2, Eye, EyeOff } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+
+
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL;
+
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -46,7 +56,7 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/auth/forgot-password?email=${email}`,
+        `${API_URL}/auth/forgot-password?email=${email}`,
         { method: "POST" }
       );
       const data = await response.json();
@@ -79,7 +89,7 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/v1/auth/reset-password?email=${email}&otp=${otp}&new_password=${newPassword}`,
+        `${API_URL}/auth/reset-password?email=${email}&otp=${otp}&new_password=${newPassword}`,
         { method: "POST" }
       );
       const data = await response.json();
