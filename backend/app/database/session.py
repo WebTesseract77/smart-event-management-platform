@@ -1,24 +1,74 @@
 from collections.abc import Generator
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import (
+    Session,
+    sessionmaker,
+)
 
 from backend.app.core.config import get_settings
 
+
 settings = get_settings()
 
-engine_kwargs = {"future": True, "echo": False}
-if settings.database_url.startswith("sqlite"):
-    engine_kwargs["connect_args"] = {"check_same_thread": False}
 
-engine = create_engine(settings.database_url, **engine_kwargs)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
+engine_kwargs = {
+    "future": True,
+    "echo": False,
+}
 
 
-def get_db() -> Generator[Session, None, None]:
+# SQLite settings
+if settings.database_url.startswith(
+    "sqlite"
+):
+    engine_kwargs[
+        "connect_args"
+    ] = {
+        "check_same_thread": False
+    }
+
+
+# PostgreSQL / Render settings
+else:
+    engine_kwargs[
+        "pool_pre_ping"
+    ] = True
+
+    engine_kwargs[
+        "pool_recycle"
+    ] = 300
+
+
+
+engine = create_engine(
+    settings.database_url,
+    **engine_kwargs,
+)
+
+
+
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    autocommit=False,
+    future=True,
+)
+
+
+
+def get_db() -> Generator[
+    Session,
+    None,
+    None,
+]:
+
     db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
+    try:
+
+        yield db
+
+    finally:
+
+        db.close()
