@@ -1,26 +1,7 @@
-from fastapi_mail import (
-    FastMail,
-    MessageSchema,
-    ConnectionConfig,
-)
+import os
 
-from backend.app.core.config import get_settings
-from backend.app.services.qr_service import (
-    generate_qr,
-)
-
-settings = get_settings()
-
-conf = ConnectionConfig(
-    MAIL_USERNAME=settings.mail_username,
-    MAIL_PASSWORD=settings.mail_password,
-    MAIL_FROM=settings.mail_from,
-    MAIL_PORT=settings.mail_port,
-    MAIL_SERVER=settings.mail_server,
-    MAIL_STARTTLS=settings.mail_starttls,
-    MAIL_SSL_TLS=settings.mail_ssl_tls,
-    USE_CREDENTIALS=True,
-)
+from backend.app.services.otp_service import send_email
+from backend.app.services.qr_service import generate_qr
 
 
 async def send_registration_email(
@@ -29,61 +10,59 @@ async def send_registration_email(
     event_name: str,
     registration_id: int,
 ):
-    qr_file = generate_qr(
-        registration_id
+    # Generate QR so the pass exists on the server
+    generate_qr(registration_id)
+
+    frontend_url = os.getenv(
+        "FRONTEND_URL",
+        "http://localhost:3000",
     )
 
     html = f"""
     <h2>Registration Successful 🎉</h2>
 
-    <p>Hello {participant_name},</p>
+    <p>Hello <strong>{participant_name}</strong>,</p>
 
     <p>
-        You have successfully registered for:
-        <strong>{event_name}</strong>
+        You have successfully registered for
+        <strong>{event_name}</strong>.
     </p>
 
     <p>
-        Registration ID:
-        <strong>{registration_id}</strong>
+        <strong>Registration ID:</strong>
+        {registration_id}
     </p>
 
     <p>
-        Your QR Pass is attached to this email.
+        Your event pass is now available online.
     </p>
 
     <p>
-        You can also view it online:
+        <a href="{frontend_url}/pass/{registration_id}">
+            View Your Event Pass
+        </a>
     </p>
 
-    <a href="{settings.frontend_url}/pass/{registration_id}">
-        Open Event Pass
-    </a>
-
-    <br><br>
+    <br>
 
     <p>
-        Please keep this QR code safe and show it at the event entrance.
+        Please keep your QR Pass safe and present it at the event entrance.
+    </p>
+
+    <hr>
+
+    <p>
+        Thank you for choosing <strong>EventSphere</strong>.
     </p>
     """
 
-    message = MessageSchema(
-        subject="Event Registration Confirmation",
-        recipients=[email],
-        body=html,
-        subtype="html",
-        attachments=[
-            qr_file
-        ],
+    send_email(
+        email=email,
+        subject="🎉 Event Registration Confirmation",
+        html=html,
     )
 
-    fm = FastMail(conf)
-
-    await fm.send_message(message)
-
-    print(
-        f"Email sent to {email}"
-    )
+    print(f"Registration email sent to {email}")
 
 
 async def send_team_registration_email(
@@ -94,59 +73,61 @@ async def send_team_registration_email(
     team_id: int,
     qr_code_path: str,
 ):
+    # Generate QR already handled elsewhere if needed.
+    # qr_code_path kept only for compatibility.
+
+    frontend_url = os.getenv(
+        "FRONTEND_URL",
+        "http://localhost:3000",
+    )
+
     html = f"""
     <h2>Team Registration Successful 🎉</h2>
 
-    <p>Hello {member_name},</p>
+    <p>Hello <strong>{member_name}</strong>,</p>
 
     <p>
-        Your team has successfully registered for:
-        <strong>{event_name}</strong>
+        Your team has successfully registered for
+        <strong>{event_name}</strong>.
     </p>
 
     <p>
-        Team Name:
-        <strong>{team_name}</strong>
+        <strong>Team Name:</strong>
+        {team_name}
     </p>
 
     <p>
-        Team ID:
-        <strong>{team_id}</strong>
+        <strong>Team ID:</strong>
+        {team_id}
     </p>
 
     <p>
-        Your personal QR Pass is attached to this email.
+        Your team pass is available online.
     </p>
 
     <p>
-        You can also view it online:
+        <a href="{frontend_url}/team-pass/{team_id}">
+            View Team Pass
+        </a>
     </p>
 
-    <a href="{settings.frontend_url}/team-pass/{team_id}">
-        Open Team Pass
-    </a>
-
-    <br><br>
+    <br>
 
     <p>
-        Please keep this QR code safe and show it at the event entrance.
+        Please present your QR Pass at the event entrance.
+    </p>
+
+    <hr>
+
+    <p>
+        Thank you for choosing <strong>EventSphere</strong>.
     </p>
     """
 
-    message = MessageSchema(
-        subject="Team Registration Confirmation",
-        recipients=[email],
-        body=html,
-        subtype="html",
-        attachments=[
-            qr_code_path
-        ],
+    send_email(
+        email=email,
+        subject="🎉 Team Registration Confirmation",
+        html=html,
     )
 
-    fm = FastMail(conf)
-
-    await fm.send_message(message)
-
-    print(
-        f"Team email sent to {email}"
-    )
+    print(f"Team registration email sent to {email}")
