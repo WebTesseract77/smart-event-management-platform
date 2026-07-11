@@ -159,17 +159,70 @@ export default function EventsPage() {
     (e) => new Date(e.start_date) <= now && new Date(e.end_date) >= now
   ).length;
 
-  const filteredEvents = events.filter((event) => {
-    const text = `${event.title} ${event.description} ${event.location}`.toLowerCase();
+ const query = search.trim().toLowerCase();
 
-    const matchesSearch = search
-      .toLowerCase()
-      .split(" ")
-      .every((word) => text.includes(word));
+function similarity(source: string, target: string) {
+  if (!target) return 1;
 
-    const isUpcoming = new Date(event.start_date) > now;
-    const isEnded = new Date(event.end_date) < now;
-    const isOngoing = !isUpcoming && !isEnded;
+  source = source.toLowerCase();
+  target = target.toLowerCase();
+
+  if (source === target) return 10000;
+
+  let score = 0;
+
+  if (source.startsWith(target)) score += 5000;
+
+  if (source.includes(target)) score += 3000;
+
+  const sourceWords = source.split(/[\s,-]+/);
+  const targetWords = target.split(/\s+/);
+
+  for (const word of targetWords) {
+    for (const sourceWord of sourceWords) {
+      if (sourceWord === word) score += 800;
+
+      if (sourceWord.startsWith(word)) score += 600;
+
+      if (sourceWord.includes(word)) score += 350;
+
+      if (
+        sourceWord.length > 3 &&
+        word.length > 2 &&
+        sourceWord.startsWith(word.slice(0, word.length - 1))
+      ) {
+        score += 250;
+      }
+
+      if (
+        sourceWord.length > 4 &&
+        word.length > 3 &&
+        sourceWord.includes(word.slice(0, word.length - 2))
+      ) {
+        score += 120;
+      }
+    }
+  }
+
+  return score;
+}
+
+const filteredEvents = events
+  .map((event) => {
+    const title = event.title ?? "";
+    const description = event.description ?? "";
+    const location = event.location ?? "";
+
+    const now = new Date();
+
+    const isUpcoming =
+      new Date(event.start_date) > now;
+
+    const isEnded =
+      new Date(event.end_date) < now;
+
+    const isOngoing =
+      !isUpcoming && !isEnded;
 
     const matchesFilter =
       filter === "all" ||
@@ -177,8 +230,37 @@ export default function EventsPage() {
       (filter === "ongoing" && isOngoing) ||
       (filter === "ended" && isEnded);
 
-    return matchesSearch && matchesFilter;
-  });
+    let score = 1;
+
+    if (query) {
+      score =
+        similarity(title, query) * 10 +
+        similarity(description, query) * 2 +
+        similarity(location, query);
+    }
+
+    return {
+      event,
+      score,
+      matchesFilter,
+    };
+  })
+  .filter(
+    (item) =>
+      item.matchesFilter &&
+      (query === "" || item.score > 0)
+  )
+  .sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
+
+    return (
+      new Date(a.event.start_date).getTime() -
+      new Date(b.event.start_date).getTime()
+    );
+  })
+  .map((item) => item.event);
 
   const totalPages = Math.max(1, Math.ceil(filteredEvents.length / 9));
   const paginatedEvents = useMemo(
