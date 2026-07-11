@@ -38,7 +38,7 @@ export function RegistrationSkeleton() {
           </div>
           <div className="h-14 w-24 rounded-2xl bg-muted/60" />
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 auto-rows-fr">
           {Array.from({ length: 4 }).map((_, index) => (
             <div key={index} className="h-16 rounded-2xl bg-muted/60" />
           ))}
@@ -70,10 +70,10 @@ export function RegistrationCard({
       ? "Registered"
       : "Completed";
   const statusClass = statusLabel.toLowerCase().includes("cancel")
-  ? "bg-[#FDECEC] text-[#B42318]"
-  : active
-    ? "bg-[#EEF7F2] text-[#0F4D3F]"
-    : "bg-[#F3F1EC] text-[#6B7280]";
+    ? "bg-[#FDECEC] text-[#B42318]"
+    : active
+      ? "bg-[#EEF7F2] text-[#0F4D3F]"
+      : "bg-[#F3F1EC] text-[#6B7280]";
 
   return (
     <motion.div
@@ -122,46 +122,48 @@ export function RegistrationCard({
           </div>
         </div>
 
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <h2 className="line-clamp-1 text-xl font-semibold tracking-tight text-[#183028]">
-                {event?.title || registration.team_name || "Registration"}
-              </h2>
-              {isTeam ? (
-                <p className="mt-1.5 line-clamp-1 text-sm text-[#5E665F]">
-                  {registration.team_name}
-                </p>
-              ) : null}
+        <CardContent className="flex flex-col justify-between p-4 sm:p-5">
+          <div>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <h2 className="line-clamp-1 text-xl font-semibold tracking-tight text-[#183028]">
+                  {event?.title || registration.team_name || "Registration"}
+                </h2>
+                {isTeam ? (
+                  <p className="mt-1.5 line-clamp-1 text-sm text-[#5E665F]">
+                    {registration.team_name}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 auto-rows-fr">
+              <InfoBox icon={<Calendar className="h-4 w-4" />} title="Date & time" value={formatDateTime(event?.start_date)} />
+              <InfoBox icon={<MapPin className="h-4 w-4" />} title="Location" value={event?.location || "Location unavailable"} />
+              <InfoBox
+                icon={<Users className="h-4 w-4" />}
+                title={isTeam ? "Team ID" : "Registration ID"}
+                value={isTeam ? `#${registration.team_id}` : `#${registration.id}`}
+              />
+              <InfoBox
+                icon={<CheckCircle className="h-4 w-4" />}
+                title="Pass"
+                value={isTeam ? "View your team pass" : "View your event pass"}
+              />
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-[#D6E8DC] bg-[#EEF7F2] px-4 py-2.5 shadow-sm">
+              <div className="flex items-center gap-2 text-[#0F4D3F]">
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-sm font-medium">
+                  {isTeam ? "Team registration confirmed" : "Registration confirmed"}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <InfoBox icon={<Calendar className="h-4 w-4" />} title="Date & time" value={formatDateTime(event?.start_date)} />
-            <InfoBox icon={<MapPin className="h-4 w-4" />} title="Location" value={event?.location || "Location unavailable"} />
-            <InfoBox
-              icon={<Users className="h-4 w-4" />}
-              title={isTeam ? "Team ID" : "Registration ID"}
-              value={isTeam ? `#${registration.team_id}` : `#${registration.id}`}
-            />
-            <InfoBox
-              icon={<CheckCircle className="h-4 w-4" />}
-              title="Pass"
-              value={isTeam ? "View your team pass" : "View your event pass"}
-            />
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-[#D6E8DC] bg-[#EEF7F2] px-4 py-2.5 shadow-sm">
-            <div className="flex items-center gap-2 text-[#0F4D3F]">
-              <CheckCircle className="h-4 w-4" />
-              <span className="text-sm font-medium">
-                {isTeam ? "Team registration confirmed" : "Registration confirmed"}
-              </span>
-            </div>
-          </div>
-
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Button asChild className="rounded-full bg-[#0F4D3F] px-5 text-white hover:bg-[#0B3E33]">
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <Button asChild className="w-full justify-center rounded-full bg-[#0F4D3F] px-5 text-white hover:bg-[#0B3E33] sm:w-auto">
               <Link href={isTeam ? `/team-pass/${registration.team_id}` : `/pass/${registration.id}`}>
                 <Ticket className="mr-2 h-4 w-4" />
                 {isTeam ? "View Team Pass" : "View Pass"}
@@ -171,7 +173,7 @@ export function RegistrationCard({
             {!isTeam ? (
               <Button
                 variant="destructive"
-                className="rounded-full px-5"
+                className="w-full justify-center rounded-full px-5 sm:w-auto"
                 disabled={event?.start_date && new Date(event.start_date) <= new Date()}
                 onClick={() => onUnregister(registration.event_id)}
               >
@@ -190,16 +192,19 @@ export function RegistrationCard({
 
 function InfoBox({ icon, title, value }: { icon: React.ReactNode; title: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-[#E8E1D5] bg-[#FAF8F4] p-4 shadow-sm">
-      <div className="flex items-start gap-3">
-        <div className="rounded-xl bg-[#F5F2EA] p-2 text-[#0F4D3F]">
+    <div className="flex h-full flex-col rounded-2xl border border-[#E8E1D5] bg-[#FAF8F4] p-3 sm:p-4 shadow-sm">
+      <div className="flex items-start gap-2.5">
+        <div className="shrink-0 rounded-xl bg-[#F5F2EA] p-2 text-[#0F4D3F]">
           {icon}
         </div>
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[10.5px] font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
             {title}
           </p>
-          <p className="mt-1 text-sm font-medium leading-6 text-[#183028]">
+          <p
+            title={value}
+            className="mt-1 line-clamp-2 text-sm font-medium leading-5 text-[#183028]"
+          >
             {value}
           </p>
         </div>
