@@ -203,12 +203,12 @@ export default function EventCard({
             />
           </div>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mt-6 grid grid-cols-2 gap-3">
 
   <Link href={`/events/${event.id}`} className="flex-1">
     <Button
       variant="outline"
-     className="h-11 flex-1 truncate rounded-[14px] bg-[#0F4D3F] text-sm text-white hover:bg-[#0B3E33]"
+     className="h-12 w-full rounded-[14px] bg-[#0F4D3F] text-sm font-semibold text-white hover:bg-[#0B3E33]"
     >
       Details
     </Button>
@@ -217,7 +217,7 @@ export default function EventCard({
 
   {role !== "admin" && role !== "organizer" && (
     <Button
-      className="h-11 flex-1 rounded-[14px] bg-[#0F4D3F] text-sm text-white hover:bg-[#0B3E33]"
+      className="h-12 w-full rounded-[14px] bg-[#0F4D3F] text-sm font-semibold text-white hover:bg-[#0B3E33]"
       disabled={
         isRegistered ||
         isCompleted ||
@@ -244,7 +244,7 @@ export default function EventCard({
   {canManage && (
     <Button
       onClick={() => onDelete(event.id)}
-      className="h-11 flex-1 rounded-[14px] bg-red-600 text-white hover:bg-red-700"
+      className="h-12 w-full rounded-[14px] bg-red-600 text-sm font-semibold text-white hover:bg-red-700"
     >
       Delete
     </Button>
