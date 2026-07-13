@@ -6,8 +6,10 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import Link from "next/link";
+import { Upload, X, Loader2, RefreshCw } from "lucide-react";
+
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { createEvent } from "@/lib/api";
@@ -28,6 +30,9 @@ const muiTheme = createTheme({
     },
   },
 });
+
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 function Section({
   title,
@@ -59,8 +64,21 @@ function Section({
   );
 }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return <label className="mb-2 block text-xs font-medium uppercase tracking-[0.1em] text-[#5E665F]">{children}</label>;
+function Label({
+  children,
+  htmlFor,
+}: {
+  children: React.ReactNode;
+  htmlFor?: string;
+}) {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className="mb-2 block text-xs font-medium uppercase tracking-[0.1em] text-[#5E665F]"
+    >
+      {children}
+    </label>
+  );
 }
 
 function ControlWrapper({ children }: { children: React.ReactNode }) {
@@ -75,6 +93,9 @@ export default function EventForm({ mode }: EventFormProps) {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const chooseImageButtonRef = useRef<HTMLButtonElement>(null);
   const [capacity, setCapacity] = useState(100);
   const [minTeamSize, setMinTeamSize] = useState(2);
   const [maxTeamSize, setMaxTeamSize] = useState(6);
@@ -86,6 +107,82 @@ export default function EventForm({ mode }: EventFormProps) {
   const [registrationDeadline, setRegistrationDeadline] = useState<Dayjs | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const resetFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Prevent multiple uploads from firing at the same time
+    if (uploadingImage) {
+      return;
+    }
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast.error("Only JPG, PNG and WEBP images are allowed");
+      resetFileInput();
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      toast.error("Image must be smaller than 5MB");
+      resetFileInput();
+      return;
+    }
+
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+    if (!cloudName || !uploadPreset) {
+      toast.error("Image upload is not configured");
+      resetFileInput();
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", uploadPreset);
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await res.json();
+      setImageUrl(data.secure_url);
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        imageUrl
+          ? "Failed to upload image. Your previous image has been kept."
+          : "Failed to upload image"
+      );
+    } finally {
+      setUploadingImage(false);
+      resetFileInput();
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageUrl("");
+    resetFileInput();
+    chooseImageButtonRef.current?.focus();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,23 +310,108 @@ export default function EventForm({ mode }: EventFormProps) {
                   />
                 </div>
 
-                <div className="space-y-4 rounded-[14px] border border-dashed border-[#E8E1D5] bg-[#FAF8F4] p-5">
+                <div
+                  className="space-y-4 rounded-[14px] border border-dashed border-[#E8E1D5] bg-[#FAF8F4] p-5"
+                  aria-busy={uploadingImage}
+                >
 
   <div>
-    <Label>Banner Image</Label>
+    <Label htmlFor="banner-image-input">Banner Image</Label>
 
     <p className="max-w-xl text-xs leading-5 text-[#5E665F]">
-      Paste a hosted image URL to preview.
+      Upload an image from your device to use as the event banner. JPG, PNG or WEBP, up to 5MB.
     </p>
   </div>
 
-  <Input
-    type="text"
-    value={imageUrl}
-    onChange={(e) => setImageUrl(e.target.value)}
-    placeholder="Paste image URL e.g. https://example.com/banner.jpg"
-    className="h-12 w-full rounded-[14px] border border-[#E8E1D5] bg-white px-4 text-[#183028] placeholder:text-[#8A918B] transition-all duration-200 focus:border-[#0F4D3F] focus:ring-2 focus:ring-[#0F4D3F]/15 outline-none"
+  <input
+    ref={fileInputRef}
+    id="banner-image-input"
+    type="file"
+    accept="image/jpeg,image/jpg,image/png,image/webp"
+    onChange={handleFileSelect}
+    disabled={uploadingImage}
+    className="hidden"
+    aria-label="Choose banner image file"
   />
+
+  <span className="sr-only" role="status" aria-live="polite">
+    {uploadingImage ? "Uploading banner image, please wait." : ""}
+  </span>
+
+  {!imageUrl ? (
+    <Button
+      ref={chooseImageButtonRef}
+      type="button"
+      variant="outline"
+      disabled={uploadingImage}
+      aria-disabled={uploadingImage}
+      onClick={() => fileInputRef.current?.click()}
+      className="inline-flex h-12 items-center gap-2 rounded-[14px] border border-[#E8E1D5] bg-white px-5 text-sm font-medium text-[#183028] transition-all duration-200 hover:bg-[#FAF8F4] disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {uploadingImage ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          Uploading...
+        </>
+      ) : (
+        <>
+          <Upload className="h-4 w-4" aria-hidden="true" />
+          Choose Image
+        </>
+      )}
+    </Button>
+  ) : (
+    <div className="space-y-3">
+      <div className="relative w-full overflow-hidden rounded-[14px] border border-[#E8E1D5] bg-white">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={imageUrl}
+          alt="Event banner preview"
+          className="h-48 w-full object-cover sm:h-64 md:h-72"
+        />
+
+        {uploadingImage ? (
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-sm transition-opacity duration-200"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="flex flex-col items-center gap-2 text-[#0F4D3F]">
+              <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
+              <span className="text-xs font-medium">Uploading...</span>
+            </div>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={uploadingImage}
+          aria-disabled={uploadingImage}
+          onClick={() => fileInputRef.current?.click()}
+          className="inline-flex h-10 items-center gap-2 rounded-full border border-[#E8E1D5] bg-white px-5 text-sm font-medium text-[#183028] transition-all duration-200 hover:bg-[#FAF8F4] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <RefreshCw className="h-4 w-4" aria-hidden="true" />
+          Replace Image
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          disabled={uploadingImage}
+          aria-disabled={uploadingImage}
+          onClick={handleRemoveImage}
+          aria-label="Remove banner image"
+          className="inline-flex h-10 items-center gap-2 rounded-full border border-[#E8E1D5] bg-white px-5 text-sm font-medium text-[#183028] transition-all duration-200 hover:bg-[#FAF8F4] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <X className="h-4 w-4" aria-hidden="true" />
+          Remove Image
+        </Button>
+      </div>
+    </div>
+  )}
 
 </div>
               </ControlWrapper>
