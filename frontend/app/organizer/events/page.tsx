@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import EventCard from "@/components/app/EventCard";
+import { useRequireOrganizer } from "@/hooks/useRequireOrganizer";
 
 import {
   getOrganizerEvents,
@@ -16,6 +17,7 @@ import { CalendarDays } from "lucide-react";
 export default function OrganizerEventsPage() {
 
   const router = useRouter();
+  const authorizationLoading = useRequireOrganizer();
 
   const [events,setEvents] =
     useState<any[]>([]);
@@ -29,11 +31,12 @@ export default function OrganizerEventsPage() {
 
     async function loadEvents(){
 
+      if (authorizationLoading) {
+        return;
+      }
+
       const token =
         localStorage.getItem("token");
-
-      const role =
-        localStorage.getItem("role");
 
 
       if(!token){
@@ -42,16 +45,6 @@ export default function OrganizerEventsPage() {
         return;
 
       }
-
-
-      if(role !== "organizer"){
-
-        router.push("/events");
-        return;
-
-      }
-
-
 
       try{
 
@@ -86,7 +79,7 @@ export default function OrganizerEventsPage() {
     loadEvents();
 
 
-  },[router]);
+  },[authorizationLoading, router]);
 
 
 

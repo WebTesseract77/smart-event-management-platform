@@ -1,0 +1,14 @@
+warning: in the working copy of 'frontend/app/admin/users/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/app/create-event/individual/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/app/create-event/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/app/create-event/team/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/app/organizer/events/page.tsx', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'frontend/components/profile/RequestStatusCard.tsx', LF will be replaced by CRLF the next time Git touches it
+ frontend/app/admin/users/page.tsx                 | 987 [32m++[m[31m--------------------[m
+ frontend/app/create-event/individual/page.tsx     |  19 [32m+[m[31m-[m
+ frontend/app/create-event/page.tsx                |  20 [32m+[m[31m-[m
+ frontend/app/create-event/team/page.tsx           |  21 [32m+[m[31m-[m
+ frontend/app/organizer/events/page.tsx            |  23 [32m+[m[31m-[m
+ frontend/app/profile/page.tsx                     |  11 [32m+[m[31m-[m
+ frontend/components/profile/RequestStatusCard.tsx | 160 [32m+++[m[31m-[m
+ 7 files changed, 236 insertions(+), 1005 deletions(-)

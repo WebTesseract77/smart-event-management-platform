@@ -1,22 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
 import EventForm from "@/components/app/EventForm";
+import { useRequireOrganizer } from "@/hooks/useRequireOrganizer";
 import { CalendarDays } from "lucide-react";
 
 export default function IndividualEventPage() {
-  const router = useRouter();
+  const loading = useRequireOrganizer();
 
-  useEffect(() => {
-    const role = localStorage.getItem("role");
-
-    if (role !== "organizer") {
-      router.push("/events");
-    }
-  }, [router]);
-
+  if (loading) {
+    return null;
+  }
 
   return (
     <main className="min-h-screen bg-[#FAF8F4]">

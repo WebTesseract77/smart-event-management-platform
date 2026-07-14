@@ -171,6 +171,14 @@ export default function ProfilePage() {
   const canShowVerification = Boolean(user.is_verified || user.email_verified || user.verified);
   const accountStatus = canShowVerification ? "Verified" : "Active";
 
+  // The organizer status card should render whenever:
+  //  - the user's CURRENT role is "organizer" (source of truth for access), or
+  //  - there's an existing organizer request to report on (pending / rejected / a
+  //    now-stale "approved" that no longer matches the current role).
+  // Relying on organizerRequest alone (as before) meant organizers — whose role
+  // check skips the request fetch — never saw their status card at all.
+  const showOrganizerStatusCard = user.role === "organizer" || Boolean(organizerRequest);
+
   return (
     <div className="min-h-screen bg-[#FAF8F4]">
       <div className="mx-auto max-w-[1490px] px-3 py-5 sm:px-6 sm:py-8">
@@ -251,7 +259,7 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                {!organizerRequest ? (
+                {!showOrganizerStatusCard ? (
                   <div className="flex flex-col gap-3 pt-2 sm:flex-row">
                     <Button
                       onClick={() => router.push("/profile/edit")}
@@ -289,6 +297,7 @@ export default function ProfilePage() {
                       <div className="w-full max-w-[560px]">
                         <RequestStatusCard
                           request={organizerRequest}
+                          userRole={user.role}
                           onReopenWizard={() => setIsModalOpen(true)}
                         />
                       </div>

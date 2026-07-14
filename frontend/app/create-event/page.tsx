@@ -1,10 +1,9 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { CalendarDays, Users, Ticket, CheckCircle2 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useRequireOrganizer } from "@/hooks/useRequireOrganizer";
 
 const cardVariants = {
   hidden: { opacity: 0, y: 12 },
@@ -79,18 +78,11 @@ function OptionCard({
 
 export default function CreateEventPage() {
   const reduceMotion = useReducedMotion();
-  const router = useRouter();
+  const loading = useRequireOrganizer();
 
-
-  useEffect(() => {
-    const role = localStorage.getItem("role");
-
-    if (role !== "organizer") {
-      router.push("/events");
-    }
-
-  }, [router]);
-
+  if (loading) {
+    return null;
+  }
 
   return (
     <main className="min-h-screen bg-[#FAF8F4] px-6 py-10 lg:px-8">
