@@ -28,10 +28,10 @@ class User(Base):
     )
 
     role: Mapped[str] = mapped_column(
-    String(20),
-    default=ROLE_USER,
-    nullable=False,
-)
+        String(20),
+        default=ROLE_USER,
+        nullable=False,
+    )
 
     is_verified: Mapped[bool] = mapped_column(
         Boolean,
@@ -63,5 +63,11 @@ class User(Base):
 
     attendances = relationship(
         "Attendance",
+        cascade="all, delete-orphan",
+    )
+
+    organizer_requests = relationship(
+        "OrganizerRequest",
+        foreign_keys="OrganizerRequest.user_id",
         cascade="all, delete-orphan",
     )

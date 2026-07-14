@@ -4,11 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 
-import { getCurrentUser } from "@/lib/api";
+import { getCurrentUser, getMyOrganizerRequest, OrganizerRequestResponse } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState, PageHeaderSkeleton } from "@/components/app/FeedbackStates";
+import OrganizerRequestModal from "@/components/profile/OrganizerRequestModal";
+import RequestStatusCard from "@/components/profile/RequestStatusCard";
 import {
   CheckCircle2,
   CircleUserRound,
@@ -20,6 +22,8 @@ import {
   Sparkles,
   User,
   UserRoundPen,
+  Clock,
+  AlertTriangle,
 } from "lucide-react";
 
 function getInitial(name?: string) {
@@ -65,6 +69,21 @@ export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // State elements for validation metrics
+  const [tokenState, setTokenState] = useState<string>("");
+  const [organizerRequest, setOrganizerRequest] = useState<OrganizerRequestResponse | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Modular helper initialization definition logic closure framework
+  const loadOrganizerRequestStatus = async (token: string) => {
+    try {
+      const requestData = await getMyOrganizerRequest(token);
+      setOrganizerRequest(requestData);
+    } catch (err) {
+      console.error("Failed to fetch internal account upgrade flags:", err);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -73,11 +92,18 @@ export default function ProfilePage() {
       router.push("/login");
       return;
     }
+    
+    setTokenState(token);
 
     async function loadUser() {
       try {
         const data = await getCurrentUser(token!);
         setUser(data);
+        
+        // Conditional API request trigger based purely on user permissions mapping
+        if (data && data.role === "user") {
+          await loadOrganizerRequestStatus(token!);
+        }
       } catch (error) {
         console.error(error);
         setError("Your session expired. Please sign in again.");
@@ -223,29 +249,52 @@ export default function ProfilePage() {
                   {memberSince && (
                     <InfoField icon={<Clock3 className="h-4 w-4" />} label="Member Since" value={memberSince} />
                   )}
-                 
                 </div>
 
-                <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-                  <Button
-                    onClick={() => router.push("/profile/edit")}
-                    className="w-full sm:w-auto rounded-full bg-[#0F4D3F] px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-[#0A352B] transition-colors"
-                  >
-                    <UserRoundPen className="mr-2 h-4 w-4" />
-                    Edit profile
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      localStorage.removeItem("token");
-                      router.push("/login");
-                    }}
-                    variant="outline"
-                    className="w-full sm:w-auto rounded-full border-[#E8E1D5] bg-white px-5 py-2.5 text-sm font-medium text-[#183028] shadow-sm hover:bg-[#FAF8F4] transition-colors"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout securely
-                  </Button>
-                </div>
+                {!organizerRequest ? (
+                  <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                    <Button
+                      onClick={() => router.push("/profile/edit")}
+                      className="w-full sm:w-auto rounded-full bg-[#0F4D3F] px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-[#0A352B] transition-colors"
+                    >
+                      <UserRoundPen className="mr-2 h-4 w-4" />
+                      Edit profile
+                    </Button>
+
+                    {user.role === "user" && (
+                      <Button
+                        onClick={() => setIsModalOpen(true)}
+                        className="w-full sm:w-auto rounded-full bg-[#0F4D3F] px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-[#0A352B] transition-colors"
+                      >
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Request Organizer Access
+                      </Button>
+                    )}
+
+                    <Button
+                      onClick={() => {
+                        localStorage.removeItem("token");
+                        router.push("/login");
+                      }}
+                      variant="outline"
+                      className="w-full sm:w-auto rounded-full border-[#E8E1D5] bg-white px-5 py-2.5 text-sm font-medium text-[#183028] shadow-sm hover:bg-[#FAF8F4] transition-colors sm:ml-auto"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout securely
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="pt-2">
+                    <div className="w-full flex justify-center">
+                      <div className="w-full max-w-[560px]">
+                        <RequestStatusCard
+                          request={organizerRequest}
+                          onReopenWizard={() => setIsModalOpen(true)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -297,6 +346,17 @@ export default function ProfilePage() {
           </div>
         </motion.div>
       </div>
+
+      {/* RENDER MODAL CONDITIONAL LAYER */}
+      {user.role === "user" && (
+        <OrganizerRequestModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          token={tokenState}
+          existingRequest={organizerRequest}
+          onSuccess={() => loadOrganizerRequestStatus(tokenState)}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import os
-
+from backend.app.routes.organizer_requests import (
+    router as organizer_request_router,
+)
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -23,6 +25,7 @@ from backend.app.models import (
     User,
     Team,
     TeamMember,
+    OrganizerRequest,
 )
 
 from backend.app.routes.auth import router as auth_router
@@ -226,5 +229,9 @@ app.include_router(
 
 app.include_router(
     organizer_router,
+    prefix=settings.api_v1_prefix,
+)
+app.include_router(
+    organizer_request_router,
     prefix=settings.api_v1_prefix,
 )

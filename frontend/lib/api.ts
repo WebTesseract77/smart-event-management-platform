@@ -617,3 +617,171 @@ export async function verifyPayment(
 
   return response.json();
 }
+// Add these to your existing @/lib/api.ts file
+
+export interface OrganizerRequestPayload {
+  organization: string;
+  experience: string;
+  event_categories: string[];
+  events_per_year: string;
+  portfolio_url?: string;
+  reason: string;
+}
+
+export interface OrganizerRequestResponse {
+  status: "pending" | "approved" | "rejected";
+  admin_remark?: string;
+  organization?: string;
+  experience?: string;
+  event_categories?: string[];
+  events_per_year?: string;
+  portfolio_url?: string;
+  reason?: string;
+}
+
+/**
+ * Fetches the current user's organizer request status
+ */
+/**
+ * Fetches the current user's organizer request status
+ */
+export async function getMyOrganizerRequest(
+  token: string
+): Promise<OrganizerRequestResponse | null> {
+  const response = await fetch(
+    `${API_URL}/organizer-request/me`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      return null;
+    }
+
+    const errorData = await response.json().catch(() => ({}));
+
+    throw new Error(
+      errorData.detail ||
+      errorData.message ||
+      "Failed to fetch organizer request details"
+    );
+  }
+
+  return response.json();
+}
+
+/**
+ * Submits a new application for organizer access
+ */
+export async function createOrganizerRequest(
+  token: string,
+  payload: OrganizerRequestPayload
+): Promise<OrganizerRequestResponse> {
+  const response = await fetch(
+    `${API_URL}/organizer-request`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+
+    throw new Error(
+      errorData.detail ||
+      errorData.message ||
+      "Failed to submit organizer access request"
+    );
+  }
+
+  return response.json();
+}
+// Fix: event_categories is a comma-joined string from the backend, not an array
+export interface AdminOrganizerRequestItem {
+  id: number;
+  user_id: number;
+  name?: string;
+  email?: string;
+  status: "pending" | "approved" | "rejected";
+  admin_remark?: string | null;
+  created_at?: string;
+  organization?: string;
+  experience?: string;
+  event_categories?: string;
+  events_per_year?: string;
+  portfolio_url?: string | null;
+  reason?: string;
+}
+
+export interface OrganizerRequestReviewPayload {
+  status: "approved" | "rejected";
+  admin_remark?: string;
+}
+
+export async function reviewOrganizerRequest(
+  token: string,
+  requestId: number,
+  payload: OrganizerRequestReviewPayload
+): Promise<AdminOrganizerRequestItem> {
+  const response = await fetch(
+    `${API_URL}/organizer-request/${requestId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.detail ||
+      errorData.message ||
+      "Failed to review organizer request"
+    );
+  }
+
+  return response.json();
+}
+export async function getAdminOrganizerRequests(
+  token: string
+): Promise<AdminOrganizerRequestItem[]> {
+  const response = await fetch(
+    `${API_URL}/organizer-request`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+
+    throw new Error(
+      errorData.detail ||
+      errorData.message ||
+      "Failed to load organizer requests"
+    );
+  }
+
+  return response.json();
+}
+
