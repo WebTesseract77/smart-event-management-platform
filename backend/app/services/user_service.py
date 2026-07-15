@@ -1,3 +1,6 @@
+import asyncio
+import threading
+
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -9,6 +12,9 @@ from backend.app.core.roles import (
     ROLE_USER,
 )
 from backend.app.models.user import User
+from backend.app.services.organizer_email_service import (
+    send_organizer_revoked_email,
+)
 from sqlalchemy import select
 
 
@@ -79,9 +85,28 @@ def update_user_role(
     if role not in (ROLE_USER, ROLE_ORGANIZER):
         raise ValidationError("Invalid role")
 
+    revoke_organizer_access = (
+        target_user.role == ROLE_ORGANIZER
+        and role == ROLE_USER
+    )
+
     target_user.role = role
     db.commit()
     db.refresh(target_user)
+
+    if revoke_organizer_access:
+        try:
+            threading.Thread(
+                target=lambda: asyncio.run(
+                    send_organizer_revoked_email(
+                        email=target_user.email,
+                        name=target_user.name,
+                    )
+                ),
+                daemon=True,
+            ).start()
+        except Exception as exc:
+            print(f"Organizer revocation email sending failed: {exc}")
 
     return target_user
 

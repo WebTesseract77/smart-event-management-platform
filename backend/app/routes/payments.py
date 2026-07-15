@@ -124,6 +124,8 @@ def verify_payment_and_register(
             db,
             user_id=current_user.id,
             event_id=payload.event_id,
+            payment_status="paid",
+            payment_id=payload.razorpay_payment_id,
         )
 
         return registration

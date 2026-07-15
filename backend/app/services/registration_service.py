@@ -22,6 +22,8 @@ def register_user_for_event(
     *,
     user_id: int,
     event_id: int,
+    payment_status: str = "pending",
+    payment_id: str | None = None,
 ) -> Registration:
     def _now_like(value: datetime) -> datetime:
         return datetime.now(value.tzinfo) if value.tzinfo else datetime.now()
@@ -69,9 +71,21 @@ def register_user_for_event(
             "Event is full"
         )
 
+    # Only a successfully verified paid registration should ever record an
+    # amount. Free events, or any call that doesn't explicitly pass
+    # payment_status="paid", keep amount_paid at 0 — same as before.
+    amount_paid = (
+        event.registration_fee
+        if payment_status == "paid"
+        else 0
+    )
+
     registration = Registration(
         user_id=user_id,
         event_id=event_id,
+        payment_status=payment_status,
+        payment_id=payment_id,
+        amount_paid=amount_paid,
     )
 
     db.add(registration)

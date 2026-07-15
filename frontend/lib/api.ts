@@ -413,10 +413,22 @@ export async function getRegistration(
   return response.json();
 }
 export async function getAnalytics(
-  token: string
+  token: string,
+  filters?: {
+    period?: string;
+    startDate?: string;
+    endDate?: string;
+  }
 ) {
+  const params = new URLSearchParams();
+
+  if (filters?.period) params.set("period", filters.period);
+  if (filters?.startDate) params.set("start_date", filters.startDate);
+  if (filters?.endDate) params.set("end_date", filters.endDate);
+
+  const query = params.size ? `?${params.toString()}` : "";
   const response = await fetch(
-    `${API_URL}/admin/analytics`,
+    `${API_URL}/admin/analytics${query}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

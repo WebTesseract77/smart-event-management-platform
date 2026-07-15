@@ -37,6 +37,7 @@ from backend.app.routes.team import router as team_router
 from backend.app.routes.organizer import router as organizer_router
 from backend.app.routes.payments import router as payment_router
 from backend.app.routes import admin
+from backend.app.routes.admin_analytics import router as admin_analytics_router
 
 from backend.app.services.seed_service import seed_initial_data
 
@@ -214,6 +215,11 @@ app.include_router(
 
 app.include_router(
     admin.router,
+    prefix=settings.api_v1_prefix,
+)
+
+app.include_router(
+    admin_analytics_router,
     prefix=settings.api_v1_prefix,
 )
 

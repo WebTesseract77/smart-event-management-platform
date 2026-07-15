@@ -1,3 +1,8 @@
+import asyncio
+import threading
+
+from datetime import timedelta
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -27,6 +32,11 @@ from backend.app.services.organizer_request_service import (
     get_my_request,
     list_requests,
     reject_request,
+)
+from backend.app.services.organizer_email_service import (
+    send_organizer_application_received_email,
+    send_organizer_approved_email,
+    send_organizer_rejected_email,
 )
 
 router = APIRouter(
@@ -63,6 +73,19 @@ def submit_request(
             else None,
             reason=payload.reason,
         )
+
+        try:
+            threading.Thread(
+                target=lambda: asyncio.run(
+                    send_organizer_application_received_email(
+                        email=request.applicant.email,
+                        name=request.applicant.name,
+                    )
+                ),
+                daemon=True,
+            ).start()
+        except Exception as exc:
+            print(f"Organizer application email sending failed: {exc}")
 
         return OrganizerRequestRead(
     id=request.id,
@@ -226,6 +249,31 @@ def review_request(
                 admin_id=current_admin.id,
                 remark=payload.admin_remark or "",
             )
+
+        try:
+            if request.status == "approved":
+                notification = send_organizer_approved_email(
+                    email=request.applicant.email,
+                    name=request.applicant.name,
+                )
+            else:
+                notification = send_organizer_rejected_email(
+                    email=request.applicant.email,
+                    name=request.applicant.name,
+                    admin_remark=request.admin_remark or "",
+                    cooldown_until=(
+                        request.reviewed_at + timedelta(days=30)
+                        if request.reviewed_at
+                        else None
+                    ),
+                )
+
+            threading.Thread(
+                target=lambda: asyncio.run(notification),
+                daemon=True,
+            ).start()
+        except Exception as exc:
+            print(f"Organizer review email sending failed: {exc}")
 
         return OrganizerRequestRead(
     id=request.id,

@@ -4,12 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
-import {
-  getAnalytics,
-  getCurrentUser,
-  getEvents,
-  getMyRegistrations,
-} from "@/lib/api";
+import { getCurrentUser, getEvents, getMyRegistrations } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeaderSkeleton } from "@/components/app/FeedbackStates";
@@ -27,7 +22,6 @@ export default function Dashboard() {
   const [registrationCount, setRegistrationCount] = useState(0);
   const [upcomingCount, setUpcomingCount] = useState(0);
   const [activePasses, setActivePasses] = useState(0);
-  const [analytics, setAnalytics] = useState<any>(null);
   const [role, setRole] = useState<DashboardRole>("user");
   const [events, setEvents] = useState<any[]>([]);
   const [registrations, setRegistrations] = useState<any[]>([]);
@@ -61,11 +55,6 @@ export default function Dashboard() {
         setRegistrations(safeRegistrations);
         setRegistrationCount(safeRegistrations.length);
         setActivePasses(safeRegistrations.filter((registration: any) => new Date(registration.event.end_date) >= new Date()).length);
-
-        if (currentRole === "admin") {
-          const analyticsData = await getAnalytics(token);
-          setAnalytics(analyticsData);
-        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -183,7 +172,7 @@ export default function Dashboard() {
             </motion.section>
 
             {role === "admin" ? (
-              <AdminDashboard eventCount={eventCount} registrationCount={registrationCount} activePasses={activePasses} analytics={analytics} events={events} registrations={registrations} />
+              <AdminDashboard />
             ) : role === "organizer" ? (
               <OrganizerDashboard userId={userId} events={events} />
             ) : (
