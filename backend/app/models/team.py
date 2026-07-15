@@ -4,6 +4,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     String,
+    UniqueConstraint,
 )
 
 from sqlalchemy.orm import (
@@ -17,6 +18,14 @@ from backend.app.database.base import Base
 
 class Team(Base):
     __tablename__ = "teams"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "event_id",
+            "leader_user_id",
+            name="uq_team_event_leader",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(
         primary_key=True
