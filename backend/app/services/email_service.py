@@ -19,7 +19,7 @@ async def send_registration_email(
     )
 
     html = f"""
-    <h2>Registration Successful 🎉</h2>
+    <h2>Registration Successful </h2>
 
     <p>Hello <strong>{participant_name}</strong>,</p>
 
@@ -58,7 +58,7 @@ async def send_registration_email(
 
     send_email(
         email=email,
-        subject="🎉 Event Registration Confirmation",
+        subject=" Event Registration Confirmation",
         html=html,
     )
 
@@ -82,7 +82,7 @@ async def send_team_registration_email(
     )
 
     html = f"""
-    <h2>Team Registration Successful 🎉</h2>
+    <h2>Team Registration Successful </h2>
 
     <p>Hello <strong>{member_name}</strong>,</p>
 
@@ -126,7 +126,7 @@ async def send_team_registration_email(
 
     send_email(
         email=email,
-        subject="🎉 Team Registration Confirmation",
+        subject=" Team Registration Confirmation",
         html=html,
     )
 
