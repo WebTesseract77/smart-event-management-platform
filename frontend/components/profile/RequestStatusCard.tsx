@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Check, Copy } from "lucide-react";
@@ -10,7 +10,7 @@ interface RequestStatusCardProps {
     id?: number;
     status: "pending" | "approved" | "rejected";
     admin_remark?: string;
-    cooldown_days_remaining?: number;
+    cooldown_until?: string | null;
     created_at?: string;
     updated_at?: string;
   } | null;
@@ -27,9 +27,111 @@ function formatDate(raw?: string) {
 
 const ADMIN_EMAIL = "admin.eventsphere@gmail.com";
 
+// -------------------------------------------------------
+// Countdown helpers
+// -------------------------------------------------------
+
+interface CountdownParts {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+const ZERO_PARTS: CountdownParts = { days: 0, hours: 0, minutes: 0, seconds: 0 };
+
+/** Milliseconds remaining until `target`, floored at 0. */
+function msRemaining(target: Date): number {
+  return Math.max(0, target.getTime() - Date.now());
+}
+
+/** Breaks down remaining milliseconds into days/hours/minutes/seconds. */
+function toParts(ms: number): CountdownParts {
+  const totalSeconds = Math.floor(ms / 1000);
+
+  return {
+    days: Math.floor(totalSeconds / 86400),
+    hours: Math.floor((totalSeconds % 86400) / 3600),
+    minutes: Math.floor((totalSeconds % 3600) / 60),
+    seconds: totalSeconds % 60,
+  };
+}
+
+/** Zero-pads a number to at least 2 digits. */
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+/**
+ * Live countdown to a target timestamp. Ticks every second, cleans up
+ * its interval on unmount/target change, and reports completion so
+ * callers can flip UI state (e.g. enable a button) without polling or
+ * any additional API calls — everything derives from cooldown_until,
+ * which the backend already sends.
+ */
+function useCountdown(target: Date | null): { parts: CountdownParts; isComplete: boolean } {
+  const [remainingMs, setRemainingMs] = useState<number>(() => (target ? msRemaining(target) : 0));
+
+  useEffect(() => {
+    if (!target) {
+      setRemainingMs(0);
+      return;
+    }
+
+    setRemainingMs(msRemaining(target));
+
+    const intervalId = setInterval(() => {
+      const remaining = msRemaining(target);
+      setRemainingMs(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(intervalId);
+      }
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [target]);
+
+  const isComplete = remainingMs <= 0;
+
+  return {
+    parts: isComplete ? ZERO_PARTS : toParts(remainingMs),
+    isComplete,
+  };
+}
+
+// -------------------------------------------------------
+// Countdown card UI
+// -------------------------------------------------------
+
+function CountdownUnit({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center flex-1 rounded-xl border border-[#E8E1D5] bg-white/80 py-3">
+      <span className="text-lg font-bold font-serif text-[#0F4D3F] tabular-nums">{pad(value)}</span>
+      <span className="text-[9px] font-semibold uppercase tracking-wider text-[#7C8B83] mt-0.5">{label}</span>
+    </div>
+  );
+}
+
+function CooldownCountdown({ parts }: { parts: CountdownParts }) {
+  return (
+    <div className="flex items-stretch gap-2">
+      <CountdownUnit value={parts.days} label="Days" />
+      <CountdownUnit value={parts.hours} label="Hours" />
+      <CountdownUnit value={parts.minutes} label="Mins" />
+      <CountdownUnit value={parts.seconds} label="Secs" />
+    </div>
+  );
+}
+
 export default function RequestStatusCard({ request, userRole, onReopenWizard }: RequestStatusCardProps) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
+
+  const cooldownTarget =
+    request?.status === "rejected" && request.cooldown_until ? new Date(request.cooldown_until) : null;
+
+  const { parts: cooldownParts, isComplete: cooldownComplete } = useCountdown(cooldownTarget);
 
   async function handleCopyEmail() {
     try {
@@ -113,8 +215,7 @@ export default function RequestStatusCard({ request, userRole, onReopenWizard }:
 
   // 3. Rejected.
   if (request.status === "rejected") {
-    const cooldownDays = request.cooldown_days_remaining ?? 0;
-    const isCooldownActive = cooldownDays > 0;
+    const isCooldownActive = cooldownTarget !== null && !cooldownComplete;
 
     return (
       <div className="rounded-2xl border border-[#FCDEDE] bg-[#FDECEC]/30 p-6 space-y-4 max-w-xl text-[#183028]">
@@ -131,13 +232,32 @@ export default function RequestStatusCard({ request, userRole, onReopenWizard }:
               {request.admin_remark || "Application submission details do not match platform verification parameters."}
             </p>
           </div>
-          {isCooldownActive && (
-            <div>
-              <p className="font-bold text-[#7C8B83] uppercase tracking-wider text-[9px]">Cooldown Remaining</p>
-              <p className="text-xs font-semibold text-[#B42318] mt-0.5">{cooldownDays} Days Remaining</p>
-            </div>
-          )}
         </div>
+
+        {cooldownTarget && (
+          <div className="rounded-xl border border-[#E8E1D5] bg-[#FAF8F4] p-4 space-y-3">
+            {isCooldownActive ? (
+              <>
+                <h5 className="text-sm font-bold font-serif text-[#183028] flex items-center gap-1.5">
+                  <span>⏳ Reapplication Cooldown</span>
+                </h5>
+
+                <CooldownCountdown parts={cooldownParts} />
+
+                <p className="text-xs text-[#5E665F] leading-relaxed">
+                  You may submit a new organizer application once the cooldown period expires.
+                </p>
+              </>
+            ) : (
+              <div className="space-y-1">
+                <p className="text-sm font-bold font-serif text-[#0F4D3F]">✅ Cooldown Complete</p>
+                <p className="text-xs text-[#5E665F] leading-relaxed">
+                  You may now submit a new organizer application.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         <Button
           onClick={onReopenWizard}

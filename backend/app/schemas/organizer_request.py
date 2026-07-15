@@ -102,3 +102,13 @@ class OrganizerRequestRead(BaseModel):
     created_at: datetime
 
     reviewed_at: datetime | None
+
+    # -------------------------
+    # Cooldown (rejected only)
+    # -------------------------
+    # Populated only when status == "rejected" and reviewed_at is set.
+    # Equals reviewed_at + timedelta(days=30). The frontend derives the
+    # live countdown from this timestamp; the backend does not send a
+    # precomputed "days remaining" value since that goes stale the moment
+    # it's sent.
+    cooldown_until: datetime | None = None

@@ -19,6 +19,16 @@ from backend.app.models.user import User
 from backend.app.models.organizer_request import OrganizerRequest
 
 
+def _format_ist(dt: datetime) -> str:
+    """
+    Formats a naive datetime (already stored/interpreted as IST throughout
+    this codebase) into a human-readable string, e.g.
+    "17 Jul 2026, 10:30 AM IST". Purely a display helper — does not touch
+    the value itself, no tz conversion, no tz-aware objects.
+    """
+    return dt.strftime("%d %b %Y, %I:%M %p IST")
+
+
 def create_organizer_request(
     db: Session,
     *,
@@ -75,7 +85,7 @@ def create_organizer_request(
         )
 
     # -------------------------------------------------
-    # 30-day cooldown after rejection
+    # 48-hour cooldown after rejection
     # -------------------------------------------------
 
     latest_rejected = db.execute(
@@ -93,12 +103,12 @@ def create_organizer_request(
 
         allowed_date = (
             latest_rejected.reviewed_at
-            + timedelta(days=30)
+            + timedelta(hours=48)
         )
 
         if datetime.utcnow() < allowed_date:
             raise ConflictError(
-                f"You can apply again after {allowed_date.date()}."
+                f"You can apply again after {_format_ist(allowed_date)}."
             )
 
     # -------------------------------------------------

@@ -1,7 +1,7 @@
 import asyncio
 import threading
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -19,6 +19,7 @@ from backend.app.core.errors import (
 )
 
 from backend.app.models.user import User
+from backend.app.models.organizer_request import OrganizerRequest
 
 from backend.app.schemas.organizer_request import (
     OrganizerRequestCreate,
@@ -43,6 +44,47 @@ router = APIRouter(
     prefix="/organizer-request",
     tags=["Organizer Requests"],
 )
+
+
+# -------------------------------------------------------
+# Helpers
+# -------------------------------------------------------
+
+def _cooldown_until(request: OrganizerRequest) -> datetime | None:
+    """
+    Only populated for rejected requests. Mirrors the 48-hour window
+    enforced server-side in create_organizer_request(); this is purely
+    a read-side projection for the client to render a countdown from.
+    """
+    if request.status == "rejected" and request.reviewed_at:
+        return request.reviewed_at + timedelta(hours=48)
+    return None
+
+
+def _to_read_model(request: OrganizerRequest) -> OrganizerRequestRead:
+    return OrganizerRequestRead(
+        id=request.id,
+        user_id=request.user_id,
+
+        name=request.applicant.name,
+        email=request.applicant.email,
+
+        organization=request.organization,
+        experience=request.experience,
+        event_categories=request.event_categories,
+        events_per_year=request.events_per_year,
+        portfolio_url=request.portfolio_url,
+        reason=request.reason,
+
+        status=request.status,
+        admin_remark=request.admin_remark,
+
+        reviewed_by=request.reviewed_by,
+        created_at=request.created_at,
+        reviewed_at=request.reviewed_at,
+
+        cooldown_until=_cooldown_until(request),
+    )
 
 
 # -------------------------------------------------------
@@ -87,27 +129,7 @@ def submit_request(
         except Exception as exc:
             print(f"Organizer application email sending failed: {exc}")
 
-        return OrganizerRequestRead(
-    id=request.id,
-    user_id=request.user_id,
-
-    name=request.applicant.name,
-    email=request.applicant.email,
-
-    organization=request.organization,
-    experience=request.experience,
-    event_categories=request.event_categories,
-    events_per_year=request.events_per_year,
-    portfolio_url=request.portfolio_url,
-    reason=request.reason,
-
-    status=request.status,
-    admin_remark=request.admin_remark,
-
-    reviewed_by=request.reviewed_by,
-    created_at=request.created_at,
-    reviewed_at=request.reviewed_at,
-)
+        return _to_read_model(request)
 
     except ForbiddenError as exc:
         raise HTTPException(
@@ -149,32 +171,8 @@ def my_request(
     if not request:
         return None
 
-    return OrganizerRequestRead(
-        id=request.id,
-        user_id=request.user_id,
+    return _to_read_model(request)
 
-        name=request.applicant.name,
-        email=request.applicant.email,
- 
-        organization=request.organization,
-        experience=request.experience,
-        event_categories=request.event_categories,
-         events_per_year=request.events_per_year,
-        portfolio_url=request.portfolio_url,
-         reason=request.reason,
-
-          status=request.status,
-         admin_remark=request.admin_remark,
-
-        reviewed_by=request.reviewed_by,
-        created_at=request.created_at,
-         reviewed_at=request.reviewed_at,
-)
-
-
-# -------------------------------------------------------
-# Admin - List Requests
-# -------------------------------------------------------
 
 # -------------------------------------------------------
 # Admin - List Requests
@@ -191,30 +189,8 @@ def all_requests(
 
     requests = list_requests(db)
 
-    return [
-        OrganizerRequestRead(
-            id=x.id,
-            user_id=x.user_id,
+    return [_to_read_model(x) for x in requests]
 
-            name=x.applicant.name,
-            email=x.applicant.email,
-
-            organization=x.organization,
-            experience=x.experience,
-            event_categories=x.event_categories,
-            events_per_year=x.events_per_year,
-            portfolio_url=x.portfolio_url,
-            reason=x.reason,
-
-            status=x.status,
-            admin_remark=x.admin_remark,
-
-            reviewed_by=x.reviewed_by,
-            created_at=x.created_at,
-            reviewed_at=x.reviewed_at,
-        )
-        for x in requests
-    ]
 
 # -------------------------------------------------------
 # Admin - Review Request
@@ -262,7 +238,7 @@ def review_request(
                     name=request.applicant.name,
                     admin_remark=request.admin_remark or "",
                     cooldown_until=(
-                        request.reviewed_at + timedelta(days=30)
+                        request.reviewed_at + timedelta(hours=48)
                         if request.reviewed_at
                         else None
                     ),
@@ -275,27 +251,7 @@ def review_request(
         except Exception as exc:
             print(f"Organizer review email sending failed: {exc}")
 
-        return OrganizerRequestRead(
-    id=request.id,
-    user_id=request.user_id,
-
-    name=request.applicant.name,
-    email=request.applicant.email,
-
-    organization=request.organization,
-    experience=request.experience,
-    event_categories=request.event_categories,
-    events_per_year=request.events_per_year,
-    portfolio_url=request.portfolio_url,
-    reason=request.reason,
-
-    status=request.status,
-    admin_remark=request.admin_remark,
-
-    reviewed_by=request.reviewed_by,
-    created_at=request.created_at,
-    reviewed_at=request.reviewed_at,
-)
+        return _to_read_model(request)
 
     except ConflictError as exc:
         raise HTTPException(
