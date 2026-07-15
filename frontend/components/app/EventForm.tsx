@@ -284,8 +284,8 @@ export default function EventForm({ mode }: EventFormProps) {
               Fill in the details below to create and schedule a new event.
             </p>
           </div>
-          
-          <form onSubmit={handleSubmit} className="mt-10 space-y-6 pb-28">
+
+          <form onSubmit={handleSubmit} className="mt-10 space-y-6">
             <Section iconNumber={1} title="Event Information" description="Set the identity and banner for the event.">
               <ControlWrapper>
                 <div>
@@ -655,27 +655,38 @@ export default function EventForm({ mode }: EventFormProps) {
               </Section>
             ) : null}
 
-            {/* Form Footer Action Controls */}
-            <div className="sticky bottom-0 left-0 z-20 border-t border-[#E8E1D5] bg-[#FAF8F4]/90 px-6 py-4 backdrop-blur-md shadow-[0_-10px_30px_rgba(15,77,63,0.04)] sm:px-0">
-              <div className="mx-auto flex max-w-4xl flex-col-reverse sm:flex-row justify-end gap-3">
-  <Button
-    type="button"
-    variant="outline"
-    className="w-full sm:w-auto h-10 rounded-full border border-[#E8E1D5] bg-white px-6 text-sm font-medium text-[#183028] hover:bg-[#FAF8F4]"
-    onClick={() => router.push("/create-event")}
-  >
-    Cancel
-  </Button>
+            {/* Action Card — matches Edit Event page */}
+            <section className="rounded-[28px] border border-[#E8E1D5] bg-white p-5 sm:p-8 shadow-[0_12px_32px_rgba(15,77,63,0.03)] transition-all duration-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+                <div>
+                  <h2 className="text-xl font-semibold tracking-[-0.01em] text-[#183028]">
+                    Action
+                  </h2>
+                  <p className="mt-1 text-sm leading-6 text-[#5E665F]">
+                    Review your event before publishing.
+                  </p>
+                </div>
 
-  <Button
-    type="submit"
-    disabled={loading || submitting}
-    className="w-full sm:w-auto h-10 rounded-full bg-[#0F4D3F] px-6 text-sm font-medium text-white hover:bg-[#0A352B] disabled:opacity-50"
-  >
-    {loading || submitting ? "Creating Event..." : "Create Event"}
-  </Button>
-</div>
-            </div>
+                <div className="flex flex-col-reverse sm:flex-row gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full sm:w-auto h-10 rounded-full border border-[#E8E1D5] bg-white px-6 text-sm font-medium text-[#183028] hover:bg-[#FAF8F4]"
+                    onClick={() => router.push("/create-event")}
+                  >
+                    Cancel
+                  </Button>
+
+                  <Button
+                    type="submit"
+                    disabled={loading || submitting}
+                    className="w-full sm:w-auto h-10 rounded-full bg-[#0F4D3F] px-6 text-sm font-medium text-white hover:bg-[#0A352B] disabled:opacity-50"
+                  >
+                    {loading || submitting ? "Creating Event..." : "Create Event"}
+                  </Button>
+                </div>
+              </div>
+            </section>
           </form>
         </div>
       </div>
