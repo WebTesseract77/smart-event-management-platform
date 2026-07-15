@@ -1,4 +1,15 @@
 import os
+
+# Rate limiting (defined before the route imports below so that
+# route modules can safely import `limiter` from this module without
+# triggering a circular-import error).
+from slowapi import Limiter
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
+
 from backend.app.routes.organizer_requests import (
     router as organizer_request_router,
 )
@@ -50,6 +61,13 @@ app = FastAPI(
     version="1.0.0",
     description="Backend API for the Smart Event Management Platform.",
 )
+
+
+# -----------------------
+# Rate Limiting
+# -----------------------
+
+app.state.limiter = limiter
 
 
 # -----------------------
@@ -137,6 +155,17 @@ def validation_handler(
     )
 
 
+@app.exception_handler(RateLimitExceeded)
+def rate_limit_handler(
+    _: Request,
+    exc: RateLimitExceeded,
+):
+    return _error_response(
+        status.HTTP_429_TOO_MANY_REQUESTS,
+        "Too many requests. Please try again later.",
+    )
+
+
 # -----------------------
 # CORS
 # -----------------------
@@ -162,6 +191,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(SlowAPIMiddleware)
 
 
 # -----------------------

@@ -3,8 +3,10 @@ import threading
 
 from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
+
+from slowapi.util import get_remote_address
 
 from backend.app.core.dependencies import (
     get_current_admin,
@@ -39,6 +41,9 @@ from backend.app.services.organizer_email_service import (
     send_organizer_approved_email,
     send_organizer_rejected_email,
 )
+
+# Rate limiting
+from backend.app.main import limiter
 
 router = APIRouter(
     prefix="/organizer-request",
@@ -87,6 +92,25 @@ def _to_read_model(request: OrganizerRequest) -> OrganizerRequestRead:
     )
 
 
+def _organizer_request_rate_limit_key(request: Request) -> str:
+    """
+    Rate-limits the organizer request endpoint per authenticated user
+    instead of per IP. Reads the user id from `request.state` (e.g. if
+    an auth dependency/middleware sets `request.state.user` or
+    `request.state.user_id`), with no JWT parsing here. Falls back to
+    the client IP if a user id isn't available on `request.state`.
+    """
+    user = getattr(request.state, "user", None)
+    user_id = getattr(user, "id", None) or getattr(
+        request.state, "user_id", None
+    )
+
+    if user_id is not None:
+        return f"user:{user_id}"
+
+    return get_remote_address(request)
+
+
 # -------------------------------------------------------
 # Participant - Create Organizer Request
 # -------------------------------------------------------
@@ -96,14 +120,19 @@ def _to_read_model(request: OrganizerRequest) -> OrganizerRequestRead:
     response_model=OrganizerRequestRead,
     status_code=status.HTTP_201_CREATED,
 )
+@limiter.limit(
+    "2/hour",
+    key_func=_organizer_request_rate_limit_key,
+)
 def submit_request(
+    request: Request,
     payload: OrganizerRequestCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     try:
 
-        request = create_organizer_request(
+        request_obj = create_organizer_request(
             db=db,
             current_user=current_user,
             organization=payload.organization,
@@ -120,8 +149,8 @@ def submit_request(
             threading.Thread(
                 target=lambda: asyncio.run(
                     send_organizer_application_received_email(
-                        email=request.applicant.email,
-                        name=request.applicant.name,
+                        email=request_obj.applicant.email,
+                        name=request_obj.applicant.name,
                     )
                 ),
                 daemon=True,
@@ -129,7 +158,7 @@ def submit_request(
         except Exception as exc:
             print(f"Organizer application email sending failed: {exc}")
 
-        return _to_read_model(request)
+        return _to_read_model(request_obj)
 
     except ForbiddenError as exc:
         raise HTTPException(

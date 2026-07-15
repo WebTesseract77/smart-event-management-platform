@@ -4,6 +4,7 @@ from fastapi import (
     HTTPException,
     status,
     BackgroundTasks,
+    Request,
 )
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
@@ -42,6 +43,9 @@ from backend.app.services.otp_service import (
     send_reset_otp,
 )
 
+# Rate limiting
+from backend.app.main import limiter
+
 
 router = APIRouter(
     prefix="/auth",
@@ -58,7 +62,9 @@ router = APIRouter(
     response_model=UserRead,
     status_code=status.HTTP_201_CREATED,
 )
+@limiter.limit("3/hour")
 async def register(
+    request: Request,
     payload: UserCreate,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
@@ -111,7 +117,9 @@ async def register(
     "/login",
     response_model=Token,
 )
+@limiter.limit("5/minute")
 def login(
+    request: Request,
     payload: UserLogin,
     db: Session = Depends(get_db),
 ):
@@ -160,7 +168,9 @@ def login(
 @router.post(
     "/send-verification-otp"
 )
+@limiter.limit("3 per 10 minutes")
 async def send_verification(
+    request: Request,
     email: str,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
@@ -218,7 +228,9 @@ async def send_verification(
 @router.post(
     "/verify-email"
 )
+@limiter.limit("10 per 10 minutes")
 def verify_email(
+    request: Request,
     email: str,
     otp: str,
     db: Session = Depends(get_db),
@@ -286,7 +298,9 @@ def verify_email(
 @router.post(
     "/forgot-password"
 )
+@limiter.limit("3 per 10 minutes")
 async def forgot_password(
+    request: Request,
     email: str,
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
@@ -338,7 +352,9 @@ async def forgot_password(
 @router.post(
     "/reset-password"
 )
+@limiter.limit("5 per 10 minutes")
 def reset_password(
+    request: Request,
     email: str,
     otp: str,
     new_password: str,
