@@ -1,4 +1,5 @@
-from sqlalchemy import String, Boolean
+from datetime import datetime
+from sqlalchemy import String, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.database.base import Base
@@ -44,8 +45,18 @@ class User(Base):
         nullable=True,
     )
 
+    verification_otp_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
     reset_otp: Mapped[str | None] = mapped_column(
         String(10),
+        nullable=True,
+    )
+
+    reset_otp_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
         nullable=True,
     )
 

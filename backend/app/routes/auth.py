@@ -5,8 +5,11 @@ from fastapi import (
     status,
     BackgroundTasks,
 )
-
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from sqlalchemy.orm import Session
+
+IST = ZoneInfo("Asia/Kolkata")
 
 from backend.app.core.dependencies import get_db
 
@@ -69,10 +72,12 @@ async def register(
             password=payload.password,
         )
 
-
         otp = generate_otp()
 
         user.verification_otp = otp
+        user.verification_otp_expires_at = (
+             datetime.now(IST) + timedelta(minutes=10)
+        )
 
         user.is_verified = False
 
@@ -186,9 +191,11 @@ async def send_verification(
     otp = generate_otp()
 
     user.verification_otp = otp
+    user.verification_otp_expires_at = (
+           datetime.now(IST) + timedelta(minutes=10)
+)
 
     db.commit()
-
 
     background_tasks.add_task(
         send_verification_otp,
@@ -231,18 +238,36 @@ def verify_email(
         )
 
 
-    if user.verification_otp != otp:
+    if (
+        user.verification_otp is None
+        or user.verification_otp != otp
+    ):
 
         raise HTTPException(
-            status_code=400,
-            detail="Invalid OTP",
-        )
+               status_code=400,
+               detail="Invalid OTP",
+    )
 
+    if (
+        user.verification_otp_expires_at
+        and datetime.now(IST)
+        > user.verification_otp_expires_at
+):
+
+        user.verification_otp = None
+        user.verification_otp_expires_at = None
+
+        db.commit()
+
+        raise HTTPException(
+           status_code=400,
+           detail="Verification OTP has expired. Please request a new OTP.",
+    )
 
     user.is_verified = True
 
     user.verification_otp = None
-
+    user.verification_otp_expires_at = None
 
     db.commit()
 
@@ -284,6 +309,9 @@ async def forgot_password(
     otp = generate_otp()
 
     user.reset_otp = otp
+    user.reset_otp_expires_at = (
+        datetime.now(IST) + timedelta(minutes=10)
+    )
 
 
     db.commit()
@@ -331,11 +359,31 @@ def reset_password(
         )
 
 
-    if user.reset_otp != otp:
+    if (
+        user.reset_otp is None
+        or user.reset_otp != otp
+    ):
 
         raise HTTPException(
             status_code=400,
             detail="Invalid OTP",
+        )
+
+
+    if (
+        user.reset_otp_expires_at
+        and datetime.now(IST)
+        > user.reset_otp_expires_at
+    ):
+
+        user.reset_otp = None
+        user.reset_otp_expires_at = None
+
+        db.commit()
+
+        raise HTTPException(
+            status_code=400,
+            detail="Reset OTP has expired. Please request a new OTP.",
         )
 
 
@@ -345,6 +393,7 @@ def reset_password(
 
 
     user.reset_otp = None
+    user.reset_otp_expires_at = None
 
 
     db.commit()
