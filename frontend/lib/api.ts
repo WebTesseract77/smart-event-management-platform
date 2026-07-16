@@ -395,19 +395,7 @@ export async function getRegistration(
   );
 
   if (!response.ok) {
-  console.log(
-    "REGISTRATION STATUS:",
-    response.status
-  );
-
-  console.log(
-    "REGISTRATION RESPONSE:",
-    await response.text()
-  );
-
-  throw new Error(
-    "Failed to load registration"
-  );
+  throw new Error("Failed to load registration");
 }
 
   return response.json();
@@ -497,7 +485,39 @@ export async function markOrganizerAttendance(
 
   return response.json();
 }
+export async function scanAttendance(
+  token: string,
+  qrData: string,
+) {
+  const response = await fetch(
+    `${API_URL}/attendance/scan`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        qr_data: qrData,
+      }),
+    }
+  );
 
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const error = new Error(
+      data.detail || "Invalid QR Code"
+    ) as any;
+
+    // Preserve the whole backend response
+    Object.assign(error, data);
+
+    throw error;
+  }
+
+  return data;
+}
 export async function getAdminUsers(token: string) {
   const response = await fetch(
     `${API_URL}/admin/users`,
@@ -629,7 +649,26 @@ export async function verifyPayment(
 
   return response.json();
 }
-// Add these to your existing @/lib/api.ts file
+export async function clearAttendance(
+  token: string,
+  eventId: number
+) {
+  const response = await fetch(
+    `${API_URL}/organizer/events/${eventId}/attendance`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to clear attendance");
+  }
+
+  return response.json();
+}
 
 export interface OrganizerRequestPayload {
   organization: string;

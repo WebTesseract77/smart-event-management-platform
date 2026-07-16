@@ -33,6 +33,7 @@ def get_current_user(
     try:
         payload = decode_access_token(token)
         user_id = int(payload["sub"])
+        token_version = int(payload["token_version"])
 
     except (ValueError, KeyError):
         raise HTTPException(
@@ -46,6 +47,12 @@ def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
+        )
+
+    if token_version != user.token_version:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session has expired",
         )
 
     return user

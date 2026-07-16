@@ -29,6 +29,7 @@ from backend.app.schemas.user import (
     UserCreate,
     UserLogin,
     UserRead,
+    ResetPasswordRequest,
 )
 
 from backend.app.services.user_service import (
@@ -39,8 +40,10 @@ from backend.app.services.user_service import (
 
 from backend.app.services.otp_service import (
     generate_otp,
+    hash_otp,
     send_verification_otp,
     send_reset_otp,
+    verify_otp,
 )
 
 # Rate limiting
@@ -80,7 +83,7 @@ async def register(
 
         otp = generate_otp()
 
-        user.verification_otp = otp
+        user.verification_otp = hash_otp(otp)
         user.verification_otp_expires_at = (
              datetime.now(IST) + timedelta(minutes=10)
         )
@@ -152,6 +155,7 @@ def login(
     token = create_access_token(
         subject=str(user.id),
         role=user.role,
+        token_version=user.token_version,
     )
 
 
@@ -181,26 +185,21 @@ async def send_verification(
         email,
     )
 
+    response = {
+        "message": "If an eligible account exists, an email has been sent."
+    }
 
     if not user:
-
-        raise HTTPException(
-            status_code=404,
-            detail="User not found",
-        )
+        return response
 
 
     if user.is_verified:
-
-        return {
-            "message":
-            "Email already verified"
-        }
+        return response
 
 
     otp = generate_otp()
 
-    user.verification_otp = otp
+    user.verification_otp = hash_otp(otp)
     user.verification_otp_expires_at = (
            datetime.now(IST) + timedelta(minutes=10)
 )
@@ -214,10 +213,7 @@ async def send_verification(
     )
 
 
-    return {
-        "message":
-        "OTP sent successfully"
-    }
+    return response
 
 
 
@@ -243,7 +239,6 @@ def verify_email(
 
 
     if not user:
-
         raise HTTPException(
             status_code=404,
             detail="User not found",
@@ -252,7 +247,7 @@ def verify_email(
 
     if (
         user.verification_otp is None
-        or user.verification_otp != otp
+        or not verify_otp(otp, user.verification_otp)
     ):
 
         raise HTTPException(
@@ -311,18 +306,17 @@ async def forgot_password(
         email,
     )
 
+    response = {
+        "message": "If an eligible account exists, an email has been sent."
+    }
 
     if not user:
-
-        raise HTTPException(
-            status_code=404,
-            detail="User not found",
-        )
+        return response
 
 
     otp = generate_otp()
 
-    user.reset_otp = otp
+    user.reset_otp = hash_otp(otp)
     user.reset_otp_expires_at = (
         datetime.now(IST) + timedelta(minutes=10)
     )
@@ -338,10 +332,7 @@ async def forgot_password(
     )
 
 
-    return {
-        "message":
-        "Reset OTP sent"
-    }
+    return response
 
 
 
@@ -355,15 +346,13 @@ async def forgot_password(
 @limiter.limit("5 per 10 minutes")
 def reset_password(
     request: Request,
-    email: str,
-    otp: str,
-    new_password: str,
+    payload: ResetPasswordRequest,
     db: Session = Depends(get_db),
 ):
 
     user = get_user_by_email(
         db,
-        email,
+        payload.email,
     )
 
 
@@ -377,7 +366,7 @@ def reset_password(
 
     if (
         user.reset_otp is None
-        or user.reset_otp != otp
+        or not verify_otp(payload.otp, user.reset_otp)
     ):
 
         raise HTTPException(
@@ -404,8 +393,10 @@ def reset_password(
 
 
     user.password_hash = get_password_hash(
-        new_password
+        payload.new_password
     )
+
+    user.token_version += 1
 
 
     user.reset_otp = None

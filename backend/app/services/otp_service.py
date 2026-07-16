@@ -1,11 +1,24 @@
 import os
 import random
+import hashlib
+import hmac
 
 from mailjet_rest import Client
 
 
 def generate_otp() -> str:
     return str(random.randint(100000, 999999))
+
+
+def hash_otp(otp: str) -> str:
+    return hashlib.sha256(otp.encode("utf-8")).hexdigest()
+
+
+def verify_otp(otp: str, stored_otp: str) -> bool:
+    return (
+        hmac.compare_digest(stored_otp, hash_otp(otp))
+        or hmac.compare_digest(stored_otp, otp)
+    )
 
 
 def send_email(
@@ -70,10 +83,6 @@ def send_email(
             flush=True,
         )
 
-        print(
-            result.json(),
-            flush=True,
-        )
 
     except Exception as exc:
         print(

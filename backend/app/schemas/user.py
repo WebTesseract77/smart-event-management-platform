@@ -1,5 +1,11 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-from typing import Literal
+from typing import Annotated, Literal
+
+
+PasswordValue = Annotated[
+    str,
+    Field(min_length=8, max_length=128),
+]
 
 
 class UserBase(BaseModel):
@@ -8,7 +14,13 @@ class UserBase(BaseModel):
 
 
 class UserCreate(UserBase):
-    password: str = Field(min_length=8, max_length=128)
+    password: PasswordValue
+
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: PasswordValue
 
 
 class UserLogin(BaseModel):

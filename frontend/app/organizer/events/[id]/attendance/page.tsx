@@ -1,5 +1,5 @@
 "use client";
-
+import { clearAttendance } from "@/lib/api";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -107,6 +107,9 @@ export default function OrganizerAttendancePage() {
   };
 
   if (loading) {
+
+
+
     return (
       <div className="min-h-screen bg-[#FAF8F4]">
         <div className="mx-auto max-w-7xl px-6 py-8 lg:py-10">
@@ -156,7 +159,30 @@ export default function OrganizerAttendancePage() {
       </div>
     );
   }
+async function handleClearAttendance() {
+  if (
+    !confirm(
+      "Clear all attendance records for this event?"
+    )
+  ) {
+    return;
+  }
 
+  try {
+    const token = localStorage.getItem("token")!;
+
+    await clearAttendance(
+      token,
+      Number(params.id)
+    );
+
+    toast.success("Attendance cleared");
+
+await refreshAttendance();
+  } catch (err) {
+    toast.error("Failed to clear attendance");
+  }
+}
   return (
     <div className="min-h-screen bg-[#FAF8F4] text-[#183028]">
       <div className="mx-auto max-w-7xl px-6 py-8 lg:py-10">
@@ -188,6 +214,12 @@ export default function OrganizerAttendancePage() {
                   <Download className="mr-2 h-4 w-4" />
                   Export CSV
                 </Button>
+                <Button
+  variant="destructive"
+  onClick={handleClearAttendance}
+>
+  Clear Attendance
+</Button>
                 <Link href="/organizer/events">
                   <Button variant="outline" className="rounded-full border-[#E8E1D5] text-[#183028] hover:bg-[#F5F2EA]">
                     Back to Events

@@ -34,6 +34,11 @@ class User(Base):
         nullable=False,
     )
 
+    token_version: Mapped[int] = mapped_column(
+        default=0,
+        nullable=False,
+    )
+
     is_verified: Mapped[bool] = mapped_column(
         Boolean,
         default=False,

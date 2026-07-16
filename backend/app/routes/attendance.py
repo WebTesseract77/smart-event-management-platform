@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -6,16 +8,23 @@ from backend.app.core.dependencies import (
     get_current_organizer_or_admin,
 )
 
-from backend.app.models.event import Event
-from backend.app.models.user import User
 from backend.app.core.roles import ROLE_ORGANIZER
 
-from backend.app.schemas.attendance import AttendanceRead
+from backend.app.models.event import Event
+from backend.app.models.user import User
+
+from backend.app.schemas.attendance import (
+    AttendanceRead,
+    QRScanRequest,
+)
 
 from backend.app.services.attendance_service import (
     mark_attendance,
     get_event_attendance,
 )
+
+from backend.app.services.qr_service import verify_qr
+
 
 router = APIRouter(
     prefix="",
@@ -48,6 +57,49 @@ def check_event_access(
     return event
 
 
+# --------------------------------------------------
+# Secure QR Scan
+# --------------------------------------------------
+
+@router.post(
+    "/attendance/scan",
+    response_model=AttendanceRead,
+)
+def scan_qr(
+    payload: QRScanRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_organizer_or_admin),
+):
+   
+
+    try:
+       qr = verify_qr(payload.qr_data)
+    except Exception:
+      raise HTTPException(
+          status_code=400,
+          detail="Invalid or tampered QR code",
+    )
+
+    event_id = int(qr["event_id"])
+    user_id = int(qr["user_id"])
+
+    check_event_access(
+        db,
+        event_id,
+        user,
+    )
+
+    return mark_attendance(
+        db,
+        event_id,
+        user_id,
+    )
+
+# --------------------------------------------------
+# Legacy endpoint
+# (keep until frontend migration is complete)
+# --------------------------------------------------
+
 @router.post(
     "/events/{event_id}/attendance/{user_id}",
     response_model=AttendanceRead,
@@ -58,7 +110,6 @@ def mark(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_organizer_or_admin),
 ):
-
     check_event_access(
         db,
         event_id,
@@ -81,7 +132,6 @@ def list_attendance(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_organizer_or_admin),
 ):
-
     check_event_access(
         db,
         event_id,

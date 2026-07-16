@@ -9,9 +9,15 @@ async def send_registration_email(
     participant_name: str,
     event_name: str,
     registration_id: int,
+    user_id: int,
+    event_id: int,
 ):
     # Generate QR so the pass exists on the server
-    generate_qr(registration_id)
+    generate_qr(
+    registration_id=registration_id,
+    user_id=user_id,
+    event_id=event_id,
+)
 
     frontend_url = os.getenv(
         "FRONTEND_URL",

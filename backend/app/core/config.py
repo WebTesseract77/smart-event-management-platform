@@ -15,10 +15,15 @@ class Settings(BaseSettings):
 
     app_name: str = "EventSphere"
 
+    environment: str = Field(
+        default="production",
+        alias="ENVIRONMENT",
+    )
+
     api_v1_prefix: str = "/api/v1"
 
-    frontend_url: str = Field(
-        default="http://localhost:3000",
+    frontend_url: str | None = Field(
+        default=None,
         alias="FRONTEND_URL",
     )
 
@@ -35,6 +40,10 @@ class Settings(BaseSettings):
 
     secret_key: str = Field(
         alias="SECRET_KEY",
+    )
+
+    qr_secret_key: str = Field(
+    alias="QR_SECRET_KEY",
     )
 
     algorithm: str = Field(

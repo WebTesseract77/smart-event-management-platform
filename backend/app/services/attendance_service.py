@@ -84,3 +84,21 @@ def get_event_attendance(
         )
 
     return result
+def clear_event_attendance(
+    db: Session,
+    event_id: int,
+):
+    deleted = (
+        db.query(Attendance)
+        .filter(
+            Attendance.event_id == event_id
+        )
+        .delete()
+    )
+
+    db.commit()
+
+    return {
+        "message": "Attendance cleared successfully",
+        "deleted": deleted,
+    }

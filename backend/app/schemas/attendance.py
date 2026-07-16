@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from pydantic import BaseModel
 
 
@@ -13,5 +14,9 @@ class AttendanceRead(BaseModel):
     recorded_at: datetime
 
     model_config = {
-        "from_attributes": True
+        "from_attributes": True,
     }
+
+
+class QRScanRequest(BaseModel):
+    qr_data: str

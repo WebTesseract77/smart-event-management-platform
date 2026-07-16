@@ -7,7 +7,7 @@ from backend.app.services.email_service import (
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
-
+from backend.app.services.qr_service import generate_qr
 from backend.app.core.errors import (
     ConflictError,
     NotFoundError,
@@ -28,6 +28,18 @@ def register_user_for_event(
     def _now_like(value: datetime) -> datetime:
         return datetime.now(value.tzinfo) if value.tzinfo else datetime.now()
 
+    event = (
+        db.query(Event)
+        .filter(Event.id == event_id)
+        .with_for_update()
+        .one_or_none()
+    )
+
+    if not event:
+        raise NotFoundError(
+            "Event not found"
+        )
+
     existing = db.execute(
         select(Registration).where(
             Registration.user_id == user_id,
@@ -40,16 +52,6 @@ def register_user_for_event(
             "Already registered for this event"
         )
 
-    event = db.get(
-        Event,
-        event_id,
-    )
-
-    if not event:
-        raise NotFoundError(
-            "Event not found"
-        )
-
     if event.end_date < _now_like(event.end_date):
         raise ConflictError(
             "Event has already ended"
@@ -59,8 +61,15 @@ def register_user_for_event(
             "Registration deadline has passed"
         )
 
-    registrations_count = len(
-        event.registrations
+    if event.is_paid_event and payment_status != "paid":
+        raise ValidationError(
+            "Payment is required for this event"
+        )
+
+    registrations_count = (
+        db.query(Registration)
+        .filter(Registration.event_id == event_id)
+        .count()
     )
 
     if (
@@ -99,7 +108,15 @@ def register_user_for_event(
         ) from exc
 
     db.refresh(registration)
+    registration.qr_code_path = generate_qr(
+           registration_id=registration.id,
+           user_id=registration.user_id,
+           event_id=registration.event_id,
+)
 
+    db.commit()
+    db.refresh(registration)
+    
     user = db.get(User, user_id)
 
     if user:
@@ -109,11 +126,13 @@ def register_user_for_event(
             threading.Thread(
                 target=lambda: asyncio.run(
                     send_registration_email(
-                        email=user.email,
-                        participant_name=user.name,
-                        event_name=event.title,
-                        registration_id=registration.id,
-                    )
+                         email=user.email,
+                         participant_name=user.name,
+                         event_name=event.title,
+                         registration_id=registration.id,
+                         user_id=user.id,
+                         event_id=event.id,
+)
                 ),
                 daemon=True,
             ).start()

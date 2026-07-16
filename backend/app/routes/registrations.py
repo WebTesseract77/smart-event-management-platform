@@ -66,7 +66,13 @@ def register(
         )
 
     try:
-        get_event(db, event_id)
+        event = get_event(db, event_id)
+
+        if event.is_paid_event:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Payment is required for this event.",
+            )
 
         return register_user_for_event(
             db,
@@ -210,16 +216,21 @@ def get_registration_details(
             detail="Registration not found",
         )
 
-    if (
-        current_user.role not in [ROLE_ADMIN, ROLE_ORGANIZER]
-        and registration.user_id != current_user.id
-    ):
-        raise HTTPException(
-            status_code=403,
-            detail="Not authorized",
-        )
+    is_event_owner = (
+        current_user.role == ROLE_ORGANIZER
+        and registration.event.created_by == current_user.id
+    )
 
-   
+    if (
+    current_user.role != ROLE_ADMIN
+    and not is_event_owner
+    and registration.user_id != current_user.id
+):
+       raise HTTPException(
+        status_code=403,
+         detail="Not authorized",
+    )
+
     return {
         "registration_id": registration.id,
         "participant_name": registration.user.name,
@@ -227,6 +238,7 @@ def get_registration_details(
         "event_name": registration.event.title,
         "event_id": registration.event_id,
         "user_id": registration.user_id,
-        "event_date": registration.event.start_date,  # <-- Added relationship mapping
-        "event_location": registration.event.location,  # <-- Added relationship mapping
-    }
+        "event_date": registration.event.start_date,
+        "event_location": registration.event.location,
+        "qr_code_path": f"/generated_qr/registration_{registration.id}.png",
+}

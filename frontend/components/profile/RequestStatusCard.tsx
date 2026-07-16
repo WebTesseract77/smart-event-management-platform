@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Check, Copy } from "lucide-react";
@@ -128,10 +128,24 @@ export default function RequestStatusCard({ request, userRole, onReopenWizard }:
   const router = useRouter();
   const [copied, setCopied] = useState(false);
 
-  const cooldownTarget =
-    request?.status === "rejected" && request.cooldown_until ? new Date(request.cooldown_until) : null;
+  const cooldownTarget = useMemo(() => {
+  if (
+    request?.status !== "rejected" ||
+    !request.cooldown_until
+  ) {
+    return null;
+  }
 
-  const { parts: cooldownParts, isComplete: cooldownComplete } = useCountdown(cooldownTarget);
+  return new Date(request.cooldown_until);
+}, [
+  request?.status,
+  request?.cooldown_until,
+]);
+
+const {
+  parts: cooldownParts,
+  isComplete: cooldownComplete,
+} = useCountdown(cooldownTarget);
 
   async function handleCopyEmail() {
     try {

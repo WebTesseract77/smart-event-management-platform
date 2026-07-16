@@ -170,11 +170,23 @@ def rate_limit_handler(
 # CORS
 # -----------------------
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    settings.frontend_url,
-]
+environment = settings.environment.lower()
+
+if environment != "development" and not settings.frontend_url:
+    raise RuntimeError(
+        "FRONTEND_URL must be configured outside development"
+    )
+
+origins = [settings.frontend_url] if settings.frontend_url else []
+
+if environment == "development":
+    origins.extend([
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ])
+
+# Remove duplicates
+origins = list(dict.fromkeys(filter(None, origins)))
 
 
 print(

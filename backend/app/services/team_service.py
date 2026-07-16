@@ -30,9 +30,11 @@ def create_team_registration(
     def _now_like(value: datetime) -> datetime:
         return datetime.now(value.tzinfo) if value.tzinfo else datetime.now()
 
-    event = db.get(
-        Event,
-        event_id,
+    event = (
+        db.query(Event)
+        .filter(Event.id == event_id)
+        .with_for_update()
+        .one_or_none()
     )
 
     if not event:
@@ -71,7 +73,11 @@ def create_team_registration(
 
     if (
         event.max_teams is not None
-        and len(event.teams) >= event.max_teams
+        and (
+            db.query(Team)
+            .filter(Team.event_id == event_id)
+            .count()
+        ) >= event.max_teams
     ):
         raise ValidationError(
             "Maximum teams reached"
@@ -119,7 +125,9 @@ def create_team_registration(
 
     for team_member in team_members:
         team_member.qr_code_path = generate_qr(
-            f"member-{team_member.id}"
+               registration_id=team_member.id,
+               user_id=leader_user_id,
+               event_id=event_id,
         )
 
     db.commit()

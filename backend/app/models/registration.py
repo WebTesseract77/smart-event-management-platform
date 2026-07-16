@@ -51,9 +51,7 @@ class Registration(Base):
 
     registered_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        default=lambda: datetime.now(
-            timezone.utc
-        ),
+        default=lambda: datetime.now(timezone.utc),
         nullable=False,
     )
 
@@ -72,6 +70,12 @@ class Registration(Base):
         Float,
         default=0,
         nullable=False,
+    )
+
+    # NEW
+    qr_code_path: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
     )
 
     user = relationship(

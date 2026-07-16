@@ -1,8 +1,8 @@
 "use client";
 
-import QRCode from "react-qr-code";
+
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import { getRegistration } from "@/lib/api";
@@ -13,14 +13,12 @@ import { EmptyState, PageHeaderSkeleton } from "@/components/app/FeedbackStates"
 
 import {
   Download,
-  QrCode,
   ShieldCheck,
   Ticket,
   Calendar,
   MapPin,
   UserRound,
   Building2,
-  Smartphone,
   Printer,
 } from "lucide-react";
 
@@ -124,33 +122,25 @@ export default function PassPage() {
     registration?.event?.organizer?.name || 
     "EventSphere";
   
-  const qrData = useMemo(
-    () =>
-      JSON.stringify({
-        registration_id: registration?.registration_id || registration?.id,
-        event_id: registration?.event_id || registration?.event?.id,
-        user_id: registration?.user_id,
-        participant_name: registration?.participant_name || registration?.user?.name,
-      }),
-    [registration]
-  );
+  
 
   function handlePrint() {
     window.print();
   }
 
   function handleDownload() {
-    const svg = qrWrapRef.current?.querySelector("svg");
-    if (!svg) return;
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `eventsphere-pass-${registration?.registration_id || registration?.id || "qr"}.svg`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
+  if (!registration?.qr_code_path) return;
+
+  const a = document.createElement("a");
+
+  a.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}${registration.qr_code_path}`;
+
+  a.download = `eventsphere-pass-${
+    registration.registration_id || registration.id
+  }.png`;
+
+  a.click();
+}
 
   if (loading) {
     return (
@@ -268,9 +258,22 @@ export default function PassPage() {
                 <div className="space-y-4 w-full print:space-y-2">
                   <div className="rounded-[1.75rem] bg-[#F5F7F4] p-4 sm:p-6 text-center border border-[#E8E1D5] print:bg-white print:border-slate-200 print:p-4">
                     <div className="rounded-[1.25rem] bg-white p-4 inline-block shadow-sm mx-auto max-w-full print:p-1 print:shadow-none">
-                      <div ref={qrWrapRef} className="w-full flex items-center justify-center">
-                        <QRCode value={qrData} size={180} style={{ height: "auto", maxWidth: "100%", width: "100%" }} />
-                      </div>
+                      <div
+  ref={qrWrapRef}
+  className="w-full flex items-center justify-center"
+>
+  {registration.qr_code_path ? (
+  <img
+  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${registration.qr_code_path}?t=${Date.now()}`}
+  alt="Secure QR Pass"
+  className="h-[180px] w-[180px] object-contain"
+/>
+) : (
+  <p className="text-sm text-muted-foreground">
+    QR pass unavailable
+  </p>
+)}
+</div>
                     </div>
                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#0F4D3F] mt-4 print:text-black print:mt-2">
                       Secure QR pass

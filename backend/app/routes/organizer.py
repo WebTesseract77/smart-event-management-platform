@@ -14,6 +14,7 @@ from backend.app.schemas.participant import ParticipantRead
 from backend.app.services.attendance_service import (
     get_event_attendance,
     mark_attendance,
+    clear_event_attendance,
 )
 from backend.app.services.event_service import (
     get_event_by_creator,
@@ -131,7 +132,35 @@ def mark_organizer_attendance(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
     except ForbiddenError as exc:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
+@router.delete("/events/{event_id}/attendance")
+def clear_organizer_attendance(
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_organizer),
+):
+    try:
+        _get_owned_event(
+            db,
+            event_id,
+            current_user.id,
+        )
 
+        return clear_event_attendance(
+            db,
+            event_id,
+        )
+
+    except NotFoundError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        )
+
+    except ForbiddenError as exc:
+        raise HTTPException(
+            status_code=403,
+            detail=str(exc),
+        )
 
 @router.get("/analytics", response_model=OrganizerAnalyticsRead)
 def read_organizer_analytics(
