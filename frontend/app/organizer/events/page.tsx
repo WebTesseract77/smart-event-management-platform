@@ -1,5 +1,5 @@
 "use client";
-
+import EventCardSkeleton from "@/components/app/EventCardSkeleton";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -133,77 +133,96 @@ export default function OrganizerEventsPage() {
 
 
 
-  if(loading){
+ if (loading) {
+  return (
+    <main className="min-h-screen bg-[#FAF8F4] py-2">
 
-    return (
+      {/* Header Skeleton */}
+      <div className="mb-8 animate-pulse">
+        <div className="h-10 w-40 rounded-full bg-[#F5F2EA]" />
 
-      <div className="p-8">
+        <div className="mt-6 h-12 w-64 rounded-lg bg-[#E8E1D5]" />
 
-        Loading your events...
-
+        <div className="mt-3 h-5 w-80 max-w-full rounded bg-[#F5F2EA]" />
       </div>
 
-    );
+      {/* Event Cards Skeleton */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {[1, 2, 3].map((i) => (
+          <EventCardSkeleton key={i} />
+        ))}
+      </div>
 
-  }
+    </main>
+  );
+}
 
+return (
 
-
-
-
-  return (
-
-    <main className="min-h-screen bg-[#FAF8F4] p-8">
+   <main className="min-h-screen bg-[#FAF8F4] py-2">
 
 
       {/* HEADER */}
 
-      <div className="mb-8">
+      <div
+  className="
+    mb-8
+    rounded-[28px]
+    border
+    border-[#E8E1D5]
+    bg-white
+    p-6
+    shadow-sm
+  "
+>
 
+  <div
+    className="
+      inline-flex
+      items-center
+      gap-2
+      rounded-full
+      border
+      border-[#E8E1D5]
+      bg-[#FAF8F4]
+      px-4
+      py-2
+      text-sm
+      font-medium
+      text-[#0F4D3F]
+    "
+  >
+    <CalendarDays className="h-4 w-4" />
+    Organizer Panel
+  </div>
 
-        <div className="
-          inline-flex items-center gap-2
-          rounded-full
-          bg-white
-          px-4 py-2
-          text-[#0F4D3F]
-          border border-[#E8E1D5]
-        ">
+  <h1
+    className="
+      mt-5
+      font-serif
+      text-[2.5rem]
+      leading-none
+      tracking-[-0.04em]
+      text-[#183028]
+      sm:text-[3.2rem]
+    "
+  >
+    My Events
+  </h1>
 
-          <CalendarDays className="h-4 w-4"/>
+  <p
+    className="
+      mt-3
+      max-w-lg
+      text-[15px]
+      leading-7
+      text-[#6B746E]
+    "
+  >
+    Manage, edit and monitor every event you've created from one place.
+  </p>
 
-          Organizer Panel
-
-        </div>
-
-
-
-        <h1 className="
-  mt-7
-  font-serif
-  text-[3.2rem]
-  leading-[0.92]
-  tracking-[-0.05em]
-  text-[#183028]
-">
-
-  My Events
-
-</h1>
-
-
-
-        <p className="
-          mt-2
-          text-[#5E665F]
-        ">
-
-          Manage events created by you.
-
-        </p>
-
-
-      </div>
+</div>
 
 
 
@@ -247,11 +266,15 @@ export default function OrganizerEventsPage() {
 
 
 
-        <div className="
-          grid gap-6
-          md:grid-cols-2
-          xl:grid-cols-3
-        ">
+        <div
+  className="
+    grid
+    grid-cols-1
+    gap-6
+    md:grid-cols-2
+    xl:grid-cols-3
+  "
+>
 
 
 

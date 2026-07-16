@@ -118,9 +118,9 @@ export default function EventCard({
     <motion.div
       whileHover={reduceMotion ? undefined : { y: -4 }}
       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-      className="group h-full"
+       className="group h-full w-full min-w-0"
     >
-      <Card className="group flex h-full flex-col overflow-hidden rounded-[24px] border border-[#E8E1D5] bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#0F4D3F]/30 hover:shadow-[0_16px_42px_rgba(15,77,63,0.10)]">
+      <Card className="group flex h-full w-full min-w-0 flex-col overflow-hidden rounded-[24px] border border-[#E8E1D5] bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#0F4D3F]/30 hover:shadow-[0_16px_42px_rgba(15,77,63,0.10)]">
         <div className="relative h-[160px] shrink-0 overflow-hidden bg-[#FAF8F4] sm:h-[190px]">
           {event.image_url ? (
             <motion.img
@@ -159,9 +159,9 @@ export default function EventCard({
           </div>
         </div>
 
-        <CardContent className="flex flex-1 flex-col px-4 py-5 sm:px-6">
+        <CardContent className="flex min-w-0 flex-1 flex-col px-4 py-5 sm:px-6">
           <div className="flex min-w-0 items-center gap-2">
-            <h3 className="line-clamp-1 min-w-0 flex-1 text-[20px] font-bold tracking-tight text-[#0F3D32]">
+            <h3 className="line-clamp-2 break-words min-w-0 flex-1 text-[20px] font-bold tracking-tight text-[#0F3D32]">
               {event.title}
             </h3>
             {event.is_paid_event ? (
@@ -203,21 +203,25 @@ export default function EventCard({
             />
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
-
-  <Link href={`/events/${event.id}`} className="flex-1">
+         <div
+  className={`mt-6 grid gap-3 ${
+    canManage || (role !== "admin" && role !== "organizer")
+      ? "grid-cols-2"
+      : "grid-cols-1"
+  }`}
+>
+  <Link href={`/events/${event.id}`} className="w-full">
     <Button
       variant="outline"
-     className="h-12 w-full rounded-[14px] bg-[#0F4D3F] text-sm font-semibold text-white hover:bg-[#0B3E33]"
+      className="h-11 w-full rounded-[14px] bg-[#0F4D3F] text-sm font-semibold text-white hover:bg-[#0B3E33]"
     >
       Details
     </Button>
   </Link>
 
-
   {role !== "admin" && role !== "organizer" && (
     <Button
-      className="h-12 w-full rounded-[14px] bg-[#0F4D3F] text-sm font-semibold text-white hover:bg-[#0B3E33]"
+      className="h-11 w-full rounded-[14px] bg-[#0F4D3F] text-sm font-semibold text-white hover:bg-[#0B3E33]"
       disabled={
         isRegistered ||
         isCompleted ||
@@ -225,8 +229,7 @@ export default function EventCard({
       }
       onClick={() => {
         if (event.is_team_event) {
-          window.location.href =
-            `/team-register/${event.id}`;
+          window.location.href = `/team-register/${event.id}`;
         } else {
           onRegister(event.id);
         }
@@ -240,16 +243,14 @@ export default function EventCard({
     </Button>
   )}
 
-
   {canManage && (
     <Button
       onClick={() => onDelete(event.id)}
-      className="h-12 w-full rounded-[14px] bg-red-600 text-sm font-semibold text-white hover:bg-red-700"
+      className="h-11 w-full rounded-[14px] bg-red-600 text-sm font-semibold text-white hover:bg-red-700"
     >
       Delete
     </Button>
   )}
-
 </div>
         </CardContent>
       </Card>
