@@ -196,17 +196,13 @@ def participants(
     )
 
 
-@router.get(
-    "/registrations/{registration_id}"
-)
-@router.get(
-    "/registrations/{registration_id}/qr"
-)
+@router.get("/registrations/{registration_id}/qr")
 def get_registration_qr(
     registration_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    
 
     registration = db.get(
         Registration,
@@ -239,6 +235,9 @@ def get_registration_qr(
         user_id=registration.user_id,
         event_id=registration.event_id,
     )
+@router.get(
+    "/registrations/{registration_id}"
+)    
 def get_registration_details(
     registration_id: int,
     db: Session = Depends(get_db),
