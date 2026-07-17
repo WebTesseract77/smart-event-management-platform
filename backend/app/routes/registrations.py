@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
+from backend.app.services.qr_service import generate_qr_image
 from backend.app.core.dependencies import (
     get_current_user,
     get_current_organizer_or_admin,
@@ -199,6 +199,46 @@ def participants(
 @router.get(
     "/registrations/{registration_id}"
 )
+@router.get(
+    "/registrations/{registration_id}/qr"
+)
+def get_registration_qr(
+    registration_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+
+    registration = db.get(
+        Registration,
+        registration_id,
+    )
+
+    if not registration:
+        raise HTTPException(
+            status_code=404,
+            detail="Registration not found",
+        )
+
+    is_event_owner = (
+        current_user.role == ROLE_ORGANIZER
+        and registration.event.created_by == current_user.id
+    )
+
+    if (
+        current_user.role != ROLE_ADMIN
+        and not is_event_owner
+        and registration.user_id != current_user.id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized",
+        )
+
+    return generate_qr_image(
+        registration_id=registration.id,
+        user_id=registration.user_id,
+        event_id=registration.event_id,
+    )
 def get_registration_details(
     registration_id: int,
     db: Session = Depends(get_db),
@@ -240,5 +280,5 @@ def get_registration_details(
         "user_id": registration.user_id,
         "event_date": registration.event.start_date,
         "event_location": registration.event.location,
-        "qr_code_path": f"/generated_qr/registration_{registration.id}.png",
+        "qr_endpoint": f"/registrations/{registration.id}/qr",
 }

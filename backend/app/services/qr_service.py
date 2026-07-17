@@ -1,21 +1,22 @@
 import hmac
 import json
-import re
 import time
-from pathlib import Path
+from io import BytesIO
 
 import qrcode
+from fastapi.responses import StreamingResponse
 
 from backend.app.core.security import create_qr_signature
 
 
-def generate_qr(
+def create_qr_payload(
     registration_id: int,
     user_id: int,
     event_id: int,
 ) -> str:
     """
-    Generate a cryptographically signed QR code.
+    Create a cryptographically signed QR payload.
+    Returns the JSON string that will be encoded into the QR code.
     """
 
     issued_at = int(time.time())
@@ -35,25 +36,39 @@ def generate_qr(
         "signature": signature,
     }
 
-    qr_data = json.dumps(
+    return json.dumps(
         payload,
         separators=(",", ":"),
     )
 
-    safe_name = re.sub(
-        r"[^A-Za-z0-9_.-]",
-        "_",
-        f"registration_{registration_id}",
+
+def generate_qr_image(
+    registration_id: int,
+    user_id: int,
+    event_id: int,
+) -> StreamingResponse:
+    """
+    Generate a QR code PNG completely in memory.
+
+    Nothing is written to disk.
+    """
+
+    qr_data = create_qr_payload(
+        registration_id=registration_id,
+        user_id=user_id,
+        event_id=event_id,
     )
 
-    output_dir = Path("generated_qr")
-    output_dir.mkdir(exist_ok=True)
+    img = qrcode.make(qr_data)
 
-    file_path = output_dir / f"{safe_name}.png"
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
 
-    qrcode.make(qr_data).save(file_path)
-
-    return str(file_path)
+    return StreamingResponse(
+        buffer,
+        media_type="image/png",
+    )
 
 
 def verify_qr(qr_text: str) -> dict:

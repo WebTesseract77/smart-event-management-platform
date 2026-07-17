@@ -4,8 +4,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-
-import { getRegistration } from "@/lib/api";
+  import { getRegistration, getRegistrationQr } from "@/lib/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -70,31 +69,57 @@ export default function PassPage() {
 
   const [registration, setRegistration] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-
+  const [qrImageUrl, setQrImageUrl] = useState<string | null>(null);
   useEffect(() => {
-    async function loadRegistration() {
-      const id = params?.id;
-      if (!id) {
+  async function loadRegistration() {
+    const id = params?.id;
+
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
         setLoading(false);
         return;
       }
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setLoading(false);
-          return;
-        }
-        const data = await getRegistration(token, Number(id));
-        console.log("CRITICAL INVENTORY - API Data Payload:", data);
-        setRegistration(data);
-      } catch (error) {
-        console.error("Fetch Error:", error);
-      } finally {
-        setLoading(false);
-      }
+
+      const data = await getRegistration(token, Number(id));
+
+      setRegistration(data);
+
+      // Fetch QR image securely
+   
+
+// ...
+
+const blob = await getRegistrationQr(
+  token,
+  Number(id)
+);
+
+const objectUrl = URL.createObjectURL(blob);
+
+setQrImageUrl(objectUrl);
+
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    loadRegistration();
-  }, [params]);
+  }
+
+  loadRegistration();
+
+  return () => {
+    if (qrImageUrl) {
+      URL.revokeObjectURL(qrImageUrl);
+    }
+  };
+}, [params]);
 
   const eventName = 
     registration?.event_name || 
@@ -128,12 +153,12 @@ export default function PassPage() {
     window.print();
   }
 
-  function handleDownload() {
-  if (!registration?.qr_code_path) return;
+ function handleDownload() {
+  if (!qrImageUrl) return;
 
   const a = document.createElement("a");
 
-  a.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}${registration.qr_code_path}`;
+  a.href = qrImageUrl;
 
   a.download = `eventsphere-pass-${
     registration.registration_id || registration.id
@@ -262,12 +287,12 @@ export default function PassPage() {
   ref={qrWrapRef}
   className="w-full flex items-center justify-center"
 >
-  {registration.qr_code_path ? (
+  {qrImageUrl ? (
   <img
-  src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${registration.qr_code_path}?t=${Date.now()}`}
-  alt="Secure QR Pass"
-  className="h-[180px] w-[180px] object-contain"
-/>
+    src={qrImageUrl}
+    alt="Secure QR Pass"
+    className="h-[180px] w-[180px] object-contain"
+  />
 ) : (
   <p className="text-sm text-muted-foreground">
     QR pass unavailable

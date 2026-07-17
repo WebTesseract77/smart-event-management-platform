@@ -835,4 +835,22 @@ export async function getAdminOrganizerRequests(
 
   return response.json();
 }
+export async function getRegistrationQr(
+  token: string,
+  registrationId: number
+) {
+  const response = await fetch(
+    `${API_URL}/registrations/${registrationId}/qr`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
+  if (!response.ok) {
+    throw new Error("Failed to load QR");
+  }
+
+  return response.blob();
+}
