@@ -7,7 +7,7 @@ from backend.app.services.email_service import (
     send_team_registration_email,
 )
 from sqlalchemy.orm import Session
-
+from sqlalchemy.orm import joinedload
 from backend.app.core.errors import (
     NotFoundError,
     ValidationError,
@@ -146,29 +146,48 @@ def create_team_registration(
     return team
 
 
+
 def get_my_team_registrations(
     db: Session,
     user_id: int,
 ):
-    rows = db.execute(
-        select(
-            Team.id.label("team_id"),
-            Team.name.label("team_name"),
-            Team.event_id,
-            Event.title.label("event_title"),
+    teams = (
+        db.query(Team)
+        .options(
+            joinedload(Team.event),
+            joinedload(Team.members),
         )
-        .join(Event, Team.event_id == Event.id)
-        .where(Team.leader_user_id == user_id)
-    ).all()
+        .filter(Team.leader_user_id == user_id)
+        .all()
+    )
 
     return [
         {
-            "team_id": row.team_id,
-            "team_name": row.team_name,
-            "event_id": row.event_id,
-            "event_title": row.event_title,
+            "team_id": team.id,
+            "team_name": team.name,
+            "event_id": team.event_id,
+            "event_title": team.event.title,
+            "event_date": team.event.start_date,
+            "event_location": team.event.location,
+
+            # Adjust this to whatever your Event model uses
+            "event_image_url": getattr(team.event, "image_url", None),
+
+            "is_paid_event": team.event.is_paid_event,
+            "status": "Registered",
+
+            "captain_name": next(
+                (
+                    member.name
+                    for member in team.members
+                    if member.is_leader
+                ),
+                None,
+            ),
+
+            "member_count": len(team.members),
         }
-        for row in rows
+        for team in teams
     ]
 def get_team_by_id(
     db: Session,

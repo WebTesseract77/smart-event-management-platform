@@ -59,3 +59,13 @@ class TeamSummary(BaseModel):
     team_name: str
     event_id: int
     event_title: str
+
+    event_date: datetime
+    event_location: str
+    event_image_url: str | None = None
+
+    captain_name: str | None = None
+    member_count: int
+
+    is_paid_event: bool
+    status: str
