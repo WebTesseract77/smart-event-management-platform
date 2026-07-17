@@ -20,7 +20,7 @@ import {
   BadgeCheck,
 } from "lucide-react";
 
-import { getTeam } from "@/lib/api";
+import { getTeam, getTeamMemberQr } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,15 +34,6 @@ function formatDateTime(date?: string) {
     dateStyle: "medium",
     timeStyle: "short",
   });
-}
-
-function resolveQrUrl(path?: string) {
-  if (!path) return "";
-  if (/^https?:\/\//i.test(path)) return path;
-
-  const normalized = path.replaceAll("\\", "/").replace(/^\/+/, "");
-  const base = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-  return `${base}/${normalized}`;
 }
 
 function toneForStatus(status?: string) {
@@ -123,9 +114,41 @@ function TeamMemberPass({
   statusTone: string;
   typeLabel: string;
 }) {
-  const qrUrl = resolveQrUrl(member?.qr_code_path);
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
   const memberName = member?.name || "Team member";
   const memberRoleLabel = member?.is_leader ? "Captain" : "Participant";
+
+  useEffect(() => {
+    let objectUrl: string | null = null;
+    let cancelled = false;
+
+    async function loadQr() {
+      const token = localStorage.getItem("token");
+      if (!token || !member?.id) return;
+
+      try {
+        const blob = await getTeamMemberQr(token, member.id);
+        objectUrl = URL.createObjectURL(blob);
+        if (!cancelled) {
+          setQrUrl(objectUrl);
+        }
+      } catch (error) {
+        console.error(error);
+        if (!cancelled) {
+          setQrUrl(null);
+        }
+      }
+    }
+
+    loadQr();
+
+    return () => {
+      cancelled = true;
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [member?.id]);
 
   function handleDownload() {
     if (!qrUrl) return;
@@ -133,8 +156,6 @@ function TeamMemberPass({
     const link = document.createElement("a");
     link.href = qrUrl;
     link.download = `eventsphere-${teamName.replaceAll(" ", "-").toLowerCase()}-${memberName.replaceAll(" ", "-").toLowerCase()}-qr`;
-    link.target = "_blank";
-    link.rel = "noreferrer";
     link.click();
   }
 

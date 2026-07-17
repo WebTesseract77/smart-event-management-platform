@@ -178,8 +178,8 @@ def get_team_by_id(
         db.query(Team)
         .options(
             joinedload(Team.members),
-            joinedload(Team.event),
-        )
+            joinedload(Team.event).joinedload(Event.creator),
+)
         .filter(
              Team.id == team_id
         )

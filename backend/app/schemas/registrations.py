@@ -34,7 +34,5 @@ class RegistrationRead(BaseModel):
 
     registered_at: datetime
 
-    # NEW
-    qr_code_path: str | None = None
-
+   
     event: EventSummary

@@ -72,7 +72,7 @@ async def send_team_registration_email(
     event_name: str,
     team_name: str,
     team_id: int,
-    qr_code_path: str,
+    qr_code_path: str | None = None,
 ):
     # Generate QR already handled elsewhere if needed.
     # qr_code_path kept only for compatibility.

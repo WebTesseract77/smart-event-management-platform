@@ -1,5 +1,6 @@
-from pydantic import BaseModel, EmailStr
-from pydantic import ConfigDict
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class TeamMemberCreate(BaseModel):
@@ -18,26 +19,37 @@ class TeamCreate(BaseModel):
     members: list[TeamMemberCreate]
 
 
-class TeamMemberRead(
-    TeamMemberCreate
-):
-    model_config = ConfigDict(
-        from_attributes=True
-    )
-
-    id: int
-    qr_code_path: str | None = None
-
-
-class TeamRead(BaseModel):
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+class TeamMemberRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
     id: int
     name: str
+    email: EmailStr
+    college: str
+    branch: str
+    year: str
+    semester: str
+    is_leader: bool
+
+    # NEW
+    qr_endpoint: str | None = None
+
+
+class TeamRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+
     event_id: int
     leader_user_id: int
+
+    # Event Information
+    event_title: str
+    event_date: datetime
+    event_location: str
+    organizer_name: str
+    is_paid_event: bool
 
     members: list[TeamMemberRead]
 

@@ -581,6 +581,27 @@ export async function getTeam(
 
   return response.json();
 }
+export async function getTeamMemberQr(
+  token: string,
+  memberId: number
+) {
+  const response = await fetch(
+    `${API_URL}/teams/team-members/${memberId}/qr`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Failed to load team member QR"
+    );
+  }
+
+  return response.blob();
+}
 export async function createPaymentOrder(
   token: string,
   eventId: number
