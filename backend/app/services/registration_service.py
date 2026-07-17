@@ -7,7 +7,6 @@ from backend.app.services.email_service import (
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
-from backend.app.services.qr_service import generate_qr
 from backend.app.core.errors import (
     ConflictError,
     NotFoundError,
@@ -108,14 +107,7 @@ def register_user_for_event(
         ) from exc
 
     db.refresh(registration)
-    registration.qr_code_path = generate_qr(
-           registration_id=registration.id,
-           user_id=registration.user_id,
-           event_id=registration.event_id,
-)
-
-    db.commit()
-    db.refresh(registration)
+    
     
     user = db.get(User, user_id)
 
