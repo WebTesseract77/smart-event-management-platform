@@ -760,7 +760,7 @@ grid
 gap-3
 grid-cols-1
 ">
-                    <StatPill label="State" value={status} />
+                    
                     <StatPill label="Venue Location" value={heroLocation} />
                     <StatPill label="Start Matrix" value={heroDate} />
                     <StatPill label={isTeamEvent ? "Team Metrics" : "Roster Size"} value={isTeamEvent ? `${event.min_team_size || 0}–${event.max_team_size || 0} Pax` : `${event.capacity} Slots`} />

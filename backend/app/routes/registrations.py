@@ -6,7 +6,7 @@ from backend.app.core.dependencies import (
     get_current_organizer_or_admin,
     get_db,
 )
-
+from sqlalchemy.orm import joinedload
 from backend.app.core.roles import (
     ROLE_ADMIN,
     ROLE_ORGANIZER,
@@ -204,10 +204,15 @@ def get_registration_qr(
 ):
     
 
-    registration = db.get(
-        Registration,
-        registration_id,
-    )
+    registration = (
+        db.query(Registration)
+        .options(
+          joinedload(Registration.event).joinedload(Event.creator),
+          joinedload(Registration.user),
+        )
+        .filter(Registration.id == registration_id)
+        .first()
+)
 
     if not registration:
         raise HTTPException(
@@ -244,10 +249,15 @@ def get_registration_details(
     current_user: User = Depends(get_current_user),
 ):
 
-    registration = db.get(
-        Registration,
-        registration_id,
+    registration = (
+    db.query(Registration)
+    .options(
+        joinedload(Registration.user),
+        joinedload(Registration.event).joinedload(Event.creator),
     )
+    .filter(Registration.id == registration_id)
+    .first()
+)
 
     if not registration:
         raise HTTPException(
@@ -269,7 +279,12 @@ def get_registration_details(
         status_code=403,
          detail="Not authorized",
     )
+    organizer_name = (
+        registration.event.creator.name
+        if registration.event.creator
+        else "EventSphere"
 
+    )    
     return {
         "registration_id": registration.id,
         "participant_name": registration.user.name,
@@ -278,6 +293,7 @@ def get_registration_details(
         "event_id": registration.event_id,
         "user_id": registration.user_id,
         "event_date": registration.event.start_date,
+         "organizer_name": organizer_name,
         "event_location": registration.event.location,
         "qr_endpoint": f"/registrations/{registration.id}/qr",
 }
