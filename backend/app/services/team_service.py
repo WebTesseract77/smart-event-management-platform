@@ -16,7 +16,7 @@ from backend.app.core.errors import (
 from backend.app.models.event import Event
 from backend.app.models.team import Team
 from backend.app.models.team_member import TeamMember
-from backend.app.services.qr_service import generate_qr
+
 
 def create_team_registration(
     db: Session,
@@ -123,12 +123,7 @@ def create_team_registration(
 
     db.flush()
 
-    for team_member in team_members:
-        team_member.qr_code_path = generate_qr(
-               registration_id=team_member.id,
-               user_id=leader_user_id,
-               event_id=event_id,
-        )
+    
 
     db.commit()
     db.refresh(team)
@@ -137,13 +132,13 @@ def create_team_registration(
         threading.Thread(
             target=lambda m=member: asyncio.run(
                 send_team_registration_email(
-                    email=m.email,
-                    member_name=m.name,
-                    event_name=event.title,
-                    team_name=team.name,
-                    team_id=team.id,
-                    qr_code_path=m.qr_code_path,
-                )
+    email=m.email,
+    member_name=m.name,
+    event_name=event.title,
+    team_name=team.name,
+    team_id=team.id,
+    qr_code_path=None,
+)
             ),
             daemon=True,
         ).start()
@@ -186,7 +181,7 @@ def get_team_by_id(
             joinedload(Team.event),
         )
         .filter(
-            Team.id == team_id
+             Team.id == team_id
         )
         .first()
     )
